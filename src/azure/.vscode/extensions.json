@@ -1,0 +1,6 @@
+{
+  "recommendations": [
+    "bencoleman.armview",
+    "msazurermtools.azurerm-vscode-tools"
+  ]
+}
