@@ -9,6 +9,7 @@ namespace Laboratory.Tests
     public void AlwaysPassingTest()
     {
       // Make sure that tests can compile & run
+      // Make sure that CI triggers
       Assert.True(true);
     }
   }
