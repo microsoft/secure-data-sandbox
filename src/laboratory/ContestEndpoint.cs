@@ -14,10 +14,10 @@ using Newtonsoft.Json;
 namespace Laboratory
 {
   [StorageAccount(AppSettings.MetadataStorageAccount)]
-  public static class Contests
+  public class ContestEndpoint
   {
     [FunctionName("CreateContest")]
-    public static async Task<IActionResult> CreateContest(
+    public async Task<IActionResult> CreateContest(
         [HttpTrigger("put", Route = "contests/{contestName}")] Contest contest,
         string contestName,
         [Blob("laboratory/contests/{contestName}/contest.json", FileAccess.ReadWrite)] CloudBlockBlob blob,
@@ -51,13 +51,14 @@ namespace Laboratory
     }
 
     [FunctionName("GetContest")]
-    public static IActionResult GetContest(
+    public IActionResult GetContest(
         [HttpTrigger("get", Route = "contests/{contestName}")] HttpRequest req,
-        [Blob("laboratory/contests/{contestName}/contest.json", FileAccess.Read)] string contest,
+        [Blob("laboratory/contests/{contestName}/contest.json", FileAccess.Read)] string contestText,
         ILogger log)
     {
-      if (contest != null)
+      if (contestText != null)
       {
+        var contest = JsonConvert.DeserializeObject<Contest>(contestText);
         return new OkObjectResult(contest);
       }
 
@@ -65,7 +66,7 @@ namespace Laboratory
     }
 
     [FunctionName("ListContests")]
-    public static async Task<IActionResult> ListContests(
+    public async Task<IActionResult> ListContests(
         [HttpTrigger("get", Route = "contests")] HttpRequest req,
         [Blob("laboratory/contests", FileAccess.Read)] CloudBlobDirectory contestsDir,
         ILogger log)
