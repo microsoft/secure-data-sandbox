@@ -17,4 +17,7 @@ Might also consider using [pkg](https://www.npmjs.com/package/pkg) to create a s
 ## TODO List
 * Investigate [pkg](https://www.npmjs.com/package/pkg).
 * Write manpage
+* Decide how to perform authentication.
+  * Are credentials passed explicitly in the API?
+
 
