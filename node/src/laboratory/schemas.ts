@@ -6,195 +6,152 @@ import { AnyDescription, Kind, SpecificationBase } from './interfaces';
 // Schema generated with typescript-json-schema:
 //   typescript-json-schema tsconfig.json AnyDescription --required
 const anyDescriptionSchema = {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "anyOf": [
+  $schema: 'http://json-schema.org/draft-07/schema#',
+  anyOf: [
     {
-      "$ref": "#/definitions/BenchmarkDescription"
+      $ref: '#/definitions/BenchmarkDescription',
     },
     {
-      "$ref": "#/definitions/CandidateDescription"
+      $ref: '#/definitions/CandidateDescription',
     },
     {
-      "$ref": "#/definitions/SuiteDescription"
+      $ref: '#/definitions/SuiteDescription',
     },
     {
-      "$ref": "#/definitions/RunDescription"
-    }
+      $ref: '#/definitions/RunDescription',
+    },
   ],
-  "definitions": {
-    "BenchmarkDescription": {
-      "properties": {
-        "apiVersion": {
-          "enum": [
-            "0.0.1"
-          ],
-          "type": "string"
+  definitions: {
+    BenchmarkDescription: {
+      properties: {
+        apiVersion: {
+          enum: ['0.0.1'],
+          type: 'string',
         },
-        "columns": {
-          "items": {
-            "$ref": "#/definitions/ColumnDescription"
+        columns: {
+          items: {
+            $ref: '#/definitions/ColumnDescription',
           },
-          "type": "array"
+          type: 'array',
         },
-        "description": {
-          "type": "string"
+        description: {
+          type: 'string',
         },
-        "homepage": {
-          "type": "string"
+        homepage: {
+          type: 'string',
         },
-        "image": {
-          "type": "string"
+        image: {
+          type: 'string',
         },
-        "kind": {
-          "enum": [
-            "Benchmark"
-          ],
-          "type": "string"
+        kind: {
+          enum: ['Benchmark'],
+          type: 'string',
         },
-        "name": {
-          "type": "string"
-        }
+        name: {
+          type: 'string',
+        },
       },
-      "required": [
-        "apiVersion",
-        "columns",
-        "image",
-        "kind",
-        "name"
-      ],
-      "type": "object"
+      required: ['apiVersion', 'columns', 'image', 'kind', 'name'],
+      type: 'object',
     },
-    "CandidateDescription": {
-      "properties": {
-        "apiVersion": {
-          "enum": [
-            "0.0.1"
-          ],
-          "type": "string"
+    CandidateDescription: {
+      properties: {
+        apiVersion: {
+          enum: ['0.0.1'],
+          type: 'string',
         },
-        "benchmarkId": {
-          "type": "string"
+        benchmarkId: {
+          type: 'string',
         },
-        "data": {
-          "additionalProperties": true,
-          "properties": {
+        data: {
+          additionalProperties: true,
+          properties: {},
+          type: 'object',
+        },
+        description: {
+          type: 'string',
+        },
+        image: {
+          type: 'string',
+        },
+        kind: {
+          enum: ['Candidate'],
+          type: 'string',
+        },
+        name: {
+          type: 'string',
+        },
+        whitelist: {
+          items: {
+            type: 'string',
           },
-          "type": "object"
+          type: 'array',
         },
-        "description": {
-          "type": "string"
-        },
-        "image": {
-          "type": "string"
-        },
-        "kind": {
-          "enum": [
-            "Candidate"
-          ],
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "whitelist": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        }
       },
-      "required": [
-        "apiVersion",
-        "benchmarkId",
-        "image",
-        "kind",
-        "name"
-      ],
-      "type": "object"
+      required: ['apiVersion', 'benchmarkId', 'image', 'kind', 'name'],
+      type: 'object',
     },
-    "ColumnDescription": {
-      "properties": {
-        "name": {
-          "type": "string"
+    ColumnDescription: {
+      properties: {
+        name: {
+          type: 'string',
         },
-        "type": {
-          "type": "string"
-        }
+        type: {
+          type: 'string',
+        },
       },
-      "required": [
-        "name",
-        "type"
-      ],
-      "type": "object"
+      required: ['name', 'type'],
+      type: 'object',
     },
-    "RunDescription": {
-      "properties": {
-        "apiVersion": {
-          "enum": [
-            "0.0.1"
-          ],
-          "type": "string"
+    RunDescription: {
+      properties: {
+        apiVersion: {
+          enum: ['0.0.1'],
+          type: 'string',
         },
-        "candidateId": {
-          "type": "string"
+        candidateId: {
+          type: 'string',
         },
-        "kind": {
-          "enum": [
-            "Run"
-          ],
-          "type": "string"
+        kind: {
+          enum: ['Run'],
+          type: 'string',
         },
-        "suiteId": {
-          "type": "string"
-        }
+        suiteId: {
+          type: 'string',
+        },
       },
-      "required": [
-        "apiVersion",
-        "candidateId",
-        "kind",
-        "suiteId"
-      ],
-      "type": "object"
+      required: ['apiVersion', 'candidateId', 'kind', 'suiteId'],
+      type: 'object',
     },
-    "SuiteDescription": {
-      "properties": {
-        "apiVersion": {
-          "enum": [
-            "0.0.1"
-          ],
-          "type": "string"
+    SuiteDescription: {
+      properties: {
+        apiVersion: {
+          enum: ['0.0.1'],
+          type: 'string',
         },
-        "benchmarkId": {
-          "type": "string"
+        benchmarkId: {
+          type: 'string',
         },
-        "data": {
-          "additionalProperties": true,
-          "properties": {
-          },
-          "type": "object"
+        data: {
+          additionalProperties: true,
+          properties: {},
+          type: 'object',
         },
-        "description": {
-          "type": "string"
+        description: {
+          type: 'string',
         },
-        "kind": {
-          "enum": [
-            "Suite"
-          ],
-          "type": "string"
+        kind: {
+          enum: ['Suite'],
+          type: 'string',
         },
-        "name": {
-          "type": "string"
-        }
+        name: {
+          type: 'string',
+        },
       },
-      "required": [
-        "apiVersion",
-        "benchmarkId",
-        "kind",
-        "name"
-      ],
-      "type": "object"
-    }
-  }
+      required: ['apiVersion', 'benchmarkId', 'kind', 'name'],
+      type: 'object',
+    },
+  },
 };
 
 export class YAMLValidationError extends TypeError {
@@ -213,7 +170,7 @@ export function validateAsAnyDescription(yamlRoot: any): AnyDescription {
     const message =
       'anyDescriptionValidator: yaml data does not conform to schema.';
 
-      const output = betterAjvErrors(
+    const output = betterAjvErrors(
       anyDescriptionSchema,
       yamlRoot,
       anyDescriptionValidator.errors,

@@ -1,6 +1,11 @@
 import * as jayson from 'jayson';
 
-import { AnyDescription, ILaboratory, Kind, BenchmarkDescription } from "../laboratory";
+import {
+  AnyDescription,
+  ILaboratory,
+  Kind,
+  BenchmarkDescription,
+} from '../laboratory';
 import { IRepository, SelectResults } from '../repository';
 
 class JaysonLaboratory implements ILaboratory {
@@ -12,7 +17,7 @@ class JaysonLaboratory implements ILaboratory {
       port,
     });
   }
- 
+
   async create(description: AnyDescription): Promise<string> {
     const client = this.client;
 
@@ -30,12 +35,12 @@ class JaysonLaboratory implements ILaboratory {
             }
           }
         );
-      })
-    }
+      });
+    };
 
     return p();
   }
-  
+
   run(candidateId: string, suiteId: string): Promise<string> {
     const client = this.client;
 
@@ -53,8 +58,8 @@ class JaysonLaboratory implements ILaboratory {
             }
           }
         );
-      })
-    }
+      });
+    };
 
     return p();
   }
@@ -72,22 +77,22 @@ class JaysonRepository implements IRepository {
 
   initialize(): Promise<void> {
     // TODO: implement
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   selectFromCollection(collection: string): Promise<SelectResults> {
     // TODO: implement
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   selectFromResults(benchmarkId: string): Promise<SelectResults> {
     // TODO: implement
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   select(from: string): Promise<SelectResults> {
     // TODO: implement
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 }
 

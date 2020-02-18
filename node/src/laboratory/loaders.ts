@@ -15,10 +15,7 @@ import {
   // AnyDescription,
 } from './interfaces';
 
-import {
-  validateAsAnyDescription,
-  validateAsKindDescription
-} from './schemas';
+import { validateAsAnyDescription, validateAsKindDescription } from './schemas';
 
 export async function loadBenchmark(
   name: string,
