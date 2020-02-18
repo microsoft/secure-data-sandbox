@@ -4,7 +4,7 @@ export enum Kind {
     BENCHMARK = 'Benchmark',
     CANDIDATE = 'Candidate',
     LABORATORY = 'Laboratory',
-    LOG = 'Log',
+    LOG = 'Log',    // TODO: do we need LOG?
     RUN = 'Run',
     SUITE = 'Suite',
     WHITELIST = 'Whitelist'
@@ -55,7 +55,7 @@ export interface CandidateDescription extends SpecificationBase {
 
     benchmarkId: string;
     image: string;
-    whitelist: string[];
+    whitelist?: string[];
 
     // Important that data is 'object' and not 'Object'
     // 'object' specifies non-primitive and therefore doesn't
@@ -70,7 +70,7 @@ export interface SuiteDescription extends SpecificationBase {
     kind: Kind.SUITE,
 
     name: string;
-    description: string;
+    description?: string;
 
     benchmarkId: string;
 

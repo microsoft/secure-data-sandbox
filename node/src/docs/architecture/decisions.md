@@ -19,6 +19,16 @@
   * Do we want to do base32 encoding to allow puntuation + spaces in benchmark names?
 * Error hierarchy design
   * Want to know which to pass back across RPC.
+* TypeScript and Node
+  * Definitely for Laboratory and Repository.
+  * Consider for CLI, using [pkg](https://www.npmjs.com/package/pkg)
+* [JSON-RPC 2.0](https://www.jsonrpc.org/index.html) to communicate with the services
+  * Definitely for Laboratory and Repository.
+  * Worker doesn't currently support any RPCs (in just monitors a queue).
+  * RPC implemented with [jayson](https://www.npmjs.com/package/jayson).
+* Need to design whitelist provisioning
+  * Single whitelist.yaml file?
+  * Multiple yaml files in a whitelist folder?
+  * Portion of the laboratory.yaml?
 
-  
   

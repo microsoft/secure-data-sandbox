@@ -41,14 +41,30 @@ const kindToCollection = new Map<Kind, string>([
     [Kind.RUN, runCollection],
 ]);
 
+// export function specToId(spec: AnySpecification): string {
+//     switch (spec.kind) {
+//         case Kind.BENCHMARK:
+//         case Kind.CANDIDATE:
+//         case Kind.SUITE:
+//             return getPath(spec.kind, spec.name);
+//         case Kind.RUN:
+//             return getPath(spec.kind, spec.runId);
+//         default:
+//             // We should never get here if spec is truely AnySpecification.
+//             // Need to use ['kind'] because spec is type `never`.
+//             const message = `Unsupported kind "${spec['kind']}"`;
+//             throw new TypeError(message);
+//     }
+// }
+
 export function specToId(spec: AnySpecification): string {
     switch (spec.kind) {
         case Kind.BENCHMARK:
         case Kind.CANDIDATE:
         case Kind.SUITE:
-            return getPath(spec.kind, spec.name);
+            return encodeAndVerify(spec.name);
         case Kind.RUN:
-            return getPath(spec.kind, spec.runId);
+            return encodeAndVerify(spec.runId);
         default:
             // We should never get here if spec is truely AnySpecification.
             // Need to use ['kind'] because spec is type `never`.
@@ -72,7 +88,9 @@ export function getPath(kind: Kind, name: string) {
     }
 }
 
-function collectionFromKind(kind: Kind): string {
+// TODO: consider using rewire. https://codepunk.io/unit-testing-private-non-exported-functions-in-javascript-with-rewire/
+// Exported for unit testing.
+export function collectionFromKind(kind: Kind): string {
     const collection = kindToCollection.get(kind);
     if (!collection) {
         const message = `Unknown collection kind "${kind}"`;
@@ -81,7 +99,9 @@ function collectionFromKind(kind: Kind): string {
     return collection;
 }
 
-function encodeAndVerify(name: string) {
+// TODO: consider using rewire. https://codepunk.io/unit-testing-private-non-exported-functions-in-javascript-with-rewire/
+// Exported for unit testing.
+export function encodeAndVerify(name: string) {
     // Goals:
     //   Suitable blob and file paths (eliminate most special characters)
     //   Suitable for table names (start with alpha, all lowercase)
@@ -95,7 +115,7 @@ function encodeAndVerify(name: string) {
     // Tables: ^[A-Za-z][A-Za-z0-9]{2,62}$
 
     const s = name.toLowerCase();
-    if (!s.match(/[a-z][a-z0-9\.\-_]*/)) {
+    if (!s.match(/[a-z][a-z0-9]{2,62}$/)) {
         const message = 'Invalid name format.';
         throw new TypeError(message);
     }
@@ -145,10 +165,19 @@ export function getCollectionTable(collection: string): string {
 // Does not check whether benchmarkId is known to the system.
 //
 // DESIGN NOTE: table names for built-in collections must not be allowed to
-// collide with results table names. Currently the results table name is the
-// benchmarkID of the run's Benchmark.
+// collide with results table names.
 export function getResultsTable(benchmarkId: string): string {
     // TODO: REVIEW: WARNING: does not check whether benchmarkId is known to
     // the system.
-    return 'results/' + encodeAndVerify(benchmarkId);
+
+    // Table name based on the hash of the benchmarkId to avoid collisions with
+    // built-in tables, form the table name as the
+
+    // Invoke encodeAndVerify() on benchmarkId to normalize case.
+    const id = encodeAndVerify(benchmarkId);
+    const hash = v3(id, seed).toString();
+
+    // Invoke encodeAndVerify() again to ensure the final name is legal.
+    // This check shouldn't fail.
+    return encodeAndVerify('b' + hash);
 }
