@@ -5,7 +5,7 @@ import { Laboratory } from './laboratory';
 // Can use jayson CLI as follows:
 // node node_modules\jayson\bin\jayson.js -u http://localhost:3000 -m create -p "[{\"a\":1},2]"
 
-class LaboratoryServer {
+export class LaboratoryServer {
   server: jayson.Server;
   laboratory: ILaboratory;
 
@@ -35,11 +35,3 @@ class LaboratoryServer {
     this.server.http().listen(port);
   }
 }
-
-function go() {
-  const laboratory: ILaboratory | undefined = undefined;
-  const server = new LaboratoryServer(laboratory!);
-  server.start(3000);
-}
-
-go();

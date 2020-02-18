@@ -1,14 +1,10 @@
 import * as jayson from 'jayson';
 
-import {
-  AnyDescription,
-  ILaboratory,
-  Kind,
-  BenchmarkDescription,
-} from '../laboratory';
+import { AnyDescription, ILaboratory } from '../laboratory';
+
 import { IRepository, SelectResults } from '../repository';
 
-class JaysonLaboratory implements ILaboratory {
+export class JaysonLaboratory implements ILaboratory {
   private readonly client: jayson.Client;
 
   constructor(hostname: string, port: number) {
@@ -65,7 +61,7 @@ class JaysonLaboratory implements ILaboratory {
   }
 }
 
-class JaysonRepository implements IRepository {
+export class JaysonRepository implements IRepository {
   private readonly client: jayson.Client;
 
   constructor(hostname: string, port: number) {

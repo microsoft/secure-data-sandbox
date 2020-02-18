@@ -1,5 +1,9 @@
 # TODO List
 
+* Top
+  * dct needs to migrate from ramdisk to localdisk
+  * dct will then need sample yaml files
+  * really need the connect command and .dct (and .gitignore)
 * Laboratory
   * x Validation
   * x LoadEntity()
