@@ -4,6 +4,7 @@ import { IBlobStorage } from '../cloud';
 import { getPath } from '../naming';
 
 import {
+  AnyDescription,
   BenchmarkSpecification,
   CandidateSpecification,
   //    EntityDescription,
@@ -14,7 +15,10 @@ import {
   // AnyDescription,
 } from './interfaces';
 
-// import { validateAsAnyDescription } from './schemas';
+import {
+  validateAsAnyDescription,
+  validateAsKindDescription
+} from './schemas';
 
 export async function loadBenchmark(
   name: string,
@@ -24,6 +28,7 @@ export async function loadBenchmark(
   const buffer = await storage.readBlob(blob);
   const yamlText = buffer.toString('utf8');
   const data = yaml.safeLoad(yamlText) as BenchmarkSpecification;
+  validateAsKindDescription(Kind.BENCHMARK, data);
   return data;
 }
 
@@ -35,6 +40,7 @@ export async function loadCandidate(
   const buffer = await storage.readBlob(blob);
   const yamlText = buffer.toString('utf8');
   const data = yaml.safeLoad(yamlText) as CandidateSpecification;
+  validateAsKindDescription(Kind.CANDIDATE, data);
   return data;
 }
 
@@ -45,6 +51,7 @@ export async function loadCandidate(
 //     const buffer = await storage.readBlob(name);
 //     const yamlText = buffer.toString('utf8');
 //     const data = yaml.safeLoad(yamlText) as LaboratoryDescription;
+//     validateAsKindDescription(Kind.LABORATORY, data);
 //     return data;
 // }
 
@@ -56,6 +63,7 @@ export async function loadRun(
   const buffer = await storage.readBlob(blob);
   const yamlText = buffer.toString('utf8');
   const data = yaml.safeLoad(yamlText) as RunSpecification;
+  validateAsKindDescription(Kind.RUN, data);
   return data;
 }
 
@@ -68,5 +76,17 @@ export async function loadSuite(
   const buffer = await storage.readBlob(blob);
   const yamlText = buffer.toString('utf8');
   const data = yaml.safeLoad(yamlText) as SuiteSpecification;
+  validateAsKindDescription(Kind.SUITE, data);
   return data;
+}
+
+export async function loadDescription(
+  filename: string,
+  storage: IBlobStorage
+): Promise<AnyDescription> {
+  const buffer = await storage.readBlob(filename);
+  const yamlText = buffer.toString('utf8');
+  const data = yaml.safeLoad(yamlText);
+
+  return validateAsAnyDescription(data);
 }

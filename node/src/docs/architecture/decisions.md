@@ -30,5 +30,7 @@
   * Single whitelist.yaml file?
   * Multiple yaml files in a whitelist folder?
   * Portion of the laboratory.yaml?
+* Handling candidate secrets
+* Should Repository service register for events or access a queue?
 
   

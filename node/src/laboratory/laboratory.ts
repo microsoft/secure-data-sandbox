@@ -56,7 +56,7 @@ export class Laboratory implements ILaboratory {
     const buffer = Buffer.from(yaml.safeDump(spec), 'utf8');
 
     try {
-      await this.world.blobStorage.writeBlob(blob, buffer, false);
+      await this.world.cloudStorage.writeBlob(blob, buffer, false);
       this.world.logger.log(`Uploaded ${spec.kind} schema to ${blob}`);
       return blob;
     } catch (e) {
@@ -79,7 +79,7 @@ export class Laboratory implements ILaboratory {
 
     let suiteData: SuiteSpecification;
     try {
-      suiteData = await loadSuite(suiteId, this.world.blobStorage);
+      suiteData = await loadSuite(suiteId, this.world.cloudStorage);
     } catch (e) {
       // TODO: only change exception when file not found.
       const message = `Cannot find suite ${suiteId}`;
@@ -88,7 +88,7 @@ export class Laboratory implements ILaboratory {
 
     let candidateData: CandidateSpecification;
     try {
-      candidateData = await loadCandidate(candidateId, this.world.blobStorage);
+      candidateData = await loadCandidate(candidateId, this.world.cloudStorage);
     } catch (e) {
       // TODO: only change exception when file not found.
       const message = `Cannot find candidate ${candidateId}`;
@@ -104,7 +104,7 @@ export class Laboratory implements ILaboratory {
     const benchmarkId = encodeAndVerify(suiteData.benchmarkId);
     let benchmarkData: BenchmarkSpecification;
     try {
-      benchmarkData = await loadBenchmark(benchmarkId, this.world.blobStorage);
+      benchmarkData = await loadBenchmark(benchmarkId, this.world.cloudStorage);
     } catch (e) {
       // TODO: only change exception when file not found.
       const message = `Cannot find benchmark ${benchmarkId}`;
@@ -128,7 +128,7 @@ export class Laboratory implements ILaboratory {
     const blob = specToPath(spec);
     const buffer = Buffer.from(yaml.safeDump(spec), 'utf8');
     try {
-      await this.world.blobStorage.writeBlob(blob, buffer, false);
+      await this.world.cloudStorage.writeBlob(blob, buffer, false);
       this.world.logger.log(`Uploaded ${spec.kind} schema to ${blob}`);
     } catch (e) {
       // TODO: check for attempted blob overwrite exception.

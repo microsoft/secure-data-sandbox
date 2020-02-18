@@ -15,7 +15,8 @@ class LaboratoryServer {
     this.server = new jayson.Server({
       // tslint:disable-next-line:no-any
       create(args: [any], callback: any) {
-        console.log(`create xxx "${args[0].toString()}"`);
+        console.log(`create yyy "${args[0].toString()}"`);
+        console.log(JSON.stringify(args[0], null, 4));
         callback(null, 'ok');
       },
 

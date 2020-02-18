@@ -65,11 +65,12 @@ export interface IDatabase {
 export interface World {
   // hostname: string;
   // tagname: string;
-  blobStorage: IBlobStorage;
+  cloudStorage: IBlobStorage;
+  localStorage: IBlobStorage;
   queueStorage: IQueueStorage;
   // orchestrator: IOrchestrator;
   environment: IEnvironment;
   logger: ILogger;
   // homedir: string;
-  // cwd: string;
+  cwd: string;
 }

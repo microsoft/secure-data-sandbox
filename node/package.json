@@ -20,6 +20,8 @@
     "posttest": "npm.cmd run check"
   },
   "dependencies": {
+    "ajv": "^6.11.0",
+    "better-ajv-errors": "^0.6.7",
     "chai": "^4.2.0",
     "jayson": "^3.2.0",
     "js-yaml": "^3.13.1",
