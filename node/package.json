@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "chai": "^4.2.0",
+    "jayson": "^3.2.0",
     "js-yaml": "^3.13.1",
     "mocha": "^7.0.1",
     "murmurhash": "0.0.2",
