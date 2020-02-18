@@ -1,6 +1,6 @@
 import * as yaml from 'js-yaml';
 
-import { IBlobStorage } from '../cloud';
+import { IStorage } from '../cloud';
 import { getPath } from '../naming';
 
 import {
@@ -19,7 +19,7 @@ import { validateAsAnyDescription, validateAsKindDescription } from './schemas';
 
 export async function loadBenchmark(
   name: string,
-  storage: IBlobStorage
+  storage: IStorage
 ): Promise<BenchmarkSpecification> {
   const blob = getPath(Kind.BENCHMARK, name);
   const buffer = await storage.readBlob(blob);
@@ -31,7 +31,7 @@ export async function loadBenchmark(
 
 export async function loadCandidate(
   name: string,
-  storage: IBlobStorage
+  storage: IStorage
 ): Promise<CandidateSpecification> {
   const blob = getPath(Kind.CANDIDATE, name);
   const buffer = await storage.readBlob(blob);
@@ -54,7 +54,7 @@ export async function loadCandidate(
 
 export async function loadRun(
   name: string,
-  storage: IBlobStorage
+  storage: IStorage
 ): Promise<RunSpecification> {
   const blob = getPath(Kind.RUN, name);
   const buffer = await storage.readBlob(blob);
@@ -66,7 +66,7 @@ export async function loadRun(
 
 export async function loadSuite(
   name: string,
-  storage: IBlobStorage,
+  storage: IStorage,
   encodeName = true
 ): Promise<SuiteSpecification> {
   const blob = getPath(Kind.SUITE, name);
@@ -79,7 +79,7 @@ export async function loadSuite(
 
 export async function loadDescription(
   filename: string,
-  storage: IBlobStorage
+  storage: IStorage
 ): Promise<AnyDescription> {
   const buffer = await storage.readBlob(filename);
   const yamlText = buffer.toString('utf8');

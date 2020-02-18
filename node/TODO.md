@@ -1,11 +1,13 @@
 # TODO List
 
 * Laboratory
-  * Validation
-  * LoadEntity()
+  * x Validation
+  * x LoadEntity()
 * Jayson CLI
-  * Main
-  * Jason Laboratory RPC stub
+  * x Main
+  * x Jayson Laboratory RPC stub
+  * Jayson Repository RPC stub
+  * Jayson RPC stub mocks for unit testing
   * Deploy module
     * Deployer factory
     * laboratory.yaml
@@ -14,8 +16,6 @@
   * Connect module
   * Create module
   * Run module
-  * Jayson client stubs
-  * Jayson client stub mock for unit testing
 * LaboratoryServer
   * Jayson-based integration tests for in-proc version
 * Cloud mocks

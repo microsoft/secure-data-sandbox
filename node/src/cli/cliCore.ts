@@ -1,7 +1,7 @@
 import {
   // Environment,
   // IOrchestrator,
-  IBlobStorage,
+  IStorage,
   // RamDisk,
   // Volume,
   World,
@@ -22,8 +22,8 @@ import { IRepository, SelectResults } from '../repository';
 
 export class CLI {
   // private orchestrator: IOrchestrator;
-  private readonly cloudStorage: IBlobStorage;
-  private readonly localStorage: IBlobStorage;
+  private readonly cloudStorage: IStorage;
+  private readonly localStorage: IStorage;
 
   private lab: ILaboratory | undefined;
   private repository: IRepository | undefined;

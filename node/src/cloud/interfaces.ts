@@ -5,7 +5,7 @@
 export type BlobCreateHandler = (blob: string) => Promise<void>;
 
 // tslint:disable-next-line:interface-name
-export interface IBlobStorage {
+export interface IStorage {
   // TODO: blob creation/update/delete events
   appendBlob(name: string, buffer: Buffer): Promise<void>;
   writeBlob(
@@ -65,8 +65,8 @@ export interface IDatabase {
 export interface World {
   // hostname: string;
   // tagname: string;
-  cloudStorage: IBlobStorage;
-  localStorage: IBlobStorage;
+  cloudStorage: IStorage;
+  localStorage: IStorage;
   queueStorage: IQueueStorage;
   // orchestrator: IOrchestrator;
   environment: IEnvironment;
