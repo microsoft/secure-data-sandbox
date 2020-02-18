@@ -1,3 +1,6 @@
 {
-    "rewrap.wrappingColumn": 80
+    "rewrap.wrappingColumn": 80,
+    "editor.detectIndentation": false,
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2
 }

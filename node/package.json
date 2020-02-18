@@ -21,12 +21,14 @@
   },
   "dependencies": {
     "chai": "^4.2.0",
+    "js-yaml": "^3.13.1",
     "mocha": "^7.0.1",
     "murmurhash": "0.0.2",
     "uuid": "^3.3.3"
   },
   "devDependencies": {
     "@types/chai": "^4.2.9",
+    "@types/js-yaml": "^3.12.2",
     "@types/mocha": "^7.0.1",
     "@types/murmurhash": "0.0.1",
     "@types/node": "^13.7.0",

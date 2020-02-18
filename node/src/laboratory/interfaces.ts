@@ -119,5 +119,5 @@ export type AnySpecification =
 // tslint:disable-next-line:interface-name
 export interface ILaboratory {
   create(description: AnyDescription): Promise<string>;
-  run(candidateId: string, suiteId: string): Promise<void>;
+  run(candidateId: string, suiteId: string): Promise<string>;
 }
