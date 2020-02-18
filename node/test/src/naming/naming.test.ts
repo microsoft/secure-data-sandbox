@@ -7,10 +7,11 @@ import {
   collectionFromKind,
   createRunId,
   encodeAndVerify,
-  getPath,
-  specToId,
-  getResultsTable,
   getCollectionTable,
+  getPath,
+  getResultsTable,
+  specToId,
+  specToPath,
 } from '../../../src/naming';
 
 describe('naming', () => {
@@ -115,15 +116,16 @@ describe('naming', () => {
     });
   });
 
-  describe('specToId()', () => {
+  describe('specToId() + specToPath()', () => {
     it('supported specs', () => {
       interface Case {
-        input: AnySpecification;
-        expected: string;
+        spec: AnySpecification;
+        expectedId: string;
+        expectedPath: string;
       }
-      const specifications: Case[] = [
+      const cases: Case[] = [
         {
-          input: {
+          spec: {
             apiVersion: '0.0.1',
             kind: Kind.BENCHMARK,
 
@@ -134,10 +136,11 @@ describe('naming', () => {
             image: 'image',
             columns: [],
           },
-          expected: 'benchmark',
+          expectedId: 'benchmark',
+          expectedPath: '/benchmarks/benchmark',
         },
         {
-          input: {
+          spec: {
             apiVersion: '0.0.1',
             kind: Kind.CANDIDATE,
 
@@ -149,10 +152,11 @@ describe('naming', () => {
             benchmarkId: 'benchmark',
             image: 'image',
           },
-          expected: 'candidate',
+          expectedId: 'candidate',
+          expectedPath: '/candidates/candidate',
         },
         {
-          input: {
+          spec: {
             apiVersion: '0.0.1',
             kind: Kind.RUN,
 
@@ -165,10 +169,11 @@ describe('naming', () => {
 
             runId: 'r1234',
           },
-          expected: 'r1234',
+          expectedId: 'r1234',
+          expectedPath: '/runs/r1234',
         },
         {
-          input: {
+          spec: {
             apiVersion: '0.0.1',
             kind: Kind.SUITE,
 
@@ -179,13 +184,17 @@ describe('naming', () => {
 
             benchmarkId: 'benchmark',
           },
-          expected: 'suite',
+          expectedId: 'suite',
+          expectedPath: '/suites/suite',
         },
       ];
 
-      for (const spec of specifications) {
-        const observed = specToId(spec.input);
-        assert.equal(observed, spec.expected);
+      for (const c of cases) {
+        const observed = specToId(c.spec);
+        assert.equal(observed, c.expectedId);
+
+        const observedPath = specToPath(c.spec);
+        assert.equal(observedPath, c.expectedPath);
       }
     });
   });

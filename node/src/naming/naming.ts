@@ -41,21 +41,9 @@ const kindToCollection = new Map<Kind, string>([
   [Kind.RUN, runCollection],
 ]);
 
-// export function specToId(spec: AnySpecification): string {
-//     switch (spec.kind) {
-//         case Kind.BENCHMARK:
-//         case Kind.CANDIDATE:
-//         case Kind.SUITE:
-//             return getPath(spec.kind, spec.name);
-//         case Kind.RUN:
-//             return getPath(spec.kind, spec.runId);
-//         default:
-//             // We should never get here if spec is truely AnySpecification.
-//             // Need to use ['kind'] because spec is type `never`.
-//             const message = `Unsupported kind "${spec['kind']}"`;
-//             throw new TypeError(message);
-//     }
-// }
+export function specToPath(spec: AnySpecification): string {
+  return getPath(spec.kind, specToId(spec));
+}
 
 export function specToId(spec: AnySpecification): string {
   switch (spec.kind) {
