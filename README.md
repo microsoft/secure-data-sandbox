@@ -1,3 +1,4 @@
+![.github/workflows/dct-ci.yml](https://github.com/microsoft/data-contest-toolkit/workflows/.github/workflows/dct-ci.yml/badge.svg)
 
 # Contributing
 
