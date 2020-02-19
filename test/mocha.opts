@@ -1,3 +1,0 @@
-# mocha.opts
-
---recursive build/test/**/*.js

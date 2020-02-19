@@ -2,12 +2,9 @@
   "name": "data-contest-toolkit",
   "version": "0.0.1",
   "description": "A toolkit for conducting machine learning trials against confidential data",
-  "files": [
-    "build/src"
-  ],
   "license": "MIT",
   "scripts": {
-    "test": "mocha",
+    "test": "mocha --recursive build/test/**/*.js",
     "check": "gts check",
     "clean": "gts clean",
     "compile": "tsc -p .",
