@@ -1,6 +1,5 @@
 import * as jayson from 'jayson';
 import { ILaboratory } from './interfaces';
-import { Laboratory } from './laboratory';
 
 // Can use jayson CLI as follows:
 // node node_modules\jayson\bin\jayson.js -u http://localhost:3000 -m create -p "[{\"a\":1},2]"
@@ -14,10 +13,11 @@ export class LaboratoryServer {
 
     this.server = new jayson.Server({
       // tslint:disable-next-line:no-any
-      create(args: [any], callback: any) {
+      async create(args: [any], callback: any) {
         console.log(`create yyy "${args[0].toString()}"`);
         console.log(JSON.stringify(args[0], null, 4));
-        callback(null, 'ok');
+        const blob = await laboratory.create(args[0]);
+        callback(null, blob);
       },
 
       // tslint:disable-next-line:no-any

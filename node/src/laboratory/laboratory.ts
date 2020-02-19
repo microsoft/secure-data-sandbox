@@ -39,10 +39,12 @@ export class Laboratory implements ILaboratory {
         spec = { ...description, ...metaData, name };
         break;
       case Kind.CANDIDATE:
+        // TODO: validate benchmark
         name = encodeAndVerify(description.name);
         spec = { ...description, ...metaData };
         break;
       case Kind.SUITE:
+        // TODO: validate benchmark
         name = encodeAndVerify(description.name);
         spec = { ...description, ...metaData };
         break;

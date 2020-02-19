@@ -10,9 +10,11 @@ import {
 } from '../cloud';
 
 import { deployLocal } from '../deploy';
+import { Kind } from '../laboratory';
 
 async function go() {
-  const localDiskPath = undefined;
+//  const localDiskPath = undefined;
+  const localDiskPath = 'c:\\temp';
   const localStorage = localDiskPath
     ? new LocalDisk(localDiskPath)
     : new RamDisk();
@@ -26,11 +28,28 @@ async function go() {
     cwd: '/',
   };
 
-  const desc = await deployLocal(world);
-  const lab = new JaysonLaboratory(desc.laboratory.host, desc.laboratory.port);
+  const labPort = 3000;
+  const repositoryPort = 3001;
+  const connection = {
+    apiVersion: '0.0.1',
+    kind: Kind.LABORATORY,
+
+    laboratory: {
+      host: 'localhost',
+      port: labPort,
+    },
+
+    repository: {
+      host: 'localhost',
+      port: repositoryPort,
+    },
+  }
+  // const connection = await deployLocal(world);
+
+  const lab = new JaysonLaboratory(connection.laboratory.host, connection.laboratory.port);
   const repository = new JaysonRepository(
-    desc.repository.host,
-    desc.repository.port
+    connection.repository.host,
+    connection.repository.port
   );
 
   const cli = new CLI(world, lab, repository);

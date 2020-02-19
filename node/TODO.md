@@ -1,9 +1,13 @@
 # TODO List
 
 * Top
+  * really need the connect command and .dct (and .gitignore)
+  * dct should wait for current command before exiting
+  * laboratory.yaml should handle inproc, localhost, docker and cloud deployments.
   * dct needs to migrate from ramdisk to localdisk
   * dct will then need sample yaml files
-  * really need the connect command and .dct (and .gitignore)
+  * dct should not deploy automatically - this should only be done in the shell
+  * investigate service rebuild/watcher/restarter for node apps
 * Laboratory
   * x Validation
   * x LoadEntity()
