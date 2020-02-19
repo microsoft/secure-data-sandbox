@@ -1,0 +1,490 @@
+openapi: 3.0.2
+info:
+  title: data-contest-toolkit
+  version: 0.0.1
+  license:
+    name: MIT
+    url: https://github.com/microsoft/data-contest-toolkit/blob/master/LICENSE
+  contact:
+    name: microsoft/data-contest-toolkit
+    url: https://github.com/microsoft/data-contest-toolkit
+  description: A toolkit for conducting machine learning trials against confidential data
+tags:
+  - name: Benchmarks
+  - name: Suites
+  - name: Candidates
+paths:
+  /Benchmarks:
+    get:
+      tags: [Benchmarks]
+      responses:
+        200:
+          description: Benchmarks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Benchmark"
+  /benchmarks/{benchmarkName}:
+    parameters:
+      - name: benchmarkName
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/EntityName"
+    get:
+      tags: [Benchmarks]
+      responses:
+        200:
+          $ref: "#/components/responses/Benchmark"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        404:
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [Benchmarks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Benchmark"
+      responses:
+        200:
+          $ref: "#/components/responses/Benchmark"
+        400:
+          $ref: "#/components/responses/BadRequest"
+  /benchmarks/{benchmarkName}/suites:
+    parameters:
+      - name: benchmarkName
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/EntityName"
+    get:
+      tags: [Suites]
+      responses:
+        200:
+          description: Suites
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Suite"
+  /benchmarks/{benchmarkName}/suites/{suiteName}:
+    parameters:
+      - name: benchmarkName
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/EntityName"
+      - name: suiteName
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/EntityName"
+    get:
+      tags: [Suites]
+      responses:
+        200:
+          $ref: "#/components/responses/Suite"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        404:
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [Suites]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Suite"
+      responses:
+        200:
+          $ref: "#/components/responses/Suite"
+        400:
+          $ref: "#/components/responses/BadRequest"
+  /benchmarks/{benchmarkName}/candidates:
+    parameters:
+      - name: benchmarkName
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/EntityName"
+    get:
+      tags: [Candidates]
+      responses:
+        200:
+          description: Candidates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Candidate"
+  /benchmarks/{benchmarkName}/candidates/{candidateName}:
+    parameters:
+      - name: benchmarkName
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/EntityName"
+      - name: candidateName
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/EntityName"
+    get:
+      tags: [Candidates]
+      responses:
+        200:
+          $ref: "#/components/responses/Candidate"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        404:
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [Candidates]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Candidate"
+      responses:
+        200:
+          $ref: "#/components/responses/Candidate"
+        400:
+          $ref: "#/components/responses/BadRequest"
+  /benchmarks/{benchmarkName}/candidates/{candidateName}/runs:
+    parameters:
+      - name: benchmarkName
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/EntityName"
+      - name: candidateName
+        in: path
+        required: true
+        schema:
+          $ref: "#/components/schemas/EntityName"
+    post:
+      tags: [Runs]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PipelineRunRequest"
+      responses:
+        202:
+          description: Run requested
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PipelineRun"
+    get:
+      tags: [Runs]
+      responses:
+        200:
+          description: Candidate runs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PipelineRun"
+  /runs/{runId}:
+    parameters:
+      - name: runId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Runs]
+      responses:
+        200:
+          description: Run details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PipelineRun"
+  /runs/{runId}/replay:
+    parameters:
+      - name: runId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags: [Runs]
+      responses:
+        202:
+          description: Run requested
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PipelineRun"
+components:
+  schemas:
+    EntityName:
+      type: string
+      minLength: 1
+      maxLength: 64
+      pattern: '^[a-zA-Z0-9\.\-\_]*$'
+    BaseEntity:
+      type: object
+      properties:
+        name:
+          $ref: "#/components/schemas/EntityName"
+        type:
+          type: string
+          readOnly: true
+        author:
+          type: string
+        createdDate:
+          type: string
+          format: date-time
+          readOnly: true
+        updatedDate:
+          type: string
+          format: date-time
+          readOnly: true
+        version:
+          type: string
+      required:
+        - name
+        - version
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+      readOnly: true
+    Suite:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/BaseEntity"
+      properties:
+        type:
+          enum: [suite]
+        target:
+          $ref: "#/components/schemas/Target"
+        volumes:
+          type: object
+          minProperties: 1
+          additionalProperties:
+            type: object
+            properties:
+              target:
+                type: string
+            required:
+              - target
+      required:
+        - target
+    Benchmark:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/BaseEntity"
+      properties:
+        type:
+          enum: [benchmark]
+        modes:
+          type: object
+          minProperties: 1
+          additionalProperties:
+            $ref: "#/components/schemas/PipelineMode"
+      required:
+        - name
+        - version
+        - modes
+    Candidate:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/BaseEntity"
+      properties:
+        type:
+          enum: [candidate]
+        target:
+          $ref: "#/components/schemas/Target"
+        secrets:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              secretUri:
+                type: string
+            required:
+            - type
+            - secretUri
+        externalEndpoints:
+          type: array
+          items:
+            type: string
+      required:
+        - target
+    PipelineRunRequest:
+      type: object
+      properties:
+        suite:
+          $ref: "#/components/schemas/EntityName"
+        stages:
+          minProperties: 1
+          additionalProperties:
+            type: object
+            properties:
+              image: 
+                type: string
+      required:
+      - suite
+      - stages
+    PipelineRun:
+      type: object
+      readOnly: true
+      allOf:
+        - $ref: "#/components/schemas/BaseEntity"
+      properties:
+        name:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: ['created', 'running', 'completed', 'failed']
+        target:
+          $ref: "#/components/schemas/Target"
+        stages:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              type:
+                type: string
+              image:
+                type: string
+              volumes:
+                additionalProperties:
+                  type: object
+                  properties:
+                    path:
+                      type: string
+                    target:
+                      type: string
+                    writable:
+                      type: boolean
+    PipelineMode:
+      type: object
+      properties:
+        type:
+          type: string
+        stages:
+          type: object
+          additionalProperties:
+            oneOf:
+              - $ref: "#/components/schemas/CandidatePipelineStage"
+              - $ref: "#/components/schemas/ContainerPipelineStage"
+            discriminator:
+              propertyName: type
+              mapping:
+                candidate: "#/components/schemas/CandidatePipelineStage"
+                container: "#/components/schemas/ContainerPipelineStage"
+          minProperties: 1
+        volumes:
+          type: object
+          additionalProperties:
+            type: object
+      required:
+        - stages
+        - type
+    BasePipelineStage:
+      type: object
+      properties:
+        type:
+          type: string
+        env:
+          type: object
+          minProperties: 1
+          additionalProperties:
+            type: string
+        volumeMounts:
+          type: object
+          minProperties: 1
+          additionalProperties:
+            type: object
+            properties:
+              path:
+                type: string
+              writable:
+                type: boolean
+            required:
+              - path
+      required:
+        - type
+    CandidatePipelineStage:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/BasePipelineStage"
+      properties:
+        type:
+          enum: [candidate]
+    ContainerPipelineStage:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/BasePipelineStage"
+      properties:
+        type:
+          enum: [container]
+        image:
+          type: string
+      required:
+        - image
+    Target:
+      type: object
+      properties:
+        contest:
+          $ref: "#/components/schemas/EntityName"
+        mode:
+          type: string
+      required:
+        - contest
+        - mode
+  responses:
+    BadRequest:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Candidate:
+      description: Candidate details
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Candidate"
+    Benchmark:
+      description: Contest details
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Benchmark"
+    Suite:
+      description: Suite details
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Suite"
