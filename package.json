@@ -1,0 +1,30 @@
+{
+  "name": "data-contest-toolkit",
+  "version": "0.0.1",
+  "description": "A toolkit for conducting machine learning trials against confidential data",
+  "files": [
+    "build/src"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "test": "mocha",
+    "check": "gts check",
+    "clean": "gts clean",
+    "compile": "tsc -p .",
+    "fix": "gts fix",
+    "prepare": "npm run compile",
+    "pretest": "npm run compile",
+    "posttest": "npm run check"
+  },
+  "dependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^7.0.1"
+  },
+  "devDependencies": {
+    "gts": "^1.1.2",
+    "typescript": "~3.7.0",
+    "@types/node": "^10.0.3",
+    "@types/chai": "^4.2.9",
+    "@types/mocha": "^7.0.1"
+  }
+}
