@@ -4,24 +4,34 @@
   "description": "A toolkit for conducting machine learning trials against confidential data",
   "license": "MIT",
   "scripts": {
-    "test": "mocha --recursive build/test/**/*.js",
+    "test": "mocha build/test",
+    "pretest-functional": "npm run compile",
+    "test-functional": "mocha build/test/functional --config test/functional/.mocharc.yml",
     "check": "gts check",
     "clean": "gts clean",
     "compile": "tsc -p .",
     "fix": "gts fix",
     "prepare": "npm run compile",
     "pretest": "npm run compile",
-    "posttest": "npm run check"
+    "posttest": "npm run check",
+    "worker": "node build/src/worker/app.js"
   },
   "dependencies": {
-    "chai": "^4.2.0",
-    "mocha": "^7.0.1"
+    "@azure/identity": "^1.0.2",
+    "@azure/storage-queue": "^12.0.3",
+    "env-var": "^6.0.1"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
+    "dotenv": "^8.2.0",
     "gts": "^1.1.2",
+    "mocha": "^7.0.1",
     "typescript": "~3.7.0",
+    "uuid": "^3.4.0",
+    "@types/dotenv": "^8.2.0",
     "@types/node": "^10.0.3",
     "@types/chai": "^4.2.9",
-    "@types/mocha": "^7.0.1"
+    "@types/mocha": "^7.0.1",
+    "@types/uuid": "^3.4.7"
   }
 }
