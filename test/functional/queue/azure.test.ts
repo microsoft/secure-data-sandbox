@@ -5,17 +5,17 @@ import * as env from 'env-var';
 import { v1 } from 'uuid';
 import { GetQueue, QueueMode } from '../../../src/queue';
 
-const serviceUrl = env
-  .get('TEST_QUEUE_SERVICE_URL')
-  .required()
-  .asUrlString();
-const credential = new DefaultAzureCredential();
-
 describe('functional.queue.azure', () => {
   let client: QueueClient;
   let queueUrl: string;
 
   before(async () => {
+    const serviceUrl = env
+      .get('TEST_QUEUE_SERVICE_URL')
+      .required()
+      .asUrlString();
+    const credential = new DefaultAzureCredential();
+
     queueUrl = `${serviceUrl}${v1()}`;
     client = new QueueClient(queueUrl, credential);
     await client.create();
