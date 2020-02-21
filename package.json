@@ -26,12 +26,18 @@
     "dotenv": "^8.2.0",
     "gts": "^1.1.2",
     "mocha": "^7.0.1",
+    "reflect-metadata": "^0.1.13",
+    "sequelize": "^5.21.5",
+    "sequelize-typescript": "^1.1.0",
+    "sqlite3": "^4.1.1",
     "typescript": "~3.7.0",
     "uuid": "^3.4.0",
-    "@types/dotenv": "^8.2.0",
-    "@types/node": "^10.0.3",
+    "@types/bluebird": "^3.5.29",
     "@types/chai": "^4.2.9",
+    "@types/dotenv": "^8.2.0",
     "@types/mocha": "^7.0.1",
-    "@types/uuid": "^3.4.7"
+    "@types/node": "^10.0.3",
+    "@types/uuid": "^3.4.7",
+    "@types/validator": "^12.0.1"
   }
 }
