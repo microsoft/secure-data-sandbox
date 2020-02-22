@@ -14,6 +14,7 @@ export function dateColumn(name: string) {
     },
     set(date: string) {
       // Do nothing. This property is not writeable.
+      // TODO: consider making a writable variant.
     },
   };
 }
@@ -22,9 +23,9 @@ export function dateColumn(name: string) {
 // Helper function provides a column decorator for JSON string columns
 // that are represented as POJOs of type T.
 //
-export function jsonColumn<T>(name: string) {
+export function jsonColumn<T>(name: string, length: number) {
   return {
-    type: DataType.STRING,
+    type: DataType.STRING(length),
     get(): T {
       // tslint:disable-next-line:no-any
       const value = (this as any).getDataValue(name) as string;
@@ -35,9 +36,18 @@ export function jsonColumn<T>(name: string) {
     },
     set(value: T) {
       const text = JSON.stringify(value);
-      // TODO: verify byte length of utf8 string
+      const buffer = Buffer.from(text, 'utf8');
+
       // TODO: check sqlite errors on string too long
-      // TODO: unit test for buffer overflow.
+
+      // Verify byte length of utf8 string fits in database field.
+      // Use >= to account for potential trailing \0.
+      if (buffer.byteLength >= length) {
+        const message = `serialized text too long in json column "${name}". ${buffer.byteLength +
+          1} exceeds limit of ${length}.`;
+        throw new TypeError(message);
+      }
+
       // tslint:disable-next-line:no-any
       (this as any).setDataValue(name, text);
     },

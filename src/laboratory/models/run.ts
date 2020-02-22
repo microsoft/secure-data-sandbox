@@ -21,15 +21,15 @@ export class Run extends Model<Run> implements IRun {
   @Column(dateColumn('updatedAt'))
   updatedAt!: string;
 
-  @Column(jsonColumn<RunStatus>('status'))
+  @Column(jsonColumn<RunStatus>('status', 1024))
   status!: RunStatus;
 
-  @Column(jsonColumn<IBenchmark[]>('benchmark'))
+  @Column(jsonColumn<IBenchmark[]>('benchmark', 1024))
   benchmark!: IBenchmark;
 
-  @Column(jsonColumn<ICandidate[]>('candidate'))
+  @Column(jsonColumn<ICandidate[]>('candidate', 1024))
   candidate!: ICandidate;
 
-  @Column(jsonColumn<ISuite[]>('suite'))
+  @Column(jsonColumn<ISuite[]>('suite', 1024))
   suite!: ISuite;
 }
