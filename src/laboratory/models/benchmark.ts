@@ -24,6 +24,6 @@ export class Benchmark extends Model<Benchmark> implements IBenchmark {
   @Column(DataType.STRING)
   image!: string;
 
-  @Column(jsonColumn<IPipeline[]>('pipelines'))
+  @Column(jsonColumn<IPipeline[]>('pipelines', 1024))
   pipelines!: IPipeline[];
 }

@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 import * as luxon from 'luxon';
-import { Model, Sequelize } from 'sequelize-typescript';
+import { Column, Model, Sequelize, Table } from 'sequelize-typescript';
 
 import {
   IBenchmark,
@@ -17,6 +17,10 @@ import {
   Run,
   Suite,
 } from '../../../../src/laboratory/models';
+import {
+  dateColumn,
+  jsonColumn,
+} from '../../../../src/laboratory/models/decorators';
 
 const benchmark: IBenchmark = {
   name: 'foo',
@@ -83,6 +87,53 @@ before(async () => {
 });
 
 describe('laboratory', () => {
+  describe('decorators', () => {
+    it('dateColumn set is nop', async () => {
+      @Table
+      class TestDateModel extends Model<TestDateModel> {
+        @Column(dateColumn('column'))
+        column!: string;
+      }
+
+      sequelize.addModels([TestDateModel]);
+      TestDateModel.sync();
+
+      const r = await TestDateModel.create();
+      const old = r.column;
+
+      // Verify that writing to r.column is a nop.
+      r.column = 'hello';
+      assert.equal(r.column, old);
+    });
+
+    it('jsonColumn length overflow', async () => {
+      @Table
+      class TestModel extends Model<TestModel> {
+        @Column(jsonColumn('column', 10))
+        column!: string;
+      }
+
+      sequelize.addModels([TestModel]);
+      TestModel.sync();
+
+      // Attempt to create a value whose serialization short enough
+      TestModel.create({
+        column: '0123456',
+      });
+
+      // Attempt to create a value whose serialization is too long.
+      const f = () =>
+        TestModel.create({
+          column: '01234567890',
+        });
+      // TODO: perhaps verify type of error.
+      assert.throws(
+        f,
+        'serialized text too long in json column "column". 13 exceeds limit of 10.'
+      );
+    });
+  });
+
   describe('models', () => {
     it('benchmark roundtrip', async () => {
       const result = await Benchmark.create(benchmark);
