@@ -129,7 +129,7 @@ describe('laboratory', () => {
       // TODO: perhaps verify type of error.
       assert.throws(
         f,
-        'serialized text too long in json column "column". 13 exceeds limit of 10.'
+        'serialized text too long in json column "column". 14 exceeds limit of 10.'
       );
     });
   });
