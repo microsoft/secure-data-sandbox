@@ -19,9 +19,18 @@
   "dependencies": {
     "@azure/identity": "^1.0.2",
     "@azure/storage-queue": "^12.0.3",
-    "env-var": "^6.0.1"
+    "env-var": "^6.0.1",
+    "luxon": "^1.22.0"
   },
   "devDependencies": {
+    "@types/bluebird": "^3.5.29",
+    "@types/chai": "^4.2.9",
+    "@types/dotenv": "^8.2.0",
+    "@types/luxon": "^1.21.0",
+    "@types/mocha": "^7.0.1",
+    "@types/node": "^10.0.3",
+    "@types/uuid": "^3.4.7",
+    "@types/validator": "^12.0.1",
     "chai": "^4.2.0",
     "dotenv": "^8.2.0",
     "gts": "^1.1.2",
@@ -31,13 +40,6 @@
     "sequelize-typescript": "^1.1.0",
     "sqlite3": "^4.1.1",
     "typescript": "~3.7.0",
-    "uuid": "^3.4.0",
-    "@types/bluebird": "^3.5.29",
-    "@types/chai": "^4.2.9",
-    "@types/dotenv": "^8.2.0",
-    "@types/mocha": "^7.0.1",
-    "@types/node": "^10.0.3",
-    "@types/uuid": "^3.4.7",
-    "@types/validator": "^12.0.1"
+    "uuid": "^3.4.0"
   }
 }
