@@ -3,8 +3,8 @@ export interface IEntityBase {
   name: string;
   author: string;
   version: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -9,7 +9,7 @@ import {
   IRun,
   ISuite,
   RunStatus,
-} from '../../../../src/laboratory';
+} from '../../../../src/laboratory/interfaces';
 
 import {
   Benchmark,
@@ -17,6 +17,7 @@ import {
   Run,
   Suite,
 } from '../../../../src/laboratory/models';
+
 import {
   dateColumn,
   jsonColumn,
@@ -171,8 +172,8 @@ function checkDates(observed: IEntityBase, expected: IEntityBase) {
   assert.notEqual(observed.updatedAt, expected.updatedAt);
 
   // Ensure the createdAt and updatedAt fields are valid ISO dates.
-  assert.isTrue(isISODate(observed.createdAt));
-  assert.isTrue(isISODate(observed.updatedAt));
+  assert.isTrue(isISODate(observed.createdAt!));
+  assert.isTrue(isISODate(observed.updatedAt!));
 }
 
 function isISODate(iso: string): boolean {
