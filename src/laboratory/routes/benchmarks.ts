@@ -1,7 +1,6 @@
 import { Router } from 'express';
 
-import { IBenchmark } from '../interfaces';
-import { Benchmark } from '../models/benchmark';
+import { Benchmark } from '../models';
 
 export const benchmarks = Router();
 
@@ -19,6 +18,7 @@ benchmarks.get('', async (req, res, next) => {
 
 benchmarks.get('/:name', async (req, res, next) => {
   try {
+    // TODO: does this even work? Is name the pk?
     const benchmark = await Benchmark.findByPk(req.params['name']);
     res.json(benchmark);
   } catch (e) {
