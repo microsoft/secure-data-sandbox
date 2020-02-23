@@ -6,7 +6,10 @@ import { dateColumn, jsonColumn } from './decorators';
 
 @Table
 export class Run extends Model<Run> implements IRun {
-  @Column(DataType.STRING)
+  @Column({
+    type: DataType.STRING,
+    unique: true,
+  })
   name!: string;
 
   @Column(DataType.STRING)

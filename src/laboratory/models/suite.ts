@@ -6,7 +6,10 @@ import { dateColumn } from './decorators';
 
 @Table
 export class Suite extends Model<Suite> implements ISuite {
-  @Column(DataType.STRING)
+  @Column({
+    type: DataType.STRING,
+    unique: true,
+  })
   name!: string;
 
   @Column(DataType.STRING)

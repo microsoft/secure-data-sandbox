@@ -48,6 +48,7 @@ export function canonicalName(name: string): string {
   return s;
 }
 
+// TODO: break this into verifyName()
 export function canonicalize(spec: IEntityBase, name: string): void {
   spec.name = canonicalName(spec.name);
   const name2 = canonicalName(name);
