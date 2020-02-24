@@ -7,7 +7,7 @@ import { dateColumn, nameColumn } from './decorators';
 @Table
 export class Candidate extends Model<Candidate> implements ICandidate {
   @Column({
-    ...nameColumn('name'),
+    type: DataType.STRING,
     unique: true,
   })
   name!: string;
@@ -18,19 +18,15 @@ export class Candidate extends Model<Candidate> implements ICandidate {
   @Column(DataType.STRING)
   version!: string;
 
-  @Column(dateColumn('createdAt'))
-  createdAt!: string;
+  // @Column(dateColumn('createdAt'))
+  // createdAt!: string;
 
-  @Column(dateColumn('updatedAt'))
-  updatedAt!: string;
+  // @Column(dateColumn('updatedAt'))
+  // updatedAt!: string;
 
-  @Column({
-    ...nameColumn('benchmark'),
-  })
+  @Column(DataType.STRING)
   benchmark!: string;
 
-  @Column({
-    ...nameColumn('mode'),
-  })
+  @Column(DataType.STRING)
   mode!: string;
 }

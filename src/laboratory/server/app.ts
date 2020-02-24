@@ -1,9 +1,10 @@
-import * as express from 'express';
 import * as bodyParser from 'body-parser';
-import { createBenchmarkRouter } from './routes';
+import * as express from 'express';
 import * as errorhandler from 'strong-error-handler';
 
-import { SequelizeLaboratory } from '../logic/sequelize_laboratory/laboratory';
+import { SequelizeLaboratory } from '../logic';
+
+import { createBenchmarkRouter } from './routes';
 
 export const app = express();
 
