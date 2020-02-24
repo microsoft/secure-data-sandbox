@@ -1,9 +1,13 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
-import { benchmarks } from './routes';
+import { createBenchmarkRouter } from './routes';
 import * as errorhandler from 'strong-error-handler';
 
+import { SequelizeLaboratory } from '../logic/sequelize_laboratory/laboratory';
+
 export const app = express();
+
+const lab = new SequelizeLaboratory();
 
 // middleware for parsing application/x-www-form-urlencoded
 // TODO: why is body-parser deprecated for this usage?
@@ -27,7 +31,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/benchmarks', benchmarks);
+app.use('/benchmarks', createBenchmarkRouter(lab));
 
 app.use(
   errorhandler({

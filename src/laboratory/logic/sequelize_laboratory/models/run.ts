@@ -1,6 +1,6 @@
 import { DataType, Column, Model, Table } from 'sequelize-typescript';
 
-import { IBenchmark, ICandidate, IRun, ISuite, RunStatus } from '../interfaces';
+import { IBenchmark, ICandidate, IRun, ISuite, RunStatus } from '../../interfaces';
 
 import { dateColumn, jsonColumn } from './decorators';
 
@@ -23,6 +23,9 @@ export class Run extends Model<Run> implements IRun {
 
   @Column(dateColumn('updatedAt'))
   updatedAt!: string;
+
+  @Column(DataType.STRING)
+  blob!: string;
 
   @Column(jsonColumn<RunStatus>('status', 1024))
   status!: RunStatus;

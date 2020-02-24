@@ -1,5 +1,6 @@
 import { DataType } from 'sequelize-typescript';
-import { canonicalName } from '../naming';
+
+import { normalizeName } from '../laboratory';
 
 //
 // Helper function provides a column decorator for readonly Date columns
@@ -63,8 +64,12 @@ export function jsonColumn<T>(name: string, length: number) {
 export function nameColumn(name: string) {
   return {
     type: DataType.STRING,
+    get(): string {
+      // tslint:disable-next-line:no-any
+      return (this as any).getDataValue(name);
+    },
     set(value: string) {
-      const canonical = canonicalName(value);
+      const canonical = normalizeName(value);
 
       // tslint:disable-next-line:no-any
       (this as any).setDataValue(name, canonical);

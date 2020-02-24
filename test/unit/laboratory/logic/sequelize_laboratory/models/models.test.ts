@@ -9,19 +9,20 @@ import {
   IRun,
   ISuite,
   RunStatus,
-} from '../../../../src/laboratory/interfaces';
+} from '../../../../../../src/laboratory/logic/interfaces';
 
 import {
   Benchmark,
   Candidate,
   Run,
   Suite,
-} from '../../../../src/laboratory/models';
+} from '../../../../../../src/laboratory/logic/sequelize_laboratory/models';
 
 import {
   dateColumn,
   jsonColumn,
-} from '../../../../src/laboratory/models/decorators';
+  nameColumn
+} from '../../../../../../src/laboratory/logic/sequelize_laboratory/models/decorators';
 
 const benchmark: IBenchmark = {
   name: 'foo',
@@ -74,6 +75,7 @@ const run: IRun = {
   candidate,
   suite,
   status: RunStatus.CREATED,
+  blob: 'http://blob',
 };
 
 let sequelize: Sequelize;
@@ -81,13 +83,10 @@ let sequelize: Sequelize;
 before(async () => {
   sequelize = new Sequelize('sqlite::memory:');
   sequelize.addModels([Benchmark, Candidate, Run, Suite]);
-  await Benchmark.sync();
-  await Candidate.sync();
-  await Run.sync();
-  await Suite.sync();
+  await sequelize.sync();
 });
 
-describe('laboratory', () => {
+describe('sequelize', () => {
   describe('decorators', () => {
     it('dateColumn set is nop', async () => {
       @Table
@@ -133,6 +132,61 @@ describe('laboratory', () => {
         'serialized text too long in json column "column". 14 exceeds limit of 10.'
       );
     });
+
+    it('nameColumn normalization', async () => {
+      @Table
+      class TestNameModel extends Model<TestNameModel> {
+        @Column(nameColumn('column'))
+        column!: string;
+      }
+
+      sequelize.addModels([TestNameModel]);
+      TestNameModel.sync();
+
+      const r = await TestNameModel.create();
+
+      const cases = [
+        { input: 'lowercase123', expected: 'lowercase123'},
+        { input: 'UPPERCASE123', expected: 'uppercase123'},
+        // Length up to 63 ok.
+        {
+          input: 'a12345678901234567890123456789012345678901234567890123456789012',
+          expected: 'a12345678901234567890123456789012345678901234567890123456789012',
+        },
+      ];
+
+      for (const test of cases) {
+        console.log(test.input);
+        r.column = test.input;
+        assert.equal(r.column, test.expected);
+      }
+
+      const errorCases = [
+        // Length must be at least 3
+        '',
+        'a',
+        'ab',
+        // Length cannot exceed 63
+        'a123456789012345678901234567890123456789012345678901234567890123',
+        // Improper punctuation
+        'a.txt',
+        'a/b',
+        'a-b',
+        'a_b',
+        'a%b',
+        'a"b',
+        "a'b",
+        'a\\b',
+        'a b',
+        // Starts with number
+        '123435',
+      ];
+
+      for (const test of errorCases) {
+        const f = () => r.column = test;
+        assert.throws(f);
+      }
+    });
   });
 
   describe('models', () => {
@@ -143,11 +197,53 @@ describe('laboratory', () => {
       checkEqual(result, benchmark);
     });
 
+    it('benchmark normalization', async () => {
+      // Tests share same database tables.
+      // Choose name that hasn't been used by other tests to avoid uniqueness
+      // constrain violation.
+      const name = 'benchmarknormalization';
+      const input: IBenchmark = {
+        ...benchmark,
+        name: name.toUpperCase()
+      }
+      const expected: IBenchmark = {
+        ...benchmark,
+        name
+      }
+      const result = await Benchmark.create(input);
+
+      checkEqual(result, expected);
+    });
+
     it('candidate roundtrip', async () => {
       const result = await Candidate.create(candidate);
 
       checkDates(result, candidate);
       checkEqual(result, candidate);
+    });
+
+    it('candidate normalization', async () => {
+      // Tests share same database tables.
+      // Choose name that hasn't been used by other tests to avoid uniqueness
+      // constrain violation.
+      const name = 'candidatenormalization';
+      const benchmarkName = 'benchmark';
+      const mode = 'mode';
+      const input: ICandidate = {
+        ...candidate,
+        name: name.toUpperCase(),
+        benchmark: benchmarkName.toUpperCase(),
+        mode: mode.toUpperCase(),
+      }
+      const expected: ICandidate = {
+        ...candidate,
+        name,
+        benchmark: benchmarkName,
+        mode,
+      }
+      const result = await Candidate.create(input);
+
+      checkEqual(result, expected);
     });
 
     it('run roundtrip', async () => {
@@ -162,6 +258,30 @@ describe('laboratory', () => {
 
       checkDates(result, suite);
       checkEqual(result, suite);
+    });
+
+    it('suite normalization', async () => {
+      // Tests share same database tables.
+      // Choose name that hasn't been used by other tests to avoid uniqueness
+      // constrain violation.
+      const name = 'suitenormalization';
+      const benchmarkName = 'benchmark';
+      const mode = 'mode';
+      const input: ISuite = {
+        ...suite,
+        name: name.toUpperCase(),
+        benchmark: benchmarkName.toUpperCase(),
+        mode: mode.toUpperCase(),
+      }
+      const expected: ISuite = {
+        ...candidate,
+        name,
+        benchmark: benchmarkName,
+        mode,
+      }
+      const result = await Suite.create(input);
+
+      checkEqual(result, expected);
     });
   });
 });
