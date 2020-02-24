@@ -1,13 +1,13 @@
 import { DataType, Column, Model, Table } from 'sequelize-typescript';
 
-import { ISuite } from '../interfaces';
+import { ICandidate } from '../../interfaces';
 
-import { dateColumn } from './decorators';
+import { dateColumn, nameColumn } from './decorators';
 
 @Table
-export class Suite extends Model<Suite> implements ISuite {
+export class Candidate extends Model<Candidate> implements ICandidate {
   @Column({
-    type: DataType.STRING,
+    ...nameColumn('name'),
     unique: true,
   })
   name!: string;
@@ -24,9 +24,13 @@ export class Suite extends Model<Suite> implements ISuite {
   @Column(dateColumn('updatedAt'))
   updatedAt!: string;
 
-  @Column(DataType.STRING)
+  @Column({
+    ...nameColumn('benchmark'),
+  })
   benchmark!: string;
 
-  @Column(DataType.STRING)
+  @Column({
+    ...nameColumn('mode'),
+  })
   mode!: string;
 }

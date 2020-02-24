@@ -1,7 +1,7 @@
 import { createServer } from 'http';
 
 import { app } from './app';
-import { initializeSequelize } from './sequelize';
+import { initializeSequelize } from '../sequelize';
 
 const port = process.env.PORT || 3000;
 

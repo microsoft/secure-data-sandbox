@@ -1,2 +1,2 @@
-export * from './benchmark';
-export * from './candidate';
+export * from './interfaces';
+export * from './schemas';

@@ -70,6 +70,7 @@ export interface IRun extends IEntityBase {
   benchmark: IBenchmark;
   suite: ISuite;
   candidate: ICandidate;
+  blob: string;
   status: RunStatus;
 }
 
@@ -85,3 +86,28 @@ export enum RunStatus {
 // Results will be dynamically typed.
 //
 ///////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// ILaboratory
+//
+///////////////////////////////////////////////////////////////////////////////
+// tslint:disable-next-line:interface-name
+export interface ILaboratory {
+  allBenchmarks(): Promise<IBenchmark[]>;
+  oneBenchmark(name: string): Promise<IBenchmark>;
+  upsertBenchmark(benchmark: IBenchmark, name?: string): Promise<void>;
+
+  allCandidates(): Promise<ICandidate[]>;
+  oneCandidate(name: string): Promise<ICandidate>;
+  upsertCandidate(candidate: ICandidate, name?: string): Promise<void>;
+
+  allSuites(): Promise<ISuite[]>;
+  oneSuite(name: string): Promise<ISuite>;
+  upsertSuite(suite: ISuite, name?: string): Promise<void>;
+
+  allRuns(): Promise<IRun[]>;
+  oneRun(name: string): Promise<IRun>;
+  createRun(candidate: string, suite: string): Promise<IRun>;
+  updateRunStatus(name: string, status: RunStatus): Promise<void>;
+}

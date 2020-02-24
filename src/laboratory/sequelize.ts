@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize-typescript';
 
-import { Benchmark, Candidate, Run, Suite } from './models';
+import { Benchmark, Candidate, Run, Suite } from './logic/sequelize_laboratory/models';
 
 export async function initializeSequelize(): Promise<Sequelize> {
   const sequelize = new Sequelize('sqlite::memory:');
