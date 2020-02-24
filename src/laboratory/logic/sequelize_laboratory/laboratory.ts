@@ -1,5 +1,3 @@
-import { Sequelize } from 'sequelize-typescript';
-
 import {
   IBenchmark,
   ICandidate,
@@ -82,8 +80,6 @@ export class SequelizeLaboratory implements ILaboratory {
       }
     }
 
-    // Note pass {...b} in order to allow upsert() to generate id field
-    // correctly.
     await Benchmark.upsert<Benchmark>(b);
   }
 
@@ -109,11 +105,11 @@ export class SequelizeLaboratory implements ILaboratory {
   }
 
   async upsertCandidate(candidate: ICandidate, rawName?: string): Promise<void> {
-    // Normalize the benchmark.
+    // Normalize the candidate.
     const c = normalizeCandidate(candidate);
 
     // If optional rawName parameter is supplied, verify that its normalized
-    // form is the same as the benchmark's normalized name.
+    // form is the same as the candidate's normalized name.
     if (rawName !== undefined) {
       const name = normalizeName(rawName);
       if (name !== c.name) {
@@ -122,8 +118,6 @@ export class SequelizeLaboratory implements ILaboratory {
       }
     }
 
-    // Note pass {...b} in order to allow upsert() to generate id field
-    // correctly.
     await Candidate.upsert<Candidate>(c);
   }
 
@@ -160,105 +154,3 @@ export class SequelizeLaboratory implements ILaboratory {
     throw new Error("Method not implemented.");
   }
 }
-
-// async function go() {
-//   //
-//   // Initialize sequlize-typescript
-//   //
-//   const sequelize = new Sequelize('sqlite::memory:');
-//   sequelize.addModels([Benchmark]);
-
-//   await Benchmark.sync();
-
-//   //
-//   // Example of creating a Benchmark record from an IBenchmark
-//   //
-//   const b: IBenchmark = {
-//     name: 'foo',
-//     author: 'bar',
-//     version: 'v1.0.0',
-//     pipelines: [
-//       {
-//         mode: 'mode1',
-//         stages: [
-//           {
-//             image: 'stage1 image',
-//           },
-//           {
-//             image: 'stage2 image',
-//           },
-//         ],
-//       },
-//     ],
-//     createdAt: '2020-02-21T19:07:08.842Z',
-//     updatedAt: '2020-02-21T19:07:08.842Z',
-//   };
-
-//   const r = await Benchmark.create(b);
-
-//   //
-//   // Example of creating a Benchmark row from an untyped POJO.
-//   //
-//   await Benchmark.create({
-//     name: 'foo2',
-//     author: 'bar2',
-//     version: 'v1.0.0',
-//     pipelines: [
-//       {
-//         mode: 'mode2',
-//         stages: [
-//           {
-//             image: 'stage1 image',
-//           },
-//           {
-//             image: 'stage2 image',
-//           },
-//         ],
-//       },
-//     ],
-//   });
-
-//   //
-//   // Select and print all records.
-//   //
-//   const records = await Benchmark.findAll();
-//   console.log(JSON.stringify(records, null, 4));
-// }
-
-// go();
-
-
-  // // tslint:disable-next-line:no-any
-  // static validate(spec: any, name: string): ICandidate {
-  //   // Validate JSON schema.
-  //   const result = validate<ICandidate>(spec, validator, schema);
-
-  //   // Normalize fields (e.g. name to lower, etc.)
-  //   canonicalize(result, name);
-
-  //   // TODO: should normalization be done with a decorator? How would this work in the pipelines?
-  //   // TODO: normalize benchmark name.
-  //   // TODO: normalize mode?.
-
-  //   // Validate business rules, if necessary.
-  //   // TODO: get sequelize from Candidate.sequelize.
-  //   // TODO: check for benchmark
-  //   // TODO: check for mode
-
-  //   return result;
-  // }
-
-  
-  // // tslint:disable-next-line:no-any
-  // static validate(spec: any, name: string): IBenchmark {
-  //   // Validate JSON schema.
-  //   const result = validate<IBenchmark>(spec, validator, schema);
-
-  //   // Normalize fields (e.g. name to lower, etc.)
-  //   canonicalize(result, name);
-
-  //   // Validate business rules, if necessary.
-  //   // No business rules for benchmark.
-
-  //   return result;
-  // }

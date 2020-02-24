@@ -11,12 +11,12 @@ export function dateColumn(name: string) {
     type: DataType.DATE,
     get(): string {
       // tslint:disable-next-line:no-any
-      const value = (this as any).getDataValue('createdAt') as Date;
+      const value = (this as any).getDataValue(name) as Date;
       return value.toISOString();
     },
     set(date: string) {
-      // Do nothing. This property is not writeable.
-      // TODO: consider making a writable variant.
+      // tslint:disable-next-line:no-any
+      (this as any).setDataValue(name, new Date(date));
     },
   };
 }
@@ -60,7 +60,7 @@ export function jsonColumn<T>(name: string, length: number) {
 // Helper function provides a column decorator for name columns, which
 // canonicalize names on set.
 //
-// TODO: unit test.
+// TODO: REVIEW: consider reintroducing nameColumn decorator in models.
 export function nameColumn(name: string) {
   return {
     type: DataType.STRING,

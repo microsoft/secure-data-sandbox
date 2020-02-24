@@ -2,12 +2,12 @@ import { DataType, Column, Model, Table } from 'sequelize-typescript';
 
 import { IBenchmark, IPipeline } from '../../interfaces';
 
-import { dateColumn, jsonColumn, nameColumn } from './decorators';
+import { dateColumn, jsonColumn } from './decorators';
 
 @Table
 export class Benchmark extends Model<Benchmark> implements IBenchmark {
   @Column({
-    ...nameColumn('name'),
+    type: DataType.STRING,
     unique: true,
   })
   name!: string;
@@ -18,11 +18,11 @@ export class Benchmark extends Model<Benchmark> implements IBenchmark {
   @Column(DataType.STRING)
   version!: string;
 
-  @Column(dateColumn('createdAt'))
-  createdAt!: string;
+  // @Column(dateColumn('createdAt'))
+  // createdAt!: string;
 
-  @Column(dateColumn('updatedAt'))
-  updatedAt!: string;
+  // @Column(dateColumn('updatedAt'))
+  // updatedAt!: string;
 
   @Column(jsonColumn<IPipeline[]>('pipelines', 1024))
   pipelines!: IPipeline[];

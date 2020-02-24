@@ -7,14 +7,13 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 import * as chai from 'chai';
-import { assert, expect } from 'chai';
-import { Column, Model, Sequelize, Table } from 'sequelize-typescript';
+import { assert } from 'chai';
+const chaiAsPromised = require('chai-as-promised');
 import chaiExclude from 'chai-exclude';
-//import chaiAsPromised from 'chai-as-promised';
-// const chaiAsPromised = require('chai-as-promised');
+import { Sequelize } from 'sequelize-typescript';
 
 chai.use(chaiExclude);
-// chai.use(chaiAsPromised);
+chai.use(chaiAsPromised);
 
 import {
   Benchmark,
