@@ -1,6 +1,12 @@
 import { DataType, Column, Model, Table } from 'sequelize-typescript';
 
-import { IBenchmark, ICandidate, IRun, ISuite, RunStatus } from '../../interfaces';
+import {
+  IBenchmark,
+  ICandidate,
+  IRun,
+  ISuite,
+  RunStatus,
+} from '../../interfaces';
 
 import { dateColumn, jsonColumn } from './decorators';
 

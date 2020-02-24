@@ -1,14 +1,10 @@
 import * as AJV from 'ajv';
 import * as betterAjvErrors from 'better-ajv-errors';
 
-import {
-  IBenchmark,
-  ICandidate,
-  IEntityBase,
-} from '../interfaces';
+import { IBenchmark, ICandidate, IEntityBase } from '../interfaces';
 
-import { benchmarkSchema } from './benchmark'
-import { candidateSchema } from './candidate'
+import { benchmarkSchema } from './benchmark';
+import { candidateSchema } from './candidate';
 
 const ajv = new AJV();
 const benchmarkValidator = ajv.compile(benchmarkSchema);
@@ -49,5 +45,3 @@ export class SchemaValidationError extends TypeError {
     this.name = 'Schema Validation Error';
   }
 }
-
-

@@ -21,7 +21,7 @@ import {
 import {
   dateColumn,
   jsonColumn,
-  nameColumn
+  nameColumn,
 } from '../../../../../../src/laboratory/logic/sequelize_laboratory/models/decorators';
 
 const benchmark: IBenchmark = {
@@ -194,19 +194,15 @@ describe('sequelize', () => {
       // it('benchmark roundtrip', async () => {
       //   const {createdAt, updatedAt, ...rest} = benchmark;
       //   const result = await Benchmark.create(rest);
-
       //   checkDates(result, benchmark);
       //   checkEqual(result, benchmark);
-
       //   result.createdAt = '1970-01-01T00:00:00.000Z';
       //   const result2 = await Benchmark.update(
       //     result,
       //     { where: { id: result.id } },
       //   );
-
       //   console.log('here');
       // });
-
       // it('benchmark normalization', async () => {
       //   // Tests share same database tables.
       //   // Choose name that hasn't been used by other tests to avoid uniqueness
@@ -221,17 +217,13 @@ describe('sequelize', () => {
       //     name
       //   }
       //   const result = await Benchmark.create(input);
-
       //   checkEqual(result, expected);
       // });
-
       // it('candidate roundtrip', async () => {
       //   const result = await Candidate.create(candidate);
-
       //   checkDates(result, candidate);
       //   checkEqual(result, candidate);
       // });
-
       // it('candidate normalization', async () => {
       //   // Tests share same database tables.
       //   // Choose name that hasn't been used by other tests to avoid uniqueness
@@ -252,24 +244,18 @@ describe('sequelize', () => {
       //     mode,
       //   }
       //   const result = await Candidate.create(input);
-
       //   checkEqual(result, expected);
       // });
-
       // it('run roundtrip', async () => {
       //   const result = await Run.create(run);
-
       //   checkDates(result, run);
       //   checkEqual(result, run);
       // });
-
       // it('suite roundtrip', async () => {
       //   const result = await Suite.create(suite);
-
       //   checkDates(result, suite);
       //   checkEqual(result, suite);
       // });
-
       // it('suite normalization', async () => {
       //   // Tests share same database tables.
       //   // Choose name that hasn't been used by other tests to avoid uniqueness
@@ -290,7 +276,6 @@ describe('sequelize', () => {
       //     mode,
       //   }
       //   const result = await Suite.create(input);
-
       //   checkEqual(result, expected);
       // });
     });

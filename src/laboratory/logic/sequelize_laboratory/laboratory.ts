@@ -4,7 +4,7 @@ import {
   ILaboratory,
   IRun,
   ISuite,
-  RunStatus
+  RunStatus,
 } from '../interfaces';
 
 import { Benchmark, Candidate, Run, Suite } from './models';
@@ -66,7 +66,10 @@ export class SequelizeLaboratory implements ILaboratory {
     return b;
   }
 
-  async upsertBenchmark(benchmark: IBenchmark, rawName?: string): Promise<void> {
+  async upsertBenchmark(
+    benchmark: IBenchmark,
+    rawName?: string
+  ): Promise<void> {
     // Normalize the benchmark.
     const b = normalizeBenchmark(benchmark);
 
@@ -104,7 +107,10 @@ export class SequelizeLaboratory implements ILaboratory {
     return c;
   }
 
-  async upsertCandidate(candidate: ICandidate, rawName?: string): Promise<void> {
+  async upsertCandidate(
+    candidate: ICandidate,
+    rawName?: string
+  ): Promise<void> {
     // Normalize the candidate.
     const c = normalizeCandidate(candidate);
 
@@ -127,13 +133,13 @@ export class SequelizeLaboratory implements ILaboratory {
   //
   /////////////////////////////////////////////////////////////////////////////
   allSuites(): Promise<ISuite[]> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   oneSuite(name: string): Promise<ISuite> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   upsertSuite(suite: ISuite, name?: string): Promise<void> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -142,15 +148,15 @@ export class SequelizeLaboratory implements ILaboratory {
   //
   /////////////////////////////////////////////////////////////////////////////
   allRuns(): Promise<IRun[]> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   oneRun(name: string): Promise<IRun> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   createRun(candidate: string, suite: string): Promise<IRun> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   updateRunStatus(name: string, status: RunStatus): Promise<void> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 }

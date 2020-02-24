@@ -28,9 +28,7 @@ import {
   IPipeline,
 } from '../../../../src/laboratory/logic';
 
-import {
-  SequelizeLaboratory
-} from '../../../../src/laboratory/logic/sequelize_laboratory/laboratory';
+import { SequelizeLaboratory } from '../../../../src/laboratory/logic/sequelize_laboratory/laboratory';
 
 let sequelize: Sequelize;
 
@@ -46,11 +44,7 @@ function assertDeepEqual(
 ): void {
   const o = toPOJO(observed);
 
-  assert.deepEqualExcludingEvery(
-    o,
-    expected,
-    ['createdAt', 'updatedAt', 'id']
-  );
+  assert.deepEqualExcludingEvery(o, expected, ['createdAt', 'updatedAt', 'id']);
 }
 
 before(async () => {
@@ -110,7 +104,6 @@ const candidate2: ICandidate = {
   mode: 'mode2',
 };
 
-
 describe('laboratory', () => {
   describe('sequelize_laboratory', () => {
     ///////////////////////////////////////////////////////////////////////////
@@ -127,7 +120,7 @@ describe('laboratory', () => {
 
         await lab.upsertBenchmark(benchmark1);
         const results1 = await lab.allBenchmarks();
-        assertDeepEqual(results1, [benchmark1])
+        assertDeepEqual(results1, [benchmark1]);
 
         await lab.upsertBenchmark(benchmark2);
         const results2 = await lab.allBenchmarks();
@@ -141,10 +134,10 @@ describe('laboratory', () => {
         await lab.upsertBenchmark(benchmark2);
 
         const result1 = await lab.oneBenchmark('benchmark1');
-        assertDeepEqual(result1, benchmark1)
+        assertDeepEqual(result1, benchmark1);
 
         const result2 = await lab.oneBenchmark('benchmark2');
-        assertDeepEqual(result2, benchmark2)
+        assertDeepEqual(result2, benchmark2);
 
         // Throws for unknown name.
         await assert.isRejected(lab.oneBenchmark('unknown'));
@@ -156,19 +149,19 @@ describe('laboratory', () => {
         const lab = new SequelizeLaboratory();
 
         await lab.upsertBenchmark(benchmark1);
-        const results1 =  await lab.allBenchmarks();
-        assertDeepEqual(results1, [benchmark1])
+        const results1 = await lab.allBenchmarks();
+        assertDeepEqual(results1, [benchmark1]);
 
         await lab.upsertBenchmark(benchmark2);
-        const results2 =  await lab.allBenchmarks();
+        const results2 = await lab.allBenchmarks();
         assertDeepEqual(results2, [benchmark1, benchmark2]);
 
         const benchmark3 = {
           ...benchmark1,
           version: benchmark1.version + 'x',
-        }
+        };
         await lab.upsertBenchmark(benchmark3);
-        const results3 =  await lab.allBenchmarks();
+        const results3 = await lab.allBenchmarks();
         assertDeepEqual(results3, [benchmark3, benchmark2]);
       });
 
@@ -182,7 +175,6 @@ describe('laboratory', () => {
         // Invalid name
         assert.isTrue(false);
       });
-
     });
 
     ///////////////////////////////////////////////////////////////////////////
@@ -199,7 +191,7 @@ describe('laboratory', () => {
 
         await lab.upsertCandidate(candidate1);
         const results1 = await lab.allCandidates();
-        assertDeepEqual(results1, [candidate1])
+        assertDeepEqual(results1, [candidate1]);
 
         await lab.upsertCandidate(candidate2);
         const results2 = await lab.allCandidates();
@@ -213,10 +205,10 @@ describe('laboratory', () => {
         await lab.upsertCandidate(candidate2);
 
         const result1 = await lab.oneCandidate('candidate1');
-        assertDeepEqual(result1, candidate1)
+        assertDeepEqual(result1, candidate1);
 
         const result2 = await lab.oneCandidate('candidate2');
-        assertDeepEqual(result2, candidate2)
+        assertDeepEqual(result2, candidate2);
 
         // Throws for unknown name.
         await assert.isRejected(lab.oneCandidate('unknown'));
@@ -228,19 +220,19 @@ describe('laboratory', () => {
         const lab = new SequelizeLaboratory();
 
         await lab.upsertCandidate(candidate1);
-        const results1 =  await lab.allCandidates();
-        assertDeepEqual(results1, [candidate1])
+        const results1 = await lab.allCandidates();
+        assertDeepEqual(results1, [candidate1]);
 
         await lab.upsertCandidate(candidate2);
-        const results2 =  await lab.allCandidates();
+        const results2 = await lab.allCandidates();
         assertDeepEqual(results2, [candidate1, candidate2]);
 
         const candidate3 = {
           ...candidate1,
           version: candidate1.version + 'x',
-        }
+        };
         await lab.upsertCandidate(candidate3);
-        const results3 =  await lab.allCandidates();
+        const results3 = await lab.allCandidates();
         assertDeepEqual(results3, [candidate3, candidate2]);
       });
 
@@ -255,6 +247,5 @@ describe('laboratory', () => {
         assert.isTrue(false);
       });
     });
-
   });
 });
