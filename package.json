@@ -25,6 +25,7 @@
     "env-var": "^6.0.1",
     "express": "^4.17.1",
     "luxon": "^1.22.0",
+    "request-promise": "^4.2.5",
     "strong-error-handler": "^3.4.0"
   },
   "devDependencies": {
@@ -38,6 +39,7 @@
     "@types/luxon": "^1.21.0",
     "@types/mocha": "^7.0.1",
     "@types/node": "^10.0.3",
+    "@types/request-promise": "^4.1.45",
     "@types/uuid": "^3.4.7",
     "@types/validator": "^12.0.1",
     "chai": "^4.2.0",

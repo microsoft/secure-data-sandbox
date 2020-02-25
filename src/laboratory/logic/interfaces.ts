@@ -3,7 +3,19 @@ export interface IEntityBase {
   name: string;
   author: string;
   version: string;
+
+  // jsdoc annotations for typescript-json-schema
+  /**
+   * @TJS-type object
+   * @format date-time
+   */
   createdAt?: Date;
+
+  // jsdoc annotations for typescript-json-schema
+  /**
+   * @TJS-type object
+   * @format date-time
+   */
   updatedAt?: Date;
 }
 

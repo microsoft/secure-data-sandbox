@@ -1,17 +1,18 @@
-import { createServer } from 'http';
+import { createServer, Server } from 'http';
 
-import { app } from './app';
-import { initializeSequelize } from '../sequelize';
+import { createApp } from './app';
 
-const port = process.env.PORT || 3000;
+export async function startServer(): Promise<Server> {
+  const port = process.env.PORT || 3000;
 
-(async () => {
-  await initializeSequelize();
+  const app = await createApp();
 
-  createServer(app).listen(port, () =>
+  const server = createServer(app).listen(port, () =>
     console.info(`Server running on port ${port}`)
   );
-})();
+
+  return server;
+}
 
 // curl -d '{"name":"benchmark1", "author":"mike", "version":"v1", "image":"image1", "pipelines":[]}' -H "Content-Type: application/json" -X PUT localhost:3000/benchmarks/one
 // curl -d '{"name":"one", "author":"mike", "version":"v1", "image":"image1", "pipelines":[]}' -H "Content-Type: application/json" -X PUT localhost:3000/benchmarks/one

@@ -1,15 +1,18 @@
 # Laboratory TODO
 
 * Correct createdAt/updatedAt handling
-  * JSON parse replacer - parsing seems to be done by express
-  * Change probably goes into routes
-  * Perhaps validateFoo() methods could strip createdAt/updatedAt
-  * More likely normalizeFoo() methods
-  * Remove dataColumn decorator
-  * Check json schema generation/validation for Date
+  * . JSON parse reviver - parsing seems to be done by express
+  * . Change probably goes into routes
+  * . Perhaps validateFoo() methods could strip createdAt/updatedAt
+  * . More likely normalizeFoo() methods
+  * . Remove dateColumn decorator
+  * . Check json schema generation/validation for Date
+  * . badyParser.json
+  * Figure out some way to unit test
+* Candidate & Suite: verify that referenced model is provided by benchmark.
 * server.ts should not initializeSequelize()
 * x Remove naming.ts
-* Candidate router
+* . Candidate router
 * Suite router
 * Run router
 * better-ajv-erros integration

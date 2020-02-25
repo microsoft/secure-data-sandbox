@@ -18,11 +18,7 @@ import {
   Suite,
 } from '../../../../../../src/laboratory/logic/sequelize_laboratory/models';
 
-import {
-  dateColumn,
-  jsonColumn,
-  nameColumn,
-} from '../../../../../../src/laboratory/logic/sequelize_laboratory/models/decorators';
+import { jsonColumn } from '../../../../../../src/laboratory/logic/sequelize_laboratory/models/decorators';
 
 const benchmark: IBenchmark = {
   name: 'foo',
