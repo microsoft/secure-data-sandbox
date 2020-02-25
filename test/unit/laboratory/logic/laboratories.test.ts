@@ -100,7 +100,7 @@ const candidate2: ICandidate = {
   author: 'author2',
   version: 'v1.0.0',
   benchmark: 'benchmark1',
-  mode: 'mode2',
+  mode: 'mode1',
 };
 
 const candidate3: ICandidate = {
@@ -108,7 +108,7 @@ const candidate3: ICandidate = {
   author: 'author3',
   version: 'v1.0.0',
   benchmark: 'benchmark1',
-  mode: 'mode3',
+  mode: 'mode1',
 };
 
 describe('laboratory', () => {
@@ -325,7 +325,7 @@ describe('laboratory', () => {
         };
         await assert.isRejected(lab.upsertCandidate(c5));
 
-        // TODO: Throws on non-existant mode
+        // Throws on non-existant mode
         const c6 = {
           ...candidate3,
           name: candidate3.name.toUpperCase(),

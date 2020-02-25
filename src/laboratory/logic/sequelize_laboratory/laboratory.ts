@@ -31,9 +31,29 @@ export function normalizeName(name: string): string {
 }
 
 function normalizeBenchmark(benchmark: IBenchmark): IBenchmark {
+  // Normalize mode names in pipeline.
+  const modes = new Set<string>();
+  const pipelines = benchmark.pipelines.map(p => {
+    const mode = normalizeName(p.mode);
+
+    // Modes must be unique within a benchmark.
+    // TODO: can this be done in the json-schema?
+    if (modes.has(mode)) {
+      const message = `Encountered duplicated mode "${mode}"`;
+      throw new TypeError(message);
+    }
+    modes.add(mode);
+
+    return {
+      ...p,
+      mode,
+    };
+  });
+
   return {
     ...benchmark,
     name: normalizeName(benchmark.name),
+    pipelines,
   };
 }
 
@@ -125,7 +145,7 @@ export class SequelizeLaboratory implements ILaboratory {
     if (rawName !== undefined) {
       const name = normalizeName(rawName);
       if (name !== c.name) {
-        const message = `Candidate name mismatch: "${candidate.name}" != "${name}"`;
+        const message = `Candidate name mismatch: "${c.name}" != "${name}"`;
         throw new TypeError(message);
       }
     }
@@ -137,7 +157,12 @@ export class SequelizeLaboratory implements ILaboratory {
       throw new TypeError(message);
     }
 
-    // TODO: verify that referenced model is provided by benchmark.
+    // Verify that referenced model is provided by benchmark.
+    const modes = benchmark.pipelines.map(p => p.mode);
+    if (!modes.includes(c.mode)) {
+      const message = `Candidate references unknown mode "${c.mode}"`;
+      throw new TypeError(message);
+    }
 
     await Candidate.upsert<Candidate>(c);
   }
