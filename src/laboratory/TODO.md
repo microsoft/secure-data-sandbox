@@ -1,13 +1,34 @@
 # Laboratory TODO
 
+* Integration
+  * SQL server dialect
+  * Azure queue
+  * Deployment
+  * Authentication
+* npm uninstall request-promise
 * Remove startServer()
 * Delete nameColumn
 * Delete dateColumn
 * Cleanup models.test.ts - lots of dead code
-* x Suite router
 * Run router
-* Suite methods on ILaboratory
 * Run methods on ILaboratory
+  * Generate blob
+* CLI
+  * help
+  * connect
+  * benchmark
+  * candidate
+  * suite
+  * run
+  * list
+  * deploy
+* Rename Queue to IQueue. Move from index.ts to interfaces.ts.
+* REVIEW: should Queue be templated by T, instead of its methods?
+* Where do IBenchmark, ICandidate, IRun, ISuite go?
+* Where does ILaboratory go?
+* Where does IQueue go?
+* x Suite router
+* x Suite methods on ILaboratory
 * x Correct createdAt/updatedAt handling
   * x JSON parse reviver - parsing seems to be done by express
   * x Change probably goes into routes
@@ -17,7 +38,7 @@
   * x Check json schema generation/validation for Date
   * x bodyParser.json
   * x Figure out some way to unit test
-* Candidate & Suite: verify that referenced model is provided by benchmark.
+* x Candidate & Suite: verify that referenced model is provided by benchmark.
 * ? server.ts should not initializeSequelize()
 * x Remove naming.ts
 * x Candidate router
@@ -38,6 +59,5 @@
   * toPOJO()
   * assertDeepEqual()
 * Accidentally PUT benchmark to candidates seems error-prone. Also PUT suite/candidate to candidate/suite.
-* npm uninstall request-promise
 * 
   
