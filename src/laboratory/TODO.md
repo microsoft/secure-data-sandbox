@@ -1,5 +1,9 @@
 # Laboratory TODO
 
+* x Suite router
+* Run router
+* Suite methods on ILaboratory
+* Run methods on ILaboratory
 * x Correct createdAt/updatedAt handling
   * x JSON parse reviver - parsing seems to be done by express
   * x Change probably goes into routes
@@ -15,8 +19,6 @@
 * x Candidate router
 * x Validate that modes in a benchmark are unique
 * Can unique modes be enforced in JSON-schema?
-* Suite router
-* Run router
 * better-ajv-erros integration
 * Documentation
   * app.ts: debug: process.env.ENV !== 'prod',

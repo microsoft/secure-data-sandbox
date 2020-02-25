@@ -82,6 +82,16 @@ const candidate1: ICandidate = {
   updatedAt: new Date('1970-01-01T00:00:00.000Z'),
 };
 
+const suite1: ISuite = {
+  name: 'suite1',
+  author: 'author1',
+  version: 'v1.0.0',
+  benchmark: 'benchmark1',
+  mode: 'mode1',
+  createdAt: new Date('1970-01-01T00:00:00.000Z'),
+  updatedAt: new Date('1970-01-01T00:00:00.000Z'),
+};
+
 class MockLaboratory implements ILaboratory {
   allBenchmarks(): Promise<IBenchmark[]> {
     throw new Error('Method not implemented.');
@@ -267,6 +277,75 @@ describe('laboratory', () => {
           .end((err, res) => {
             assert.equal(res.status, 200);
             assert.deepEqual(observed, candidate1);
+          });
+      });
+    });
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // Suites
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    describe('suites', () => {
+      it('allSuites()', async () => {
+        const lab = new MockLaboratory();
+
+        const expected: ISuite[] = [];
+
+        let called = false;
+        lab.allSuites = async (): Promise<ISuite[]> => {
+          called = true;
+          return expected;
+        };
+
+        chai
+          .request(await createApp(lab))
+          .get(`/suites`)
+          .end((err, res) => {
+            assert.equal(res.status, 200);
+            assert.deepEqual(res.body, expected);
+            assert.isTrue(called);
+          });
+      });
+
+      it('oneSuite()', async () => {
+        const lab = new MockLaboratory();
+
+        const expected = 'suite1';
+        let observed: string | undefined;
+        lab.oneSuite = async (name: string): Promise<ISuite> => {
+          observed = name;
+          return suite1;
+        };
+
+        chai
+          .request(await createApp(lab))
+          .get(`/suites/${expected}`)
+          .end((err, res) => {
+            assert.equal(res.status, 200);
+            assertDeepEqual(res.body, suite1);
+            assert.equal(observed, expected);
+          });
+      });
+
+      it('upsertSuite()', async () => {
+        const lab = new MockLaboratory();
+
+        let observed: ISuite;
+        lab.upsertSuite = async (
+          suite: ISuite,
+          name?: string
+        ): Promise<void> => {
+          observed = suite;
+        };
+
+        chai
+          .request(await createApp(lab))
+          .put(`/suites/${suite1.name}`)
+          .send(suite1)
+          .end((err, res) => {
+            assert.equal(res.status, 200);
+            assert.deepEqual(observed, suite1);
           });
       });
     });

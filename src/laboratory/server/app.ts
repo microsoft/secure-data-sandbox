@@ -4,7 +4,11 @@ import * as errorhandler from 'strong-error-handler';
 
 import { entityBaseReviver, ILaboratory } from '../logic';
 
-import { createBenchmarkRouter, createCandidateRouter } from './routes';
+import {
+  createBenchmarkRouter,
+  createCandidateRouter,
+  createSuiteRouter,
+} from './routes';
 
 export async function createApp(lab: ILaboratory): Promise<express.Express> {
   const app = express();
@@ -38,6 +42,7 @@ export async function createApp(lab: ILaboratory): Promise<express.Express> {
 
   app.use('/benchmarks', createBenchmarkRouter(lab));
   app.use('/candidates', createCandidateRouter(lab));
+  app.use('/suites', createSuiteRouter(lab));
 
   app.use(
     errorhandler({
