@@ -20,6 +20,7 @@ import {
   ICandidate,
   IPipeline,
   initializeSequelize,
+  ISuite,
 } from '../../../../src/laboratory/logic';
 
 import { SequelizeLaboratory } from '../../../../src/laboratory/logic/sequelize_laboratory/laboratory';
@@ -105,6 +106,30 @@ const candidate2: ICandidate = {
 
 const candidate3: ICandidate = {
   name: 'candidate3',
+  author: 'author3',
+  version: 'v1.0.0',
+  benchmark: 'benchmark1',
+  mode: 'mode1',
+};
+
+const suite1: ISuite = {
+  name: 'suite1',
+  author: 'author1',
+  version: 'v1.0.0',
+  benchmark: 'benchmark1',
+  mode: 'mode1',
+};
+
+const suite2: ISuite = {
+  name: 'suite2',
+  author: 'author2',
+  version: 'v1.0.0',
+  benchmark: 'benchmark1',
+  mode: 'mode1',
+};
+
+const suite3: ISuite = {
+  name: 'suite3',
   author: 'author3',
   version: 'v1.0.0',
   benchmark: 'benchmark1',
@@ -242,11 +267,9 @@ describe('laboratory', () => {
       });
 
       it('upsertCandidate()', async () => {
-        console.log('candidate');
-
         const lab = new SequelizeLaboratory();
 
-        // First add benchmark referenced by canidate1 and candidate2.
+        // First add benchmark referenced by candidate1 and candidate2.
         await lab.upsertBenchmark(benchmark1);
 
         await lab.upsertCandidate(candidate1);
@@ -276,8 +299,6 @@ describe('laboratory', () => {
       });
 
       it('upsertCandidate() - normalization', async () => {
-        // Normalize name, benchmark, candidate
-        // Invalid name, benchmark, candidate
         const lab = new SequelizeLaboratory();
 
         // First add benchmark referenced by canidate1 and candidate2.
@@ -332,6 +353,138 @@ describe('laboratory', () => {
           mode: 'unknown',
         };
         await assert.isRejected(lab.upsertCandidate(c6));
+      });
+    });
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // Suites
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    describe('suite', () => {
+      it('allSuites()', async () => {
+        const lab = new SequelizeLaboratory();
+
+        // First add benchmark referenced by suite1 and suite2.
+        await lab.upsertBenchmark(benchmark1);
+
+        const empty = await lab.allSuites();
+        assert.deepEqual(empty, []);
+
+        await lab.upsertSuite(suite1);
+        const results1 = await lab.allSuites();
+        assertDeepEqual(results1, [suite1]);
+
+        await lab.upsertSuite(suite2);
+        const results2 = await lab.allSuites();
+        assertDeepEqual(results2, [suite1, suite2]);
+      });
+
+      it('oneSuite()', async () => {
+        const lab = new SequelizeLaboratory();
+
+        // First add benchmark referenced by suite1 and suite2.
+        await lab.upsertBenchmark(benchmark1);
+        await lab.upsertSuite(suite1);
+        await lab.upsertSuite(suite2);
+
+        const result1 = await lab.oneSuite('suite1');
+        assertDeepEqual(result1, suite1);
+
+        const result2 = await lab.oneSuite('suite2');
+        assertDeepEqual(result2, suite2);
+
+        // Throws for unknown name.
+        await assert.isRejected(lab.oneSuite('unknown'));
+      });
+
+      it('upsertSuite()', async () => {
+        const lab = new SequelizeLaboratory();
+
+        // First add benchmark referenced by suite1 and suite2.
+        await lab.upsertBenchmark(benchmark1);
+
+        await lab.upsertSuite(suite1);
+        const results1 = await lab.allSuites();
+        assertDeepEqual(results1, [suite1]);
+
+        await lab.upsertSuite(suite2);
+        const results2 = await lab.allSuites();
+        assertDeepEqual(results2, [suite1, suite2]);
+
+        const suite3 = {
+          ...suite1,
+          version: suite1.version + 'x',
+        };
+        await lab.upsertSuite(suite3);
+        const results3 = await lab.allSuites();
+        assertDeepEqual(results3, [suite3, suite2]);
+      });
+
+      it('upsertSuite() - route mismatch', async () => {
+        const lab = new SequelizeLaboratory();
+
+        // First add benchmark referenced by suite1 and suite2.
+        await lab.upsertBenchmark(benchmark1);
+
+        await assert.isRejected(lab.upsertSuite(suite1, 'suite2'));
+      });
+
+      it('upsertSuite() - normalization', async () => {
+        const lab = new SequelizeLaboratory();
+
+        // First add benchmark referenced by suite1 and suite2.
+        await lab.upsertBenchmark(benchmark1);
+
+        // Throws for invalid name
+        const c1 = {
+          ...suite3,
+          name: '123_invalid_name',
+        };
+        await assert.isRejected(lab.upsertSuite(c1));
+
+        // Throws for invalid benchmark name
+        const c2 = {
+          ...suite3,
+          benchmark: '123_invalid_name',
+        };
+        await assert.isRejected(lab.upsertSuite(c2));
+
+        // Throws for invalid mode name
+        const c3 = {
+          ...suite3,
+          mode: '123_invalid_name',
+        };
+        await assert.isRejected(lab.upsertSuite(c3));
+
+        // Lowercases name, benchmark, mode
+        const c4 = {
+          ...suite3,
+          name: suite3.name.toUpperCase(),
+          benchmark: suite3.benchmark.toUpperCase(),
+          mode: suite3.mode.toUpperCase(),
+        };
+        await lab.upsertSuite(c4);
+
+        const result = await lab.oneSuite(suite3.name);
+        assertDeepEqual(result, suite3);
+
+        // Throws on non-existant benchmark
+        const c5 = {
+          ...suite3,
+          name: suite3.name.toUpperCase(),
+          benchmark: 'unknown',
+          mode: suite3.mode.toUpperCase(),
+        };
+        await assert.isRejected(lab.upsertSuite(c5));
+
+        // Throws on non-existant mode
+        const c6 = {
+          ...suite3,
+          name: suite3.name.toUpperCase(),
+          mode: 'unknown',
+        };
+        await assert.isRejected(lab.upsertSuite(c6));
       });
     });
   });

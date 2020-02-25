@@ -66,6 +66,15 @@ function normalizeCandidate(candidate: ICandidate): ICandidate {
   };
 }
 
+function normalizeSuite(suite: ISuite): ISuite {
+  return {
+    ...suite,
+    name: normalizeName(suite.name),
+    benchmark: normalizeName(suite.benchmark),
+    mode: normalizeName(suite.mode),
+  };
+}
+
 export class SequelizeLaboratory implements ILaboratory {
   constructor() {
     // initializeSequelize();
@@ -123,14 +132,14 @@ export class SequelizeLaboratory implements ILaboratory {
 
   async oneCandidate(rawName: string): Promise<ICandidate> {
     const name = normalizeName(rawName);
-    const c = await Candidate.findOne({ where: { name } });
+    const candidate = await Candidate.findOne({ where: { name } });
 
-    if (c === null) {
+    if (candidate === null) {
       const message = `Candidate "${name}" not found.`;
       throw new TypeError(message);
     }
 
-    return c;
+    return candidate;
   }
 
   async upsertCandidate(
@@ -173,13 +182,50 @@ export class SequelizeLaboratory implements ILaboratory {
   //
   /////////////////////////////////////////////////////////////////////////////
   allSuites(): Promise<ISuite[]> {
-    throw new Error('Method not implemented.');
+    return Suite.findAll();
   }
-  oneSuite(name: string): Promise<ISuite> {
-    throw new Error('Method not implemented.');
+
+  async oneSuite(rawName: string): Promise<ISuite> {
+    const name = normalizeName(rawName);
+    const suite = await Suite.findOne({ where: { name } });
+
+    if (suite === null) {
+      const message = `Suite "${name}" not found.`;
+      throw new TypeError(message);
+    }
+
+    return suite;
   }
-  upsertSuite(suite: ISuite, name?: string): Promise<void> {
-    throw new Error('Method not implemented.');
+
+  async upsertSuite(suite: ISuite, rawName?: string): Promise<void> {
+    // Normalize the suite.
+    const s = normalizeSuite(suite);
+
+    // If optional rawName parameter is supplied, verify that its normalized
+    // form is the same as the candidate's normalized name.
+    if (rawName !== undefined) {
+      const name = normalizeName(rawName);
+      if (name !== s.name) {
+        const message = `Suite name mismatch: "${s.name}" != "${name}"`;
+        throw new TypeError(message);
+      }
+    }
+
+    // Verify that referenced benchmark exists.
+    const benchmark = await Benchmark.findOne({ where: { name: s.benchmark } });
+    if (!benchmark) {
+      const message = `Suite references unknown benchmark ${s.benchmark}`;
+      throw new TypeError(message);
+    }
+
+    // Verify that referenced model is provided by benchmark.
+    const modes = benchmark.pipelines.map(p => p.mode);
+    if (!modes.includes(s.mode)) {
+      const message = `Suite references unknown mode "${s.mode}"`;
+      throw new TypeError(message);
+    }
+
+    await Suite.upsert<Suite>(s);
   }
 
   /////////////////////////////////////////////////////////////////////////////

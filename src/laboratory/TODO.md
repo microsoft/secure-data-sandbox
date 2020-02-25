@@ -1,5 +1,9 @@
 # Laboratory TODO
 
+* Remove startServer()
+* Delete nameColumn
+* Delete dateColumn
+* Cleanup models.test.ts - lots of dead code
 * x Suite router
 * Run router
 * Suite methods on ILaboratory
@@ -33,7 +37,7 @@
 * Duplicate code
   * toPOJO()
   * assertDeepEqual()
-* Accidentally PUT benchmark to candidates seems error-prone.
+* Accidentally PUT benchmark to candidates seems error-prone. Also PUT suite/candidate to candidate/suite.
 * npm uninstall request-promise
 * 
   
