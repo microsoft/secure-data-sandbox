@@ -43,7 +43,9 @@ export const benchmarkSchema = {
       type: 'string',
     },
     createdAt: {
-      type: 'string',
+      description: 'Enables basic storage and retrieval of dates and times.',
+      format: 'date-time',
+      type: 'object',
     },
     name: {
       type: 'string',
@@ -55,7 +57,9 @@ export const benchmarkSchema = {
       type: 'array',
     },
     updatedAt: {
-      type: 'string',
+      description: 'Enables basic storage and retrieval of dates and times.',
+      format: 'date-time',
+      type: 'object',
     },
     version: {
       type: 'string',
