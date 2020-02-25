@@ -7,6 +7,7 @@ import { entityBaseReviver, ILaboratory } from '../logic';
 import {
   createBenchmarkRouter,
   createCandidateRouter,
+  createRunRouter,
   createSuiteRouter,
 } from './routes';
 
@@ -42,6 +43,7 @@ export async function createApp(lab: ILaboratory): Promise<express.Express> {
 
   app.use('/benchmarks', createBenchmarkRouter(lab));
   app.use('/candidates', createCandidateRouter(lab));
+  app.use('/runs', createRunRouter(lab));
   app.use('/suites', createSuiteRouter(lab));
 
   app.use(

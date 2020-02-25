@@ -1,15 +1,17 @@
 import * as AJV from 'ajv';
 import * as betterAjvErrors from 'better-ajv-errors';
 
-import { IBenchmark, ICandidate, IEntityBase, ISuite } from '../interfaces';
+import { IBenchmark, ICandidate, IRunRequest, ISuite } from '../interfaces';
 
 import { benchmarkSchema } from './benchmark';
 import { candidateSchema } from './candidate';
+import { runRequestSchema } from './run-request';
 import { suiteSchema } from './suite';
 
 const ajv = new AJV();
 const benchmarkValidator = ajv.compile(benchmarkSchema);
 const candidateValidator = ajv.compile(candidateSchema);
+const runRequestValidator = ajv.compile(runRequestSchema);
 const suiteValidator = ajv.compile(suiteSchema);
 
 // tslint:disable-next-line:no-any
@@ -32,11 +34,16 @@ export function validateCandidate(spec: any): ICandidate {
 }
 
 // tslint:disable-next-line:no-any
+export function validateRunRequest(spec: any): IRunRequest {
+  return validate<IRunRequest>(spec, runRequestValidator, runRequestSchema);
+}
+
+// tslint:disable-next-line:no-any
 export function validateSuite(spec: any): ICandidate {
   return validate<ISuite>(spec, suiteValidator, suiteSchema);
 }
 
-export function validate<T extends IEntityBase>(
+export function validate<T>(
   // tslint:disable-next-line:no-any
   spec: any,
   validator: AJV.ValidateFunction,

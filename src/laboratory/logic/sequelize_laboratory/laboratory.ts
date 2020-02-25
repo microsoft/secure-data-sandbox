@@ -1,3 +1,6 @@
+import * as uuid from 'uuid';
+import { URL } from 'url';
+
 import {
   IBenchmark,
   ICandidate,
@@ -5,11 +8,11 @@ import {
   IRun,
   ISuite,
   RunStatus,
+  IRunRequest,
+  apiVersion,
 } from '../interfaces';
 
 import { Benchmark, Candidate, Run, Suite } from './models';
-import { entityBaseReviver, validateCandidate } from '../schemas';
-import { initializeSequelize } from './sequelize';
 
 // Goals:
 //   Suitable blob and file paths (eliminate most special characters)
@@ -66,6 +69,14 @@ function normalizeCandidate(candidate: ICandidate): ICandidate {
   };
 }
 
+function normalizeRunRequest(runRequest: IRunRequest): IRunRequest {
+  return {
+    ...runRequest,
+    candidate: normalizeName(runRequest.candidate),
+    suite: normalizeName(runRequest.suite),
+  };
+}
+
 function normalizeSuite(suite: ISuite): ISuite {
   return {
     ...suite,
@@ -76,8 +87,10 @@ function normalizeSuite(suite: ISuite): ISuite {
 }
 
 export class SequelizeLaboratory implements ILaboratory {
-  constructor() {
-    // initializeSequelize();
+  private readonly runBlobBase: string;
+
+  constructor(runBlobBase: string) {
+    this.runBlobBase = runBlobBase;
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -230,18 +243,97 @@ export class SequelizeLaboratory implements ILaboratory {
 
   /////////////////////////////////////////////////////////////////////////////
   //
-  // Runs
+  // Runs and RunRequests
   //
   /////////////////////////////////////////////////////////////////////////////
   allRuns(): Promise<IRun[]> {
-    throw new Error('Method not implemented.');
+    return Run.findAll();
   }
-  oneRun(name: string): Promise<IRun> {
-    throw new Error('Method not implemented.');
+
+  async oneRun(rawName: string): Promise<IRun> {
+    const name = normalizeName(rawName);
+    const run = await Run.findOne({ where: { name } });
+
+    if (run === null) {
+      const message = `Run "${name}" not found.`;
+      throw new TypeError(message);
+    }
+
+    return run;
   }
-  createRun(candidate: string, suite: string): Promise<IRun> {
-    throw new Error('Method not implemented.');
+
+  async createRun(spec: IRunRequest): Promise<IRun> {
+    const runRequest = normalizeRunRequest(spec);
+
+    // Verify that referenced candidate exists.
+    const candidate = await Candidate.findOne({
+      where: { name: runRequest.candidate },
+    });
+    if (!candidate) {
+      const message = `Run request references unknown candidate ${runRequest.candidate}`;
+      throw new TypeError(message);
+    }
+
+    // Verify that referenced suite exists.
+    const suite = await Suite.findOne({ where: { name: runRequest.suite } });
+    if (!suite) {
+      const message = `Run request references unknown suite ${runRequest.suite}`;
+      throw new TypeError(message);
+    }
+
+    // Verify that candidate and suite reference same benchmark.
+    if (candidate.benchmark !== suite.benchmark) {
+      const message = `Candidate benchmark "${candidate.benchmark}" doesn't match suite benchmark "${suite.benchmark}"`;
+      throw new TypeError(message);
+    }
+
+    // Verify that candidate and suite reference same benchmark.
+    if (candidate.mode !== suite.mode) {
+      const message = `Candidate mode "${candidate.mode}" doesn't match suite mode "${suite.mode}"`;
+      throw new TypeError(message);
+    }
+
+    // Verify that referenced benchmark exists.
+    const benchmark = await Benchmark.findOne({
+      where: { name: candidate.benchmark },
+    });
+    if (!benchmark) {
+      const message = `Candidate references unknown benchmark ${candidate.benchmark}`;
+      throw new TypeError(message);
+    }
+
+    // Verify that referenced model is provided by benchmark.
+    const modes = benchmark.pipelines.map(p => p.mode);
+    if (!modes.includes(candidate.mode)) {
+      const message = `Candidate references unknown mode "${candidate.mode}"`;
+      throw new TypeError(message);
+    }
+
+    //
+    // All ok. Create the run.
+    //
+
+    const name = uuid();
+    const blobURI: URL = new URL(name, this.runBlobBase);
+
+    const run: IRun = {
+      name,
+      author: 'unknown', // TODO: fill in name
+      version: apiVersion,
+      status: RunStatus.CREATED,
+      blob: blobURI.toString(),
+      benchmark,
+      candidate,
+      suite,
+    };
+
+    const result = await Run.create(run);
+
+    // TODO: queue the run.
+
+    return result;
   }
+
   updateRunStatus(name: string, status: RunStatus): Promise<void> {
     throw new Error('Method not implemented.');
   }
