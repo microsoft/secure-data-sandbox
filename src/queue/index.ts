@@ -3,7 +3,8 @@ import { AzureStorageQueue } from './azure';
 /**
  * Simple interface to send/receive messages from a queue.
  */
-export interface Queue {
+// tslint:disable:interface-name
+export interface IQueue {
   /**
    * Enqueue a single message, serialized as JSON.
    * @param message An object/message to place on the queue.
@@ -43,7 +44,7 @@ export interface QueueConfiguration {
  * @param mode The implementation to use.
  * @param endpoint The location of the queue.
  */
-export function GetQueue(config: QueueConfiguration): Queue {
+export function GetQueue(config: QueueConfiguration): IQueue {
   // tsc ensures that all elements of the discriminated union are covered: https://www.typescriptlang.org/docs/handbook/advanced-types.html#exhaustiveness-checking
   // The following is safe but tslint doesn't understand, so we suppress the rule: https://github.com/palantir/tslint/issues/2104
   // tslint:disable:switch-default

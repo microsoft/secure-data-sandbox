@@ -1,6 +1,6 @@
 import * as Dockerode from 'dockerode';
 import { PipelineRun, PipelineStage } from '../messages';
-import { Queue, QueueProcessor } from '../queue';
+import { IQueue, QueueProcessor } from '../queue';
 
 const NANO = 1000 * 1000 * 1000;
 const GB = 1024 * 1024 * 1024;
@@ -12,7 +12,7 @@ export class PipelineWorker {
   private readonly processor: QueueProcessor<PipelineRun>;
   private readonly docker: Dockerode;
 
-  constructor(queue: Queue) {
+  constructor(queue: IQueue) {
     this.processor = new QueueProcessor(queue);
     this.docker = new Dockerode();
   }

@@ -1,10 +1,12 @@
 import { assert } from 'chai';
 import { PipelineWorker } from '../../../src/worker';
+import { FakeQueue } from '../queue';
 
 describe('worker', () => {
   it('initializes', () => {
-    //TODO(noel): add tests
+    const queue = new FakeQueue();
+    const worker = new PipelineWorker(queue);
 
-    assert.isTrue(true);
+    assert.isNotNull(worker);
   });
 });

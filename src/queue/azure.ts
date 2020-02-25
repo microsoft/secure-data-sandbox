@@ -1,11 +1,11 @@
 import { DefaultAzureCredential, TokenCredential } from '@azure/identity';
 import { DequeuedMessageItem, QueueClient } from '@azure/storage-queue';
-import { Queue, QueueMessage } from '.';
+import { IQueue, QueueMessage } from '.';
 
 /**
  * Simple client to send/receive messages via Azure Storage Queue
  */
-export class AzureStorageQueue implements Queue {
+export class AzureStorageQueue implements IQueue {
   static queueCreated: boolean;
 
   private readonly client: QueueClient;

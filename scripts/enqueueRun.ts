@@ -1,11 +1,11 @@
 import { v1 } from 'uuid';
 import { ParseQueueConfiguration } from '../src/configuration';
 import { PipelineRun } from '../src/messages';
-import { Queue, GetQueue } from '../src/queue';
+import { IQueue, GetQueue } from '../src/queue';
 
 const basePath = '/mnt/c/temp/dct';
 
-async function createRun(queue: Queue) {
+async function createRun(queue: IQueue) {
   const runId = v1();
   await queue.enqueue<PipelineRun>({
     id: `${runId}`,

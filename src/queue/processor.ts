@@ -1,4 +1,4 @@
-import { Queue } from '.';
+import { IQueue } from '.';
 
 export interface QueueProcessorOptions {
   receiveBatchSize: number;
@@ -16,11 +16,11 @@ const defaultQueueProcessorOptions: QueueProcessorOptions = {
  * Process messages from a queue with a pluggable message handler.
  */
 export class QueueProcessor<T> {
-  private readonly queue: Queue;
+  private readonly queue: IQueue;
   private readonly options: Readonly<QueueProcessorOptions>;
   private interval?: NodeJS.Timeout;
 
-  constructor(queue: Queue, options?: Partial<QueueProcessorOptions>) {
+  constructor(queue: IQueue, options?: Partial<QueueProcessorOptions>) {
     this.queue = queue;
     this.options = { ...defaultQueueProcessorOptions, ...options };
   }

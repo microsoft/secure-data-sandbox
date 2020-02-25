@@ -10,6 +10,6 @@ describe('queue.azure', () => {
       QUEUE_ENDPOINT,
       new DefaultAzureCredential()
     );
-    assert.isTrue(true);
+    assert.isNotNull(client);
   });
 });
