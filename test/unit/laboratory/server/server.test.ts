@@ -29,6 +29,7 @@ import {
   IRun,
   ISuite,
   RunStatus,
+  IRunRequest,
 } from '../../../../src/laboratory/logic';
 import e = require('express');
 
@@ -100,42 +101,53 @@ class MockLaboratory implements ILaboratory {
   oneBenchmark(name: string): Promise<IBenchmark> {
     throw new Error('Method not implemented.');
   }
+
   upsertBenchmark(
     benchmark: IBenchmark,
     name?: string | undefined
   ): Promise<void> {
     throw new Error('Method not implemented.');
   }
+
   allCandidates(): Promise<ICandidate[]> {
     throw new Error('Method not implemented.');
   }
+
   oneCandidate(name: string): Promise<ICandidate> {
     throw new Error('Method not implemented.');
   }
+
   upsertCandidate(
     candidate: ICandidate,
     name?: string | undefined
   ): Promise<void> {
     throw new Error('Method not implemented.');
   }
+
   allSuites(): Promise<ISuite[]> {
     throw new Error('Method not implemented.');
   }
+
   oneSuite(name: string): Promise<ISuite> {
     throw new Error('Method not implemented.');
   }
+
   upsertSuite(suite: ISuite, name?: string | undefined): Promise<void> {
     throw new Error('Method not implemented.');
   }
+
   allRuns(): Promise<IRun[]> {
     throw new Error('Method not implemented.');
   }
+
   oneRun(name: string): Promise<IRun> {
     throw new Error('Method not implemented.');
   }
-  createRun(candidate: string, suite: string): Promise<IRun> {
+
+  createRun(spec: IRunRequest): Promise<IRun> {
     throw new Error('Method not implemented.');
   }
+
   updateRunStatus(name: string, status: RunStatus): Promise<void> {
     throw new Error('Method not implemented.');
   }

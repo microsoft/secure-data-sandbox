@@ -1,3 +1,5 @@
+export const apiVersion = '0.0.1';
+
 // tslint:disable-next-line:interface-name
 export interface IEntityBase {
   name: string;
@@ -76,6 +78,17 @@ export interface ICandidate extends IEntityBase {
 // IRunRequest
 //
 ///////////////////////////////////////////////////////////////////////////////
+// tslint:disable-next-line:interface-name
+export interface IRunRequest {
+  candidate: string;
+  suite: string;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// IRun
+//
+///////////////////////////////////////////////////////////////////////////////
 
 // tslint:disable-next-line:interface-name
 export interface IRun extends IEntityBase {
@@ -120,6 +133,6 @@ export interface ILaboratory {
 
   allRuns(): Promise<IRun[]>;
   oneRun(name: string): Promise<IRun>;
-  createRun(candidate: string, suite: string): Promise<IRun>;
+  createRun(spec: IRunRequest): Promise<IRun>;
   updateRunStatus(name: string, status: RunStatus): Promise<void>;
 }

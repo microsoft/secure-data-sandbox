@@ -10,9 +10,13 @@
 * Delete nameColumn
 * Delete dateColumn
 * Cleanup models.test.ts - lots of dead code
-* Run router
+* x Run router
+* Run router unit test
 * Run methods on ILaboratory
-  * Generate blob
+  * x Generate blob
+  * Queue IRun
+  * Figure out how to pass in global constants like runBlobBase.
+  * Unit tests
 * CLI
   * help
   * connect
@@ -22,6 +26,7 @@
   * run
   * list
   * deploy
+* REVIEW: is "reflect-metadata": "^0.1.13" only a dev-dependency?
 * Rename Queue to IQueue. Move from index.ts to interfaces.ts.
 * REVIEW: should Queue be templated by T, instead of its methods?
 * Where do IBenchmark, ICandidate, IRun, ISuite go?

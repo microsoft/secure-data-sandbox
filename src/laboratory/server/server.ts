@@ -7,7 +7,9 @@ import { createApp } from './app';
 export async function startServer(): Promise<Server> {
   // TODO: remove this singleton pattern, parameterize by dialect.
   await initializeSequelize();
-  const lab = new SequelizeLaboratory();
+
+  const blobBase = 'http://blobs'; // TODO: plumb real url.
+  const lab = new SequelizeLaboratory(blobBase);
 
   const port = process.env.PORT || 3000;
 
