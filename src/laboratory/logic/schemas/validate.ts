@@ -11,6 +11,15 @@ const benchmarkValidator = ajv.compile(benchmarkSchema);
 const candidateValidator = ajv.compile(candidateSchema);
 
 // tslint:disable-next-line:no-any
+export function entityBaseReviver(key: string, value: any) {
+  if (key === 'updatedAt' || key === 'createdAt') {
+    return new Date(value);
+  } else {
+    return value;
+  }
+}
+
+// tslint:disable-next-line:no-any
 export function validateBenchmark(spec: any): IBenchmark {
   return validate<IBenchmark>(spec, benchmarkValidator, benchmarkSchema);
 }

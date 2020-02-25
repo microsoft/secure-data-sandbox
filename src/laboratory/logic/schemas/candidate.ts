@@ -10,7 +10,9 @@ export const candidateSchema = {
       type: 'string',
     },
     createdAt: {
-      type: 'string',
+      description: 'Enables basic storage and retrieval of dates and times.',
+      format: 'date-time',
+      type: 'object',
     },
     mode: {
       type: 'string',
@@ -19,7 +21,9 @@ export const candidateSchema = {
       type: 'string',
     },
     updatedAt: {
-      type: 'string',
+      description: 'Enables basic storage and retrieval of dates and times.',
+      format: 'date-time',
+      type: 'object',
     },
     version: {
       type: 'string',

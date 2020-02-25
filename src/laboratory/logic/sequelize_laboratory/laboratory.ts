@@ -8,6 +8,8 @@ import {
 } from '../interfaces';
 
 import { Benchmark, Candidate, Run, Suite } from './models';
+import { entityBaseReviver, validateCandidate } from '../schemas';
+import { initializeSequelize } from './sequelize';
 
 // Goals:
 //   Suitable blob and file paths (eliminate most special characters)
@@ -45,6 +47,10 @@ function normalizeCandidate(candidate: ICandidate): ICandidate {
 }
 
 export class SequelizeLaboratory implements ILaboratory {
+  constructor() {
+    // initializeSequelize();
+  }
+
   /////////////////////////////////////////////////////////////////////////////
   //
   // Benchmarks
@@ -123,6 +129,15 @@ export class SequelizeLaboratory implements ILaboratory {
         throw new TypeError(message);
       }
     }
+
+    // Verify that referenced benchmark exists.
+    const benchmark = await Benchmark.findOne({ where: { name: c.benchmark } });
+    if (!benchmark) {
+      const message = `Candidate references unknown benchmark ${c.benchmark}`;
+      throw new TypeError(message);
+    }
+
+    // TODO: verify that referenced model is provided by benchmark.
 
     await Candidate.upsert<Candidate>(c);
   }

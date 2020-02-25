@@ -8,7 +8,7 @@ import {
   RunStatus,
 } from '../../interfaces';
 
-import { dateColumn, jsonColumn } from './decorators';
+import { jsonColumn } from './decorators';
 
 @Table
 export class Run extends Model<Run> implements IRun {
@@ -23,12 +23,6 @@ export class Run extends Model<Run> implements IRun {
 
   @Column(DataType.STRING)
   version!: string;
-
-  // @Column(dateColumn('createdAt'))
-  // createdAt!: string;
-
-  // @Column(dateColumn('updatedAt'))
-  // updatedAt!: string;
 
   @Column(DataType.STRING)
   blob!: string;
