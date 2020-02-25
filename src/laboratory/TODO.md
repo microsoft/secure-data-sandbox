@@ -13,6 +13,8 @@
 * ? server.ts should not initializeSequelize()
 * x Remove naming.ts
 * x Candidate router
+* x Validate that modes in a benchmark are unique
+* Can unique modes be enforced in JSON-schema?
 * Suite router
 * Run router
 * better-ajv-erros integration
