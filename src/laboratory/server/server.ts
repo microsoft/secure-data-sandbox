@@ -1,11 +1,17 @@
 import { createServer, Server } from 'http';
 
+import { initializeSequelize, SequelizeLaboratory } from '../logic';
+
 import { createApp } from './app';
 
 export async function startServer(): Promise<Server> {
+  // TODO: remove this singleton pattern, parameterize by dialect.
+  await initializeSequelize();
+  const lab = new SequelizeLaboratory();
+
   const port = process.env.PORT || 3000;
 
-  const app = await createApp();
+  const app = await createApp(lab);
 
   const server = createServer(app).listen(port, () =>
     console.info(`Server running on port ${port}`)

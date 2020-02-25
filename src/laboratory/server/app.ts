@@ -2,20 +2,12 @@ import * as bodyParser from 'body-parser';
 import * as express from 'express';
 import * as errorhandler from 'strong-error-handler';
 
-import {
-  entityBaseReviver,
-  initializeSequelize,
-  SequelizeLaboratory,
-} from '../logic';
+import { entityBaseReviver, ILaboratory } from '../logic';
 
 import { createBenchmarkRouter, createCandidateRouter } from './routes';
 
-export async function createApp(): Promise<express.Express> {
+export async function createApp(lab: ILaboratory): Promise<express.Express> {
   const app = express();
-
-  // TODO: remove this singleton pattern, parameterize by dialect.
-  await initializeSequelize();
-  const lab = new SequelizeLaboratory();
 
   // middleware for parsing application/x-www-form-urlencoded
   // TODO: why is body-parser deprecated for this usage?
@@ -25,8 +17,8 @@ export async function createApp(): Promise<express.Express> {
   // middleware for json body parsing
   // TODO: why is body-parser deprecated for this usage?
   // TODO: review limit parameter
-  // tslint:disable-next-line: deprecation
   app.use(
+    // tslint:disable-next-line: deprecation
     bodyParser.json({
       limit: '100kb',
       reviver: entityBaseReviver,

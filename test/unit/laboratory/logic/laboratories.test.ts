@@ -304,12 +304,12 @@ describe('laboratory', () => {
         };
         await assert.isRejected(lab.upsertCandidate(c3));
 
-        // Lowercases name, benchmark, model
+        // Lowercases name, benchmark, mode
         const c4 = {
           ...candidate3,
           name: candidate3.name.toUpperCase(),
           benchmark: candidate3.benchmark.toUpperCase(),
-          model: candidate3.mode.toUpperCase(),
+          mode: candidate3.mode.toUpperCase(),
         };
         await lab.upsertCandidate(c4);
 
@@ -321,7 +321,7 @@ describe('laboratory', () => {
           ...candidate3,
           name: candidate3.name.toUpperCase(),
           benchmark: 'unknown',
-          model: candidate3.mode.toUpperCase(),
+          mode: candidate3.mode.toUpperCase(),
         };
         await assert.isRejected(lab.upsertCandidate(c5));
 
@@ -329,7 +329,7 @@ describe('laboratory', () => {
         const c6 = {
           ...candidate3,
           name: candidate3.name.toUpperCase(),
-          model: 'unknown',
+          mode: 'unknown',
         };
         await assert.isRejected(lab.upsertCandidate(c6));
       });
