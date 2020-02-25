@@ -1,47 +1,12 @@
-import * as env from 'env-var';
-import { Queue, GetQueue, QueueMode } from '../queue';
-import { Run } from '../messages';
-
-/**
- * Processes messages from a queue.
- */
-export class Worker {
-  private readonly queue: Queue;
-  private readonly receiveInterval: number;
-
-  constructor(queue: Queue, receiveInterval = 10000) {
-    this.queue = queue;
-    this.receiveInterval = receiveInterval;
-  }
-
-  async start() {
-    await this.processBatch();
-    setInterval(() => this.processBatch(), this.receiveInterval);
-  }
-
-  private async processBatch() {
-    for (const message of await this.queue.dequeue<Run>(1)) {
-      console.log(message.value);
-
-      //TODO(noel): handle the run here
-
-      await message.complete();
-    }
-  }
-}
+import { GetQueue } from '../queue';
+import { ParseQueueConfiguration } from '../configuration';
+import { PipelineWorker } from '.';
 
 async function main() {
-  const queueMode = env
-    .get('QUEUE_MODE')
-    .required()
-    .asEnum(Object.values(QueueMode)) as QueueMode;
-  const queueUrl = env
-    .get('QUEUE_URL')
-    .required()
-    .asUrlString();
+  const queueConfig = ParseQueueConfiguration();
+  const queue = GetQueue(queueConfig);
 
-  const queue = GetQueue(queueMode, queueUrl);
-  const worker = new Worker(queue);
+  const worker = new PipelineWorker(queue);
   worker.start();
 }
 

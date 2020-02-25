@@ -7,7 +7,7 @@ import { GetQueue, QueueMode } from '../../../src/queue';
 
 describe('functional.queue.azure', () => {
   let client: QueueClient;
-  let queueUrl: string;
+  let queueEndpoint: string;
 
   before(async () => {
     const serviceUrl = env
@@ -16,13 +16,13 @@ describe('functional.queue.azure', () => {
       .asUrlString();
     const credential = new DefaultAzureCredential();
 
-    queueUrl = `${serviceUrl}${v1()}`;
-    client = new QueueClient(queueUrl, credential);
+    queueEndpoint = `${serviceUrl}${v1()}`;
+    client = new QueueClient(queueEndpoint, credential);
     await client.create();
   });
 
   it('enqueues', async () => {
-    const queue = GetQueue(QueueMode.Azure, queueUrl);
+    const queue = GetQueue({ mode: QueueMode.Azure, endpoint: queueEndpoint });
     await queue.enqueue('test1');
     await queue.enqueue('test2');
 
@@ -31,7 +31,7 @@ describe('functional.queue.azure', () => {
   });
 
   it('dequeues', async () => {
-    const queue = GetQueue(QueueMode.Azure, queueUrl);
+    const queue = GetQueue({ mode: QueueMode.Azure, endpoint: queueEndpoint });
 
     const batch1 = await queue.dequeue<string>(1);
     const msg1 = batch1[0];

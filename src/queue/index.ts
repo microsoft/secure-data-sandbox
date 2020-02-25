@@ -22,6 +22,7 @@ export interface Queue {
  */
 export interface QueueMessage<T> {
   value: T;
+  dequeueCount: number;
   complete(): Promise<void>;
 }
 
@@ -32,16 +33,26 @@ export enum QueueMode {
   Azure = 'azure',
 }
 
+export interface QueueConfiguration {
+  mode: QueueMode;
+  endpoint: string;
+}
+
 /**
  * Factory to get a Queue.
  * @param mode The implementation to use.
- * @param url The location of the queue.
+ * @param endpoint The location of the queue.
  */
-export function GetQueue(mode: QueueMode, url: string): Queue {
-  switch (mode) {
+export function GetQueue(config: QueueConfiguration): Queue {
+  // tsc ensures that all elements of the discriminated union are covered: https://www.typescriptlang.org/docs/handbook/advanced-types.html#exhaustiveness-checking
+  // The following is safe but tslint doesn't understand, so we suppress the rule: https://github.com/palantir/tslint/issues/2104
+  // tslint:disable:switch-default
+  switch (config.mode) {
     case QueueMode.Azure:
-      return new AzureStorageQueue(url);
-    default:
-      throw new Error(`Unknown QueueMode: ${mode}`);
+      return new AzureStorageQueue(config.endpoint);
   }
 }
+
+// re-exports so 'queue' is usable at the top-level
+export * from './azure';
+export * from './processor';

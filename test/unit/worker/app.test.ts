@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import { Worker } from '../../src/worker/app';
+import { PipelineWorker } from '../../../src/worker';
 
 describe('worker', () => {
   it('initializes', () => {

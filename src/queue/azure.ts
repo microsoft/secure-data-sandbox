@@ -1,6 +1,6 @@
 import { DefaultAzureCredential, TokenCredential } from '@azure/identity';
 import { DequeuedMessageItem, QueueClient } from '@azure/storage-queue';
-import { Queue, QueueMessage } from './index';
+import { Queue, QueueMessage } from '.';
 
 /**
  * Simple client to send/receive messages via Azure Storage Queue
@@ -38,7 +38,8 @@ export class AzureStorageQueue implements Queue {
     return response.receivedMessageItems.map(m => {
       return {
         value: JSON.parse(m.messageText) as T,
-        complete: this.completeMessage.bind(this, m),
+        dequeueCount: m.dequeueCount,
+        complete: () => this.completeMessage(m),
       };
     });
   }

@@ -1,4 +1,4 @@
-// Workaround for Azure SDK Typescript errors
+// Workaround for Azure SDK Typescript errors related to fetch() api
 // https://github.com/Azure/azure-sdk-for-js/issues/7462
 
 interface Headers { }
