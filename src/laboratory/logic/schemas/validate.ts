@@ -1,14 +1,16 @@
 import * as AJV from 'ajv';
 import * as betterAjvErrors from 'better-ajv-errors';
 
-import { IBenchmark, ICandidate, IEntityBase } from '../interfaces';
+import { IBenchmark, ICandidate, IEntityBase, ISuite } from '../interfaces';
 
 import { benchmarkSchema } from './benchmark';
 import { candidateSchema } from './candidate';
+import { suiteSchema } from './suite';
 
 const ajv = new AJV();
 const benchmarkValidator = ajv.compile(benchmarkSchema);
 const candidateValidator = ajv.compile(candidateSchema);
+const suiteValidator = ajv.compile(suiteSchema);
 
 // tslint:disable-next-line:no-any
 export function entityBaseReviver(key: string, value: any) {
@@ -27,6 +29,11 @@ export function validateBenchmark(spec: any): IBenchmark {
 // tslint:disable-next-line:no-any
 export function validateCandidate(spec: any): ICandidate {
   return validate<ICandidate>(spec, candidateValidator, candidateSchema);
+}
+
+// tslint:disable-next-line:no-any
+export function validateSuite(spec: any): ICandidate {
+  return validate<ISuite>(spec, suiteValidator, suiteSchema);
 }
 
 export function validate<T extends IEntityBase>(
