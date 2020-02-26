@@ -12,13 +12,17 @@ export class PipelineWorker {
   private readonly processor: QueueProcessor<PipelineRun>;
   private readonly docker: Dockerode;
 
-  constructor(queue: IQueue) {
+  constructor(queue: IQueue<PipelineRun>, dockerode?: Dockerode) {
     this.processor = new QueueProcessor(queue);
-    this.docker = new Dockerode();
+    this.docker = dockerode ?? new Dockerode();
   }
 
   start() {
     this.processor.start(run => this.processRun(run));
+  }
+
+  stop() {
+    this.processor.stop();
   }
 
   private async processRun(run: PipelineRun) {

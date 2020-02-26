@@ -2,7 +2,7 @@
 
 export interface PipelineRun
   extends Readonly<{
-    id: string;
+    name: string;
     stages: ReadonlyArray<PipelineStage>;
   }> {}
 

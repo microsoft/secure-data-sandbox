@@ -1,30 +1,51 @@
 import { IQueue, QueueMessage } from '../../../src/queue';
 
-export class FakeQueue implements IQueue {
+export class FakeQueue<T> implements IQueue<T> {
   // Explicitly allowing 'any' for this test helper object
   // tslint:disable:no-any
-  private queue: any[];
+  readonly data: any[] = [];
 
-  constructor() {
-    this.queue = [];
+  readonly visibilityTimeout: number;
+  readonly dequeueCounts = new Map<string, number>();
+
+  constructor(visibilityTimeout = 1000) {
+    this.visibilityTimeout = visibilityTimeout;
   }
 
-  async enqueue<T>(message: T): Promise<void> {
-    this.queue.push(message);
+  async enqueue(message: T): Promise<void> {
+    this.data.push(message);
   }
 
-  async dequeue<T>(count: number): Promise<Array<QueueMessage<T>>> {
+  async dequeue(count: number): Promise<Array<QueueMessage<T>>> {
     const items = new Array<T>();
+
     for (let i = 0; i < count; i++) {
-      if (items.length > 0) {
-        items.push(this.queue.shift());
+      if (this.data.length > 0) {
+        items.push(this.data.shift());
       }
     }
+
+    for (const item of items) {
+      const json = JSON.stringify(item);
+      let count = this.dequeueCounts.get(json) ?? 0;
+      count++;
+      this.dequeueCounts.set(json, count);
+    }
+
     return items.map(m => {
+      const itemTimeout = setTimeout(() => {
+        this.data.unshift(m);
+      }, this.visibilityTimeout);
+
+      const json = JSON.stringify(m);
+
       return {
         value: m,
-        dequeueCount: 1,
-        complete: () => Promise.resolve(),
+        dequeueCount: this.dequeueCounts.get(json)!,
+        complete: async () => {
+          clearTimeout(itemTimeout);
+          this.dequeueCounts.delete(json);
+        },
       };
     });
   }

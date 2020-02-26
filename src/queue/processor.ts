@@ -16,11 +16,11 @@ const defaultQueueProcessorOptions: QueueProcessorOptions = {
  * Process messages from a queue with a pluggable message handler.
  */
 export class QueueProcessor<T> {
-  private readonly queue: IQueue;
+  private readonly queue: IQueue<T>;
   private readonly options: Readonly<QueueProcessorOptions>;
   private interval?: NodeJS.Timeout;
 
-  constructor(queue: IQueue, options?: Partial<QueueProcessorOptions>) {
+  constructor(queue: IQueue<T>, options?: Partial<QueueProcessorOptions>) {
     this.queue = queue;
     this.options = { ...defaultQueueProcessorOptions, ...options };
   }
@@ -29,18 +29,20 @@ export class QueueProcessor<T> {
    * Start processing messages from the queue.
    * @param processor A function that processes a single message.
    */
-  async start(processor: MessageProcessor<T>) {
-    await this.processBatch(processor);
-    this.interval = setInterval(
-      () => this.processBatch(processor),
-      this.options.receiveIntervalMs
-    );
+  start(processor: MessageProcessor<T>) {
+    if (!this.interval) {
+      setImmediate(() => this.processBatch(processor));
+      this.interval = setInterval(
+        () => this.processBatch(processor),
+        this.options.receiveIntervalMs
+      );
+    }
   }
 
   /**
    * Stop receiving new messages. Messages already received will be processed.
    */
-  async stop() {
+  stop() {
     if (this.interval) {
       clearInterval(this.interval);
       this.interval = undefined;
@@ -48,16 +50,23 @@ export class QueueProcessor<T> {
   }
 
   private async processBatch(processMessage: MessageProcessor<T>) {
-    for (const message of await this.queue.dequeue<T>(
+    for (const message of await this.queue.dequeue(
       this.options.receiveBatchSize
     )) {
-      if (message.dequeueCount > this.options.maxAttemptsPerMessage) {
-        //TODO: dead letter
-        await message.complete();
-      }
+      try {
+        if (message.dequeueCount > this.options.maxAttemptsPerMessage) {
+          //TODO: dead letter
+          console.log(`could not process ${JSON.stringify(message)}`);
+          await message.complete();
+          continue;
+        }
 
-      await processMessage(message.value);
-      await message.complete();
+        await processMessage(message.value);
+        await message.complete();
+      } catch (e) {
+        //TODO: log errors
+        console.error(e);
+      }
     }
   }
 }

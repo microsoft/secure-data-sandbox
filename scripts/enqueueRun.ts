@@ -5,10 +5,10 @@ import { IQueue, GetQueue } from '../src/queue';
 
 const basePath = '/mnt/c/temp/dct';
 
-async function createRun(queue: IQueue) {
+async function createRun(queue: IQueue<PipelineRun>) {
   const runId = v1();
-  await queue.enqueue<PipelineRun>({
-    id: `${runId}`,
+  await queue.enqueue({
+    name: `${runId}`,
     stages: [
       // Simulate a candidate that simply lists files from the input directory
       {
@@ -58,7 +58,7 @@ async function createRun(queue: IQueue) {
 
 async function main() {
   const queueConfig = ParseQueueConfiguration();
-  const queue = GetQueue(queueConfig);
+  const queue = GetQueue<PipelineRun>(queueConfig);
   await createRun(queue);
 }
 

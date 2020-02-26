@@ -5,8 +5,8 @@ import { IQueue, QueueMessage } from '.';
 /**
  * Simple client to send/receive messages via Azure Storage Queue
  */
-export class AzureStorageQueue implements IQueue {
-  static queueCreated: boolean;
+export class AzureStorageQueue<T> implements IQueue<T> {
+  private queueCreated = false;
 
   private readonly client: QueueClient;
 
@@ -22,14 +22,14 @@ export class AzureStorageQueue implements IQueue {
     this.client = new QueueClient(url, credential);
   }
 
-  async enqueue<T>(message: T): Promise<void> {
+  async enqueue(message: T): Promise<void> {
     await this.ensureQueue();
 
     const wireMessage = JSON.stringify(message);
     await this.client.sendMessage(wireMessage);
   }
 
-  async dequeue<T>(count = 1): Promise<Array<QueueMessage<T>>> {
+  async dequeue(count = 1): Promise<Array<QueueMessage<T>>> {
     await this.ensureQueue();
 
     const response = await this.client.receiveMessages({
@@ -49,8 +49,9 @@ export class AzureStorageQueue implements IQueue {
   }
 
   private async ensureQueue(): Promise<void> {
-    if (!AzureStorageQueue.queueCreated) {
+    if (!this.queueCreated) {
       await this.client.create();
+      this.queueCreated = true;
     }
   }
 }

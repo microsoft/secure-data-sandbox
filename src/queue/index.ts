@@ -4,18 +4,18 @@ import { AzureStorageQueue } from './azure';
  * Simple interface to send/receive messages from a queue.
  */
 // tslint:disable:interface-name
-export interface IQueue {
+export interface IQueue<T> {
   /**
    * Enqueue a single message, serialized as JSON.
    * @param message An object/message to place on the queue.
    */
-  enqueue<T>(message: T): Promise<void>;
+  enqueue(message: T): Promise<void>;
 
   /**
    * Dequeue a batch of JSON-formatted messages.
    * You will need to call message.complete() on each message to remove it from the queue.
    */
-  dequeue<T>(count: number): Promise<Array<QueueMessage<T>>>;
+  dequeue(count: number): Promise<Array<QueueMessage<T>>>;
 }
 
 /**
@@ -44,13 +44,13 @@ export interface QueueConfiguration {
  * @param mode The implementation to use.
  * @param endpoint The location of the queue.
  */
-export function GetQueue(config: QueueConfiguration): IQueue {
+export function GetQueue<T>(config: QueueConfiguration): IQueue<T> {
   // tsc ensures that all elements of the discriminated union are covered: https://www.typescriptlang.org/docs/handbook/advanced-types.html#exhaustiveness-checking
   // The following is safe but tslint doesn't understand, so we suppress the rule: https://github.com/palantir/tslint/issues/2104
   // tslint:disable:switch-default
   switch (config.mode) {
     case QueueMode.Azure:
-      return new AzureStorageQueue(config.endpoint);
+      return new AzureStorageQueue<T>(config.endpoint);
   }
 }
 
