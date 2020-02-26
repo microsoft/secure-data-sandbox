@@ -1,6 +1,8 @@
 {
   "recommendations": [
+    "bencoleman.armview",
     "hbenl.vscode-mocha-test-adapter",
+    "msazurermtools.azurerm-vscode-tools",
     "visualstudioexptteam.vscodeintellicode"
   ]
 }
