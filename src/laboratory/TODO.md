@@ -5,7 +5,7 @@
   * Azure queue
   * Deployment
   * Authentication
-* npm uninstall request-promise
+* x npm uninstall request-promise
 * Remove startServer()
 * Delete nameColumn
 * Delete dateColumn

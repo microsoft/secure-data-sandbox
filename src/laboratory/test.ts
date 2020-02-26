@@ -1,32 +1,32 @@
-import * as rp from 'request-promise';
+// import * as rp from 'request-promise';
 import { URL } from 'url';
 
 import { ICandidate } from './logic';
 import { startServer } from './server';
 
-async function request(
-  base: string,
-  port: number,
-  path: string,
-  method: string,
-  body: object
-) {
-  const uri = new URL(path, base);
-  uri.port = port.toString();
-  const options = {
-    uri,
-    headers: {
-      'User-Agent': 'Request-Promise',
-    },
-    json: true,
-    method,
-    body,
-  };
+// async function request(
+//   base: string,
+//   port: number,
+//   path: string,
+//   method: string,
+//   body: object
+// ) {
+//   const uri = new URL(path, base);
+//   uri.port = port.toString();
+//   const options = {
+//     uri,
+//     headers: {
+//       'User-Agent': 'Request-Promise',
+//     },
+//     json: true,
+//     method,
+//     body,
+//   };
 
-  const res = await rp(options);
+//   const res = await rp(options);
 
-  return res;
-}
+//   return res;
+// }
 
 // async function startServer() {
 //   const port = process.env.PORT || 3000;
@@ -40,29 +40,29 @@ async function request(
 //   })();
 // }
 
-async function test() {
-  startServer();
+// async function test() {
+//   startServer();
 
-  const candidate1: ICandidate = {
-    name: 'candidate1',
-    author: 'author1',
-    version: 'v1.0.0',
-    benchmark: 'benchmark1',
-    mode: 'mode1',
-  };
+//   const candidate1: ICandidate = {
+//     name: 'candidate1',
+//     author: 'author1',
+//     version: 'v1.0.0',
+//     benchmark: 'benchmark1',
+//     mode: 'mode1',
+//   };
 
-  const res = await request(
-    'http://localhost',
-    3000,
-    'candidates/foo',
-    'PUT',
-    candidate1
-  );
+//   const res = await request(
+//     'http://localhost',
+//     3000,
+//     'candidates/foo',
+//     'PUT',
+//     candidate1
+//   );
 
-  console.log(res);
-}
+//   console.log(res);
+// }
 
-test();
+// test();
 
 // function test() {
 //   const candidate: ICandidate = {
