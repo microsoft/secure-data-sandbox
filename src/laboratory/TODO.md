@@ -35,7 +35,7 @@
 * Where does IQueue go?
 * Review package.json dependencies.
 * * uuid use v1()
-* Colocate shims
+* Colocate shims - XMLHttpRequest
 * JSDOCs
 * Validator for queue message
 * Look at apache airflow

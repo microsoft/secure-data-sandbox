@@ -18,6 +18,7 @@ chai.use(chaiHttp);
 
 import { createApp } from '../../../../src/laboratory/server';
 
+// TODO: Perhaps move this to shims.ts.
 // https://github.com/DefinitelyTyped/DefinitelyTyped/issues/12044
 interface XMLHttpRequest {}
 
@@ -443,7 +444,7 @@ describe('laboratory', () => {
             assert.equal(res.status, 200);
             assert.deepEqual(observed, run1);
 
-            // HAKC: JSON stringify then parse in order to use reviver for the
+            // HACK: JSON stringify then parse in order to use reviver for the
             // createdAt and updatedAt fields.
             const body = JSON.parse(
               JSON.stringify(res.body),
