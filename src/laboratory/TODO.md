@@ -11,7 +11,7 @@
 * Delete dateColumn
 * Cleanup models.test.ts - lots of dead code
 * x Run router
-* Run router unit test
+* x Run router unit test
 * Run methods on ILaboratory
   * x Generate blob
   * Queue IRun
@@ -26,12 +26,21 @@
   * run
   * list
   * deploy
+* Promote laboratory express server to peer of queue? Move it to apps?
 * REVIEW: is "reflect-metadata": "^0.1.13" only a dev-dependency?
 * Rename Queue to IQueue. Move from index.ts to interfaces.ts.
 * REVIEW: should Queue be templated by T, instead of its methods?
 * Where do IBenchmark, ICandidate, IRun, ISuite go?
 * Where does ILaboratory go?
 * Where does IQueue go?
+* Review package.json dependencies.
+* * uuid use v1()
+* Colocate shims
+* JSDOCs
+* Validator for queue message
+* Look at apache airflow
+* deepStrictEqual
+* * DESIGN: who gets docker digest from image - laboratory or worker?
 * x Suite router
 * x Suite methods on ILaboratory
 * x Correct createdAt/updatedAt handling

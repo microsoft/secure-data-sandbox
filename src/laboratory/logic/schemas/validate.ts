@@ -5,7 +5,7 @@ import { IBenchmark, ICandidate, IRunRequest, ISuite } from '../interfaces';
 
 import { benchmarkSchema } from './benchmark';
 import { candidateSchema } from './candidate';
-import { runRequestSchema } from './run-request';
+import { runRequestSchema } from './run_request';
 import { suiteSchema } from './suite';
 
 const ajv = new AJV();
@@ -43,7 +43,7 @@ export function validateSuite(spec: any): ICandidate {
   return validate<ISuite>(spec, suiteValidator, suiteSchema);
 }
 
-export function validate<T>(
+function validate<T>(
   // tslint:disable-next-line:no-any
   spec: any,
   validator: AJV.ValidateFunction,
