@@ -1,4 +1,4 @@
-import * as uuid from 'uuid';
+import { v1 } from 'uuid';
 import { URL } from 'url';
 
 import {
@@ -313,7 +313,7 @@ export class SequelizeLaboratory implements ILaboratory {
     // All ok. Create the run.
     //
 
-    const name = uuid();
+    const name = v1();
     const blobURI: URL = new URL(name, this.runBlobBase);
 
     const run: IRun = {

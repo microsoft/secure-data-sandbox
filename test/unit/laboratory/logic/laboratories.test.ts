@@ -20,7 +20,10 @@ import {
   ICandidate,
   IPipeline,
   initializeSequelize,
+  IRun,
   ISuite,
+  RunStatus,
+  apiVersion,
 } from '../../../../src/laboratory/logic';
 
 import { SequelizeLaboratory } from '../../../../src/laboratory/logic/sequelize_laboratory/laboratory';
@@ -488,6 +491,65 @@ describe('laboratory', () => {
         };
         await assert.isRejected(lab.upsertSuite(c6));
       });
+    });
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // Runs
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    describe('run', () => {
+      // // Test development in progress.
+      // // Commented out until finished.
+      // it('allRuns()', async () => {
+      //   const lab = new SequelizeLaboratory(blobBase);
+      //   // First add benchmark, candidate, and suite
+      //   await lab.upsertBenchmark(benchmark1);
+      //   await lab.upsertCandidate(candidate1);
+      //   await lab.upsertCandidate(candidate2);
+      //   await lab.upsertSuite(suite1);
+      //   const c1 = toPOJO(await lab.oneCandidate(candidate1.name));
+      //   const s1 = toPOJO(await lab.oneSuite(suite1.name));
+      //   const empty = await lab.allRuns();
+      //   assert.deepEqual(empty, []);
+      //   const r1 = toPOJO(await lab.createRun({
+      //     candidate: candidate1.name,
+      //     suite: suite1.name,
+      //   }));
+      //   const expected1: IRun = {
+      //     name: r1.name,
+      //     createdAt: r1.createdAt,
+      //     updatedAt: r1.updatedAt,
+      //     author: 'unknown',
+      //     version: apiVersion,
+      //     benchmark: benchmark1,
+      //     candidate: c1,
+      //     suite: s1,
+      //     blob: `${blobBase}/${r1.name}`,
+      //     status: RunStatus.CREATED,
+      //   };
+      //   assert.deepEqual(r1, expected1);
+      //   // const results1 = toPOJO(await lab.allRuns());
+      //   // assert.deepEqual(results1, [expected1]);
+      //   // await lab.upsertSuite(suite2);
+      //   // const results2 = await lab.allSuites();
+      //   // assertDeepEqual(results2, [suite1, suite2]);
+      // });
+      // it('oneRun()', async () => {
+      //   // Test development in progress.
+      //   // Commented out until finished.
+      //   const lab = new SequelizeLaboratory(blobBase);
+      //   // First add benchmark referenced by suite1 and suite2.
+      //   await lab.upsertBenchmark(benchmark1);
+      //   await lab.upsertSuite(suite1);
+      //   await lab.upsertSuite(suite2);
+      //   const result1 = await lab.oneSuite('suite1');
+      //   assertDeepEqual(result1, suite1);
+      //   const result2 = await lab.oneSuite('suite2');
+      //   assertDeepEqual(result2, suite2);
+      //   // Throws for unknown name.
+      //   await assert.isRejected(lab.oneSuite('unknown'));
+      // });
     });
   });
 });
