@@ -22,14 +22,15 @@ import { createApp } from '../../../../src/laboratory/server';
 interface XMLHttpRequest {}
 
 import {
+  entityBaseReviver,
   IBenchmark,
   ICandidate,
   ILaboratory,
   IPipeline,
   IRun,
   ISuite,
-  RunStatus,
   IRunRequest,
+  RunStatus,
 } from '../../../../src/laboratory/logic';
 import e = require('express');
 
@@ -91,6 +92,17 @@ const suite1: ISuite = {
   mode: 'mode1',
   createdAt: new Date('1970-01-01T00:00:00.000Z'),
   updatedAt: new Date('1970-01-01T00:00:00.000Z'),
+};
+
+const run1: IRun = {
+  name: 'run1',
+  author: 'author1',
+  version: 'v1.0.0',
+  benchmark: benchmark1,
+  candidate: candidate1,
+  suite: suite1,
+  blob: 'http://blobs/run1',
+  status: RunStatus.CREATED,
 };
 
 class MockLaboratory implements ILaboratory {
@@ -358,6 +370,87 @@ describe('laboratory', () => {
           .end((err, res) => {
             assert.equal(res.status, 200);
             assert.deepEqual(observed, suite1);
+          });
+      });
+    });
+
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // Runs
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    describe('runs', () => {
+      it('allRuns()', async () => {
+        const lab = new MockLaboratory();
+
+        const expected: IRun[] = [];
+
+        let called = false;
+        lab.allRuns = async (): Promise<IRun[]> => {
+          called = true;
+          return expected;
+        };
+
+        chai
+          .request(await createApp(lab))
+          .get(`/runs`)
+          .end((err, res) => {
+            assert.equal(res.status, 200);
+            assert.deepEqual(res.body, expected);
+            assert.isTrue(called);
+          });
+      });
+
+      it('oneRun()', async () => {
+        const lab = new MockLaboratory();
+
+        const expected = 'run1';
+        let observed: string | undefined;
+        lab.oneRun = async (name: string): Promise<IRun> => {
+          observed = name;
+          return run1;
+        };
+
+        chai
+          .request(await createApp(lab))
+          .get(`/runs/${expected}`)
+          .end((err, res) => {
+            assert.equal(res.status, 200);
+            assertDeepEqual(res.body, run1);
+            assert.equal(observed, expected);
+          });
+      });
+
+      it('createRun()', async () => {
+        const lab = new MockLaboratory();
+
+        const runRequest: IRunRequest = {
+          candidate: run1.candidate.name,
+          suite: run1.suite.name,
+        };
+
+        let observed: IRun;
+        lab.createRun = async (spec: IRunRequest): Promise<IRun> => {
+          observed = run1;
+          return observed;
+        };
+
+        chai
+          .request(await createApp(lab))
+          .post(`/runs`)
+          .send(runRequest)
+          .end((err, res) => {
+            assert.equal(res.status, 200);
+            assert.deepEqual(observed, run1);
+
+            // HAKC: JSON stringify then parse in order to use reviver for the
+            // createdAt and updatedAt fields.
+            const body = JSON.parse(
+              JSON.stringify(res.body),
+              entityBaseReviver
+            );
+
+            assert.deepEqual(body, run1);
           });
       });
     });

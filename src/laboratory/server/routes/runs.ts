@@ -21,11 +21,11 @@ export function createRunRouter(lab: ILaboratory): Router {
     }
   });
 
-  router.put('', async (req, res, next) => {
+  router.post('/', async (req, res, next) => {
     try {
       const spec = validateRunRequest(req.body);
-      await lab.createRun(spec);
-      res.sendStatus(200);
+      const run = await lab.createRun(spec);
+      res.json(run);
     } catch (e) {
       next(e);
     }

@@ -287,7 +287,7 @@ export class SequelizeLaboratory implements ILaboratory {
       throw new TypeError(message);
     }
 
-    // Verify that candidate and suite reference same benchmark.
+    // Verify that candidate and suite reference same mode.
     if (candidate.mode !== suite.mode) {
       const message = `Candidate mode "${candidate.mode}" doesn't match suite mode "${suite.mode}"`;
       throw new TypeError(message);
@@ -302,7 +302,7 @@ export class SequelizeLaboratory implements ILaboratory {
       throw new TypeError(message);
     }
 
-    // Verify that referenced model is provided by benchmark.
+    // Verify that referenced mode is provided by benchmark.
     const modes = benchmark.pipelines.map(p => p.mode);
     if (!modes.includes(candidate.mode)) {
       const message = `Candidate references unknown mode "${candidate.mode}"`;
