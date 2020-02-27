@@ -36,17 +36,12 @@ export interface IBenchmark extends IEntityBase {
 // tslint:disable-next-line:interface-name
 export interface IPipeline {
   mode: string;
-  stages: PipelineStage[];
+  stages: IPipelineStage[];
 }
 
-type PipelineStage = ICandidateStage | IContainerStage;
-
 // tslint:disable-next-line:interface-name
-export interface ICandidateStage {}
-
-// tslint:disable-next-line:interface-name
-export interface IContainerStage {
-  image: string;
+export interface IPipelineStage {
+  image?: string;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -71,6 +66,7 @@ export interface ISuite extends IEntityBase {
 export interface ICandidate extends IEntityBase {
   benchmark: string;
   mode: string;
+  image: string;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

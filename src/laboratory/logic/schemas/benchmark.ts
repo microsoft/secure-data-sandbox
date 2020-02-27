@@ -3,18 +3,6 @@
 export const benchmarkSchema = {
   $schema: 'http://json-schema.org/draft-07/schema#',
   definitions: {
-    ICandidateStage: {
-      type: 'object',
-    },
-    IContainerStage: {
-      properties: {
-        image: {
-          type: 'string',
-        },
-      },
-      required: ['image'],
-      type: 'object',
-    },
     IPipeline: {
       properties: {
         mode: {
@@ -22,19 +10,20 @@ export const benchmarkSchema = {
         },
         stages: {
           items: {
-            anyOf: [
-              {
-                $ref: '#/definitions/ICandidateStage',
-              },
-              {
-                $ref: '#/definitions/IContainerStage',
-              },
-            ],
+            $ref: '#/definitions/IPipelineStage',
           },
           type: 'array',
         },
       },
       required: ['mode', 'stages'],
+      type: 'object',
+    },
+    IPipelineStage: {
+      properties: {
+        image: {
+          type: 'string',
+        },
+      },
       type: 'object',
     },
   },

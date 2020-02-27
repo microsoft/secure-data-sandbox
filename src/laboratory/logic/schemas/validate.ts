@@ -39,7 +39,7 @@ export function validateRunRequest(spec: any): IRunRequest {
 }
 
 // tslint:disable-next-line:no-any
-export function validateSuite(spec: any): ICandidate {
+export function validateSuite(spec: any): ISuite {
   return validate<ISuite>(spec, suiteValidator, suiteSchema);
 }
 

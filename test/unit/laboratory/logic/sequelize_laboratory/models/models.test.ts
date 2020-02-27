@@ -49,6 +49,7 @@ const candidate: ICandidate = {
   updatedAt: new Date('1970-01-01T00:00:00.000Z'),
   benchmark: 'benchmark',
   mode: 'mode',
+  image: 'image1',
 };
 
 const suite: ISuite = {

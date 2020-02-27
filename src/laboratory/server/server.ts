@@ -2,6 +2,10 @@ import { createServer, Server } from 'http';
 
 import { initializeSequelize, SequelizeLaboratory } from '../logic';
 
+// TODO: remove these temporary imports after integration.
+import { PipelineRun } from '../logic/sequelize_laboratory/messages';
+import { InMemoryQueue } from '../logic/sequelize_laboratory/queue';
+
 import { createApp } from './app';
 
 export async function startServer(): Promise<Server> {
@@ -9,7 +13,8 @@ export async function startServer(): Promise<Server> {
   await initializeSequelize();
 
   const blobBase = 'http://blobs'; // TODO: plumb real url.
-  const lab = new SequelizeLaboratory(blobBase);
+  const queue = new InMemoryQueue<PipelineRun>();
+  const lab = new SequelizeLaboratory(blobBase, queue);
 
   const port = process.env.PORT || 3000;
 

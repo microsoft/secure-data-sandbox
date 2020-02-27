@@ -28,6 +28,10 @@ import {
 
 import { SequelizeLaboratory } from '../../../../src/laboratory/logic/sequelize_laboratory/laboratory';
 
+// TODO: remove these temporary imports after integration.
+import { PipelineRun } from '../../../../src/laboratory/logic/sequelize_laboratory/messages';
+import { InMemoryQueue } from '../../../../src/laboratory/logic/sequelize_laboratory/queue';
+
 function toPOJO<T>(x: T): T {
   return JSON.parse(JSON.stringify(x)) as T;
 }
@@ -56,6 +60,10 @@ beforeEach(async () => {
   await sequelize.sync();
 });
 
+const blobBase = 'http://blobs';
+const queue = new InMemoryQueue<PipelineRun>();
+const lab = new SequelizeLaboratory(blobBase, queue);
+
 const pipelines: IPipeline[] = [
   {
     mode: 'mode1',
@@ -69,8 +77,6 @@ const pipelines: IPipeline[] = [
     ],
   },
 ];
-
-const blobBase = 'http://blobs';
 
 const benchmark1: IBenchmark = {
   name: 'benchmark1',
@@ -99,6 +105,7 @@ const candidate1: ICandidate = {
   version: 'v1.0.0',
   benchmark: 'benchmark1',
   mode: 'mode1',
+  image: 'image1',
 };
 
 const candidate2: ICandidate = {
@@ -107,6 +114,7 @@ const candidate2: ICandidate = {
   version: 'v1.0.0',
   benchmark: 'benchmark1',
   mode: 'mode1',
+  image: 'image1',
 };
 
 const candidate3: ICandidate = {
@@ -115,6 +123,7 @@ const candidate3: ICandidate = {
   version: 'v1.0.0',
   benchmark: 'benchmark1',
   mode: 'mode1',
+  image: 'image1',
 };
 
 const suite1: ISuite = {
@@ -150,8 +159,6 @@ describe('laboratory', () => {
     ///////////////////////////////////////////////////////////////////////////
     describe('benchmark', () => {
       it('allBenchmarks()', async () => {
-        const lab = new SequelizeLaboratory(blobBase);
-
         const empty = await lab.allBenchmarks();
         assert.deepEqual(empty, []);
 
@@ -165,8 +172,6 @@ describe('laboratory', () => {
       });
 
       it('oneBenchmark()', async () => {
-        const lab = new SequelizeLaboratory(blobBase);
-
         await lab.upsertBenchmark(benchmark1);
         await lab.upsertBenchmark(benchmark2);
 
@@ -182,8 +187,6 @@ describe('laboratory', () => {
 
       it('upsertBenchmark()', async () => {
         console.log('benchmark');
-
-        const lab = new SequelizeLaboratory(blobBase);
 
         await lab.upsertBenchmark(benchmark1);
         const results1 = await lab.allBenchmarks();
@@ -203,13 +206,10 @@ describe('laboratory', () => {
       });
 
       it('upsertBenchmark() - route mismatch', async () => {
-        const lab = new SequelizeLaboratory(blobBase);
         await assert.isRejected(lab.upsertBenchmark(benchmark1, 'benchmark2'));
       });
 
       it('upsertBenchmark() - normalization', async () => {
-        const lab = new SequelizeLaboratory(blobBase);
-
         // Throws for invalid name
         const b1 = {
           ...benchmark3,
@@ -236,8 +236,6 @@ describe('laboratory', () => {
     ///////////////////////////////////////////////////////////////////////////
     describe('candidate', () => {
       it('allCandidates()', async () => {
-        const lab = new SequelizeLaboratory(blobBase);
-
         // First add benchmark referenced by canidate1 and candidate2.
         await lab.upsertBenchmark(benchmark1);
 
@@ -254,8 +252,6 @@ describe('laboratory', () => {
       });
 
       it('oneCandidate()', async () => {
-        const lab = new SequelizeLaboratory(blobBase);
-
         // First add benchmark referenced by canidate1 and candidate2.
         await lab.upsertBenchmark(benchmark1);
         await lab.upsertCandidate(candidate1);
@@ -272,8 +268,6 @@ describe('laboratory', () => {
       });
 
       it('upsertCandidate()', async () => {
-        const lab = new SequelizeLaboratory(blobBase);
-
         // First add benchmark referenced by candidate1 and candidate2.
         await lab.upsertBenchmark(benchmark1);
 
@@ -295,8 +289,6 @@ describe('laboratory', () => {
       });
 
       it('upsertCandidate() - route mismatch', async () => {
-        const lab = new SequelizeLaboratory(blobBase);
-
         // First add benchmark referenced by canidate1 and candidate2.
         await lab.upsertBenchmark(benchmark1);
 
@@ -304,8 +296,6 @@ describe('laboratory', () => {
       });
 
       it('upsertCandidate() - normalization', async () => {
-        const lab = new SequelizeLaboratory(blobBase);
-
         // First add benchmark referenced by canidate1 and candidate2.
         await lab.upsertBenchmark(benchmark1);
 
@@ -368,8 +358,6 @@ describe('laboratory', () => {
     ///////////////////////////////////////////////////////////////////////////
     describe('suite', () => {
       it('allSuites()', async () => {
-        const lab = new SequelizeLaboratory(blobBase);
-
         // First add benchmark referenced by suite1 and suite2.
         await lab.upsertBenchmark(benchmark1);
 
@@ -386,8 +374,6 @@ describe('laboratory', () => {
       });
 
       it('oneSuite()', async () => {
-        const lab = new SequelizeLaboratory(blobBase);
-
         // First add benchmark referenced by suite1 and suite2.
         await lab.upsertBenchmark(benchmark1);
         await lab.upsertSuite(suite1);
@@ -404,8 +390,6 @@ describe('laboratory', () => {
       });
 
       it('upsertSuite()', async () => {
-        const lab = new SequelizeLaboratory(blobBase);
-
         // First add benchmark referenced by suite1 and suite2.
         await lab.upsertBenchmark(benchmark1);
 
@@ -427,8 +411,6 @@ describe('laboratory', () => {
       });
 
       it('upsertSuite() - route mismatch', async () => {
-        const lab = new SequelizeLaboratory(blobBase);
-
         // First add benchmark referenced by suite1 and suite2.
         await lab.upsertBenchmark(benchmark1);
 
@@ -436,8 +418,6 @@ describe('laboratory', () => {
       });
 
       it('upsertSuite() - normalization', async () => {
-        const lab = new SequelizeLaboratory(blobBase);
-
         // First add benchmark referenced by suite1 and suite2.
         await lab.upsertBenchmark(benchmark1);
 
