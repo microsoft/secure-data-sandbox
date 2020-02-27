@@ -108,6 +108,26 @@ export async function processRunRequest(
   return result;
 }
 
+export async function updateRunStatus(
+  name: string,
+  status: RunStatus
+): Promise<void> {
+  // Find run in db
+  // Update its status field
+  throw new Error('Method not implemented.');
+}
+
+export async function reportResults(
+  name: string,
+  results: object
+): Promise<void> {
+  // Find run in db
+  // Get run's benchmark
+  // Create model for results table
+  // Upsert result row
+  throw new Error('Method not implemented.');
+}
+
 function createMessage(
   name: string,
   b: IBenchmark,
