@@ -165,6 +165,10 @@ class MockLaboratory implements ILaboratory {
   updateRunStatus(name: string, status: RunStatus): Promise<void> {
     throw new Error('Method not implemented.');
   }
+
+  reportResults(name: string, results: object): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
 }
 
 describe('laboratory', () => {

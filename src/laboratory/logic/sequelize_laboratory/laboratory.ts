@@ -164,7 +164,11 @@ export class SequelizeLaboratory implements ILaboratory {
     return processRunRequest(runRequest, this.runBlobBase, this.queue);
   }
 
-  updateRunStatus(name: string, status: RunStatus): Promise<void> {
+  async updateRunStatus(name: string, status: RunStatus): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  async reportResults(name: string, results: object): Promise<void> {
     throw new Error('Method not implemented.');
   }
 }

@@ -131,4 +131,5 @@ export interface ILaboratory {
   oneRun(name: string): Promise<IRun>;
   createRun(spec: IRunRequest): Promise<IRun>;
   updateRunStatus(name: string, status: RunStatus): Promise<void>;
+  reportResults(name: string, results: object): Promise<void>;
 }
