@@ -83,6 +83,7 @@ const candidate1: ICandidate = {
   mode: 'mode1',
   createdAt: new Date('1970-01-01T00:00:00.000Z'),
   updatedAt: new Date('1970-01-01T00:00:00.000Z'),
+  image: 'image1',
 };
 
 const suite1: ISuite = {

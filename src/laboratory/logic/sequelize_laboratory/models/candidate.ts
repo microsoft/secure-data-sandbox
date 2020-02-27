@@ -21,4 +21,7 @@ export class Candidate extends Model<Candidate> implements ICandidate {
 
   @Column(DataType.STRING)
   mode!: string;
+
+  @Column(DataType.STRING)
+  image!: string;
 }

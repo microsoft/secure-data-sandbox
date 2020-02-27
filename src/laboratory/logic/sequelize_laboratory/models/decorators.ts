@@ -1,26 +1,5 @@
 import { DataType } from 'sequelize-typescript';
 
-import { normalizeName } from '../laboratory';
-
-//
-// Helper function provides a column decorator for readonly Date columns
-// that are represented as string properties.
-//
-export function dateColumn(name: string) {
-  return {
-    type: DataType.DATE,
-    get(): string {
-      // tslint:disable-next-line:no-any
-      const value = (this as any).getDataValue(name) as Date;
-      return value.toISOString();
-    },
-    set(date: string) {
-      // tslint:disable-next-line:no-any
-      (this as any).setDataValue(name, new Date(date));
-    },
-  };
-}
-
 //
 // Helper function provides a column decorator for JSON string columns
 // that are represented as POJOs of type T.
@@ -52,27 +31,6 @@ export function jsonColumn<T>(name: string, length: number) {
 
       // tslint:disable-next-line:no-any
       (this as any).setDataValue(name, text);
-    },
-  };
-}
-
-//
-// Helper function provides a column decorator for name columns, which
-// canonicalize names on set.
-//
-// TODO: REVIEW: consider reintroducing nameColumn decorator in models.
-export function nameColumn(name: string) {
-  return {
-    type: DataType.STRING,
-    get(): string {
-      // tslint:disable-next-line:no-any
-      return (this as any).getDataValue(name);
-    },
-    set(value: string) {
-      const canonical = normalizeName(value);
-
-      // tslint:disable-next-line:no-any
-      (this as any).setDataValue(name, canonical);
     },
   };
 }

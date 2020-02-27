@@ -14,6 +14,9 @@ export const candidateSchema = {
       format: 'date-time',
       type: 'object',
     },
+    image: {
+      type: 'string',
+    },
     mode: {
       type: 'string',
     },
@@ -29,6 +32,6 @@ export const candidateSchema = {
       type: 'string',
     },
   },
-  required: ['author', 'benchmark', 'mode', 'name', 'version'],
+  required: ['author', 'benchmark', 'image', 'mode', 'name', 'version'],
   type: 'object',
 };

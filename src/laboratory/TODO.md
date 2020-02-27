@@ -7,8 +7,8 @@
   * Authentication
 * x npm uninstall request-promise
 * Remove startServer()
-* Delete nameColumn
-* Delete dateColumn
+* x Delete nameColumn
+* x Delete dateColumn
 * Cleanup models.test.ts - lots of dead code
 * x Run router
 * x Run router unit test
