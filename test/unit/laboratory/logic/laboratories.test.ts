@@ -16,14 +16,16 @@ chai.use(chaiExclude);
 chai.use(chaiAsPromised);
 
 import {
+  apiVersion,
   IBenchmark,
   ICandidate,
   IPipeline,
   initializeSequelize,
   IRun,
   ISuite,
+  ResultColumn,
+  ResultColumnType,
   RunStatus,
-  apiVersion,
 } from '../../../../src/laboratory/logic';
 
 import { SequelizeLaboratory } from '../../../../src/laboratory/logic/sequelize_laboratory/laboratory';
@@ -78,11 +80,17 @@ const pipelines: IPipeline[] = [
   },
 ];
 
+const columns: ResultColumn[] = [
+  { name: 'pass', type: ResultColumnType.INT },
+  { name: 'fail', type: ResultColumnType.INT },
+];
+
 const benchmark1: IBenchmark = {
   name: 'benchmark1',
   author: 'author1',
   version: 'v1.0.0',
   pipelines,
+  columns,
 };
 
 const benchmark2: IBenchmark = {
@@ -90,6 +98,7 @@ const benchmark2: IBenchmark = {
   author: 'author2',
   version: 'v1.0.0',
   pipelines,
+  columns,
 };
 
 const benchmark3: IBenchmark = {
@@ -97,6 +106,7 @@ const benchmark3: IBenchmark = {
   author: 'author3',
   version: 'v1.0.0',
   pipelines,
+  columns,
 };
 
 const candidate1: ICandidate = {
