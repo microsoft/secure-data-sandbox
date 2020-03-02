@@ -7,10 +7,10 @@ function Bootstrap-Database {
   $conn.ConnectionString = "Data Source=${Env:SERVER}; Initial Catalog=${Env:DATABASE};";
   $conn.AccessToken = $token.access_token;
   $conn.Open()
-  
+
   foreach ($byte in [System.Guid]::Parse($Env:CLIENT_ID).ToByteArray()) { $byteGuid += [System.String]::Format("{0:X2}", $byte) }
   $sql = @"
-create user [$Env:IDENTITY] with default_schema=[dbo], SID=$byteGuid, TYPE=E;
+create user [$Env:IDENTITY] with default_schema=[dbo], SID=0x$byteGuid, TYPE=E;
 alter role db_ddladmin add member [$Env:IDENTITY];
 alter role db_datareader add member [$Env:IDENTITY];
 alter role db_datawriter add member [$Env:IDENTITY];
