@@ -21,10 +21,10 @@
   * Azure queue
   * Deployment
   * Authentication
-* x npm uninstall request-promise
+* npm uninstall request-promise
 * Remove startServer()
-* x Delete nameColumn
-* x Delete dateColumn
+* Delete nameColumn
+* Delete dateColumn
 * Cleanup models.test.ts - lots of dead code
 * x Run router
 * x Run router unit test

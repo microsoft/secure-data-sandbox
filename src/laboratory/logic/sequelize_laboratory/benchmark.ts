@@ -16,16 +16,30 @@ export function normalizeBenchmark(benchmark: IBenchmark): IBenchmark {
     }
     modes.add(mode);
 
-    return {
-      ...p,
-      mode,
-    };
+    return { ...p, mode };
+  });
+
+  // Normalize result column names
+  const columnNames = new Set<string>();
+  const columns = benchmark.columns.map(c => {
+    const name = normalizeName(c.name);
+
+    // Column names must be unique within a benchmark.
+    // TODO: can this be done in the json-schema?
+    if (columnNames.has(name)) {
+      const message = `Encountered duplicated column "${name}"`;
+      throw new TypeError(message);
+    }
+    columnNames.add(name);
+
+    return { ...c, name };
   });
 
   return {
     ...benchmark,
     name: normalizeName(benchmark.name),
     pipelines,
+    // columns
   };
 }
 

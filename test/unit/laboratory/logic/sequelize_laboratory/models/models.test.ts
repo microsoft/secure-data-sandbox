@@ -8,6 +8,8 @@ import {
   IEntityBase,
   IRun,
   ISuite,
+  ResultColumn,
+  ResultColumnType,
   RunStatus,
 } from '../../../../../../src/laboratory/logic/interfaces';
 
@@ -36,6 +38,10 @@ const benchmark: IBenchmark = {
         },
       ],
     },
+  ],
+  columns: [
+    { name: 'pass', type: ResultColumnType.INT },
+    { name: 'fail', type: ResultColumnType.INT },
   ],
   createdAt: new Date('1970-01-01T00:00:00.000Z'),
   updatedAt: new Date('1970-01-01T00:00:00.000Z'),

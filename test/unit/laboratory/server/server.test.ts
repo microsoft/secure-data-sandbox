@@ -31,6 +31,8 @@ import {
   IRun,
   ISuite,
   IRunRequest,
+  ResultColumn,
+  ResultColumnType,
   RunStatus,
 } from '../../../../src/laboratory/logic';
 import e = require('express');
@@ -66,6 +68,11 @@ const pipelines: IPipeline[] = [
   },
 ];
 
+const columns: ResultColumn[] = [
+  { name: 'pass', type: ResultColumnType.INT },
+  { name: 'fail', type: ResultColumnType.INT },
+];
+
 const benchmark1: IBenchmark = {
   name: 'benchmark1',
   author: 'author1',
@@ -73,6 +80,7 @@ const benchmark1: IBenchmark = {
   pipelines,
   createdAt: new Date('1970-01-01T00:00:00.000Z'),
   updatedAt: new Date('1970-01-01T00:00:00.000Z'),
+  columns,
 };
 
 const candidate1: ICandidate = {
