@@ -39,10 +39,14 @@ export function normalizeBenchmark(benchmark: IBenchmark): IBenchmark {
     ...benchmark,
     name: normalizeName(benchmark.name),
     pipelines,
-    // columns
+    columns,
   };
 }
 
 export async function processBenchmark(benchmark: IBenchmark) {
+  // Create and sync model for results table.
+  // Only do this if it doesn't already exist.
+
+  // Upsert Benchmark
   await Benchmark.upsert<Benchmark>(benchmark);
 }
