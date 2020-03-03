@@ -6,11 +6,9 @@
       "type": "string",
       "defaultValue": "dct"
     },
-    "sqlAADAdminLogin": {
-      "type": "string"
-    },
-    "sqlAADAdminObjectId": {
-      "type": "string"
+    "sqlBootstrapScriptUrl": {
+      "type": "string",
+      "defaultValue": "https://raw.githubusercontent.com/microsoft/data-contest-toolkit/master/deploy/azure/Bootstrap-Database.ps1"
     },
     "laboratorySqlAdminUsername": {
       "type": "string",
@@ -19,43 +17,85 @@
     "laboratorySqlAdminPassword": {
       "type": "securestring",
       "defaultValue": "[newGuid()]"
+    },
+    "currentYear": {
+      "type": "int",
+      "defaultValue": "[int(utcNow('yyyy'))]"
+    },
+    "currentDate": {
+      "type": "string",
+      "defaultValue": "[utcNow('MM-ddTHH:mm:ssZ')]"
+    },
+    "randomSeed": {
+      "type": "string",
+      "defaultValue": "[newGuid()]"
     }
   },
   "variables": {
+    "aciNetworkProfile": "[concat(variables('prefix'), '-aci')]",
+    "aciSubnet": "aci",
+    "aciNsg": "[concat(variables('prefix'), '-aci')]",
     "appInsights": "[concat(variables('prefix'), '-insights')]",
-    "blobDataContributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
-    "blobDataReaderRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1')]",
+    "contributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
     "defaultNsg": "[concat(variables('prefix'), '-default')]",
     "defaultSubnet": "default",
+    "deploymentACIStorage": "[concat(variables('prefix'), '-deployment-storage')]",
+    "deploymentACIStorageSASProperties": {
+      "signedExpiry": "[format('{0}-{1}', add(parameters('currentYear'), 1), parameters('currentDate'))]",
+      "signedPermission": "w",
+      "signedProtocol": "https",
+      "signedResourceTypes": "c",
+      "signedServices": "q"
+    },
+    "deploymentACISql": "[concat(variables('prefix'), '-deployment-sql')]",
+    "deploymentIdentity": "[concat(variables('prefix'), '-deployment')]",
     "laboratoryAppSvcPlan": "[concat(variables('prefix'), '-laboratory')]",
+    "laboratoryBlobEndpoint": "[concat(variables('prefix'), '-blob-laboratory')]",
     "laboratoryIdentity": "[concat(variables('prefix'), '-laboratory')]",
+    "laboratoryNsg": "[concat(variables('prefix'), '-laboratory')]",
+    "laboratoryRunsBlobContainer": "runs",
+    "laboratoryQueueEndpoint": "[concat(variables('prefix'), '-queue-laboratory')]",
+    "laboratorySqlDnsName": "[variables('laboratorySqlServer')]",
+    "laboratoryStorageDnsName": "[variables('laboratoryStorage')]",
+    "laboratoryStorage": "[concat(variables('prefix'), 'laboratory')]",
     "laboratorySite": "[concat(variables('prefix'), '-laboratory')]",
     "laboratorySqlDatabase": "laboratory",
+    "laboratorySqlEndpoint": "[concat(variables('prefix'), '-sql-laboratory')]",
     "laboratorySqlServer": "[concat(variables('prefix'), '-laboratory')]",
     "laboratorySubnet": "laboratory",
     "lockdownNsg": "[concat(variables('prefix'), '-lockdown')]",
     "lockdownSubnet": "lockdown",
     "prefix": "[toLower(concat(parameters('baseName'), take(uniqueString(resourceGroup().id), 6)))]",
-    "privateBlobContainer": "private",
     "privateDnsZones": [
       "privatelink.blob.core.windows.net",
+      "privatelink.queue.core.windows.net",
       "privatelink.database.windows.net"
     ],
     "privateEndpoints": [
       {
-        "name": "[variables('privateStorageEndpoint')]",
+        "name": "[variables('laboratoryBlobEndpoint')]",
         "dnsZone": "privatelink.blob.core.windows.net",
-        "dnsName": "[variables('privateStorageDnsName')]",
+        "dnsName": "[variables('laboratoryStorageDnsName')]",
         "groupIds": [
           "blob"
         ],
-        "resourceId": "[resourceId('Microsoft.Storage/storageAccounts', variables('privateStorage'))]",
-        "subnet": "[variables('lockdownSubnet')]"
+        "resourceId": "[resourceId('Microsoft.Storage/storageAccounts', variables('laboratoryStorage'))]",
+        "subnet": "[variables('defaultSubnet')]"
       },
       {
-        "name": "[variables('privateSqlEndpoint')]",
+        "name": "[variables('laboratoryQueueEndpoint')]",
+        "dnsZone": "privatelink.queue.core.windows.net",
+        "dnsName": "[variables('laboratoryStorageDnsName')]",
+        "groupIds": [
+          "queue"
+        ],
+        "resourceId": "[resourceId('Microsoft.Storage/storageAccounts', variables('laboratoryStorage'))]",
+        "subnet": "[variables('defaultSubnet')]"
+      },
+      {
+        "name": "[variables('laboratorySqlEndpoint')]",
         "dnsZone": "privatelink.database.windows.net",
-        "dnsName": "[variables('privateSqlDnsName')]",
+        "dnsName": "[variables('laboratorySqlDnsName')]",
         "groupIds": [
           "sqlServer"
         ],
@@ -63,17 +103,23 @@
         "subnet": "[variables('defaultSubnet')]"
       }
     ],
-    "privateSqlDnsName": "[variables('laboratorySqlServer')]",
-    "privateSqlEndpoint": "[concat(variables('prefix'), '-sql-private')]",
-    "privateStorageDnsName": "[variables('privateStorage')]",
-    "privateStorage": "[concat(variables('prefix'), 'private')]",
-    "privateStorageEndpoint": "[concat(variables('prefix'), '-blob-private')]",
     "readerRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
+    "storageBlobDataContributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
+    "storageBlobDataReaderRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1')]",
+    "storageQueueDataContributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '974c5e8b-45b9-4653-ba55-5f855dd0fb88')]",
+    "storageQueueDataMessageSenderRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'c6a89b2d-59bc-44d0-9896-0f6e12d7b80a')]",
+    "storageQueueDataMessageProcessorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8a0f0c08-91a1-4084-bc3d-661d67233fed')]",
     "virtualNetworkLink": "[concat(variables('prefix'), 'privatedns')]",
     "vnet": "[concat(variables('prefix'), '-environment')]",
     "workerIdentity": "[concat(variables('prefix'), '-worker')]"
   },
   "resources": [
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2018-11-30",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('deploymentIdentity')]"
+    },
     {
       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
       "apiVersion": "2018-11-30",
@@ -171,7 +217,37 @@
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2019-09-01",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('aciNsg')]",
+      "properties": {
+        "securityRules": [
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('defaultNsg')]",
+      "properties": {
+        "securityRules": [
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('laboratoryNsg')]",
+      "properties": {
+        "securityRules": [
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2019-11-01",
       "location": "[resourceGroup().location]",
       "name": "[variables('lockdownNsg')]",
       "properties": {
@@ -206,21 +282,14 @@
       }
     },
     {
-      "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2019-09-01",
-      "location": "[resourceGroup().location]",
-      "name": "[variables('defaultNsg')]",
-      "properties": {
-        "securityRules": [
-        ]
-      }
-    },
-    {
       "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('aciNsg'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('defaultNsg'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('laboratoryNsg'))]",
         "[resourceId('Microsoft.Network/networkSecurityGroups', variables('lockdownNsg'))]"
       ],
       "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2019-09-01",
+      "apiVersion": "2019-11-01",
       "location": "[resourceGroup().location]",
       "name": "[variables('vnet')]",
       "properties": {
@@ -231,6 +300,31 @@
         },
         "subnets": [
           {
+            "name": "[variables('aciSubnet')]",
+            "properties": {
+              "addressPrefix": "10.0.3.0/24",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('aciNsg'))]"
+              },
+              "delegations": [
+                {
+                  "name": "aci",
+                  "properties": {
+                    "serviceName": "Microsoft.ContainerInstance/containerGroups"
+                  }
+                }
+              ],
+              "serviceEndpoints": [
+                {
+                  "service": "Microsoft.Storage",
+                  "locations": [
+                    "[resourceGroup().location]"
+                  ]
+                }
+              ]
+            }
+          },
+          {
             "name": "[variables('defaultSubnet')]",
             "properties": {
               "addressPrefix": "10.0.0.0/24",
@@ -239,9 +333,6 @@
               },
               "privateEndpointNetworkPolicies": "Disabled",
               "serviceEndpoints": [
-                {
-                  "service": "Microsoft.Sql"
-                }
               ]
             }
           },
@@ -249,15 +340,29 @@
             "name": "[variables('laboratorySubnet')]",
             "properties": {
               "addressPrefix": "10.0.1.0/24",
-              "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('defaultNsg'))]"
-              },
               "delegations": [
                 {
                   "name": "appService",
                   "properties": {
                     "serviceName": "Microsoft.Web/serverfarms"
                   }
+                }
+              ],
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('laboratoryNsg'))]"
+              },
+              "serviceEndpoints": [
+                {
+                  "service": "Microsoft.Sql",
+                  "locations": [
+                    "[resourceGroup().location]"
+                  ]
+                },
+                {
+                  "service": "Microsoft.Storage",
+                  "locations": [
+                    "[resourceGroup().location]"
+                  ]
                 }
               ]
             }
@@ -269,10 +374,46 @@
               "networkSecurityGroup": {
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('lockdownNsg'))]"
               },
-              "privateEndpointNetworkPolicies": "Disabled",
               "serviceEndpoints": [
                 {
-                  "service": "Microsoft.Storage"
+                  "service": "Microsoft.Sql",
+                  "locations": [
+                    "[resourceGroup().location]"
+                  ]
+                },
+                {
+                  "service": "Microsoft.Storage",
+                  "locations": [
+                    "[resourceGroup().location]"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet'))]"
+      ],
+      "type": "Microsoft.Network/networkProfiles",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('aciNetworkProfile')]",
+      "properties": {
+        "containerNetworkInterfaceConfigurations": [
+          {
+            "name": "aci",
+            "properties": {
+              "ipConfigurations": [
+                {
+                  "name": "default",
+                  "properties": {
+                    "subnet": {
+                      "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet'), variables('aciSubnet'))]"
+                    }
+                  }
                 }
               ]
             }
@@ -295,6 +436,20 @@
       "resources": [
         {
           "dependsOn": [
+            "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deploymentIdentity'))]",
+            "[resourceId('Microsoft.Sql/servers', variables('laboratorySqlServer'))]"
+          ],
+          "type": "providers/roleAssignments",
+          "apiVersion": "2018-09-01-preview",
+          "name": "[concat('Microsoft.Authorization/', guid(concat(resourceGroup().id, variables('laboratorySqlServer'), variables('deploymentIdentity'), 'Contributor')))]",
+          "properties": {
+            "roleDefinitionId": "[variables('contributorRoleId')]",
+            "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deploymentIdentity'))).principalId]",
+            "principalType": "ServicePrincipal"
+          }
+        },
+        {
+          "dependsOn": [
             "[resourceId('Microsoft.Sql/servers', variables('laboratorySqlServer'))]"
           ],
           "type": "administrators",
@@ -303,8 +458,8 @@
           "name": "ActiveDirectory",
           "properties": {
             "administratorType": "ActiveDirectory",
-            "login": "[parameters('sqlAADAdminLogin')]",
-            "sid": "[parameters('sqlAADAdminObjectId')]",
+            "login": "[variables('deploymentIdentity')]",
+            "sid": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deploymentIdentity'))).principalId]",
             "tenantId": "[subscription().tenantId]"
           }
         },
@@ -332,9 +487,9 @@
           "type": "virtualNetworkRules",
           "apiVersion": "2015-05-01-preview",
           "location": "[resourceGroup().location]",
-          "name": "[variables('defaultSubnet')]",
+          "name": "[variables('laboratorySubnet')]",
           "properties": {
-            "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet'), variables('defaultSubnet'))]"
+            "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet'), variables('laboratorySubnet'))]"
           }
         }
       ]
@@ -397,7 +552,7 @@
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
       "location": "[resourceGroup().location]",
-      "name": "[variables('privateStorage')]",
+      "name": "[variables('laboratoryStorage')]",
       "kind": "StorageV2",
       "sku": {
         "name": "Standard_LRS"
@@ -410,7 +565,7 @@
             "blob": {
               "enabled": true
             },
-            "file": {
+            "queue": {
               "enabled": true
             }
           }
@@ -420,6 +575,14 @@
           "bypass": "None",
           "defaultAction": "Deny",
           "virtualNetworkRules": [
+            {
+              "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet'), variables('aciSubnet'))]",
+              "action": "Allow"
+            },
+            {
+              "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet'), variables('laboratorySubnet'))]",
+              "action": "Allow"
+            },
             {
               "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet'), variables('lockdownSubnet'))]",
               "action": "Allow"
@@ -431,12 +594,40 @@
       "resources": [
         {
           "dependsOn": [
-            "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))]",
-            "[resourceId('Microsoft.Storage/storageAccounts', variables('privateStorage'))]"
+            "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratoryIdentity'))]",
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('laboratoryStorage'))]"
           ],
           "type": "providers/roleAssignments",
           "apiVersion": "2018-09-01-preview",
-          "name": "[concat('Microsoft.Authorization/', guid(concat(resourceGroup().id, variables('privateStorage'), variables('workerIdentity'), 'Reader')))]",
+          "name": "[concat('Microsoft.Authorization/', guid(concat(resourceGroup().id, variables('laboratoryStorage'), variables('laboratoryIdentity'), 'StorageQueueDataMessageSender')))]",
+          "properties": {
+            "roleDefinitionId": "[variables('storageQueueDataMessageSenderRoleId')]",
+            "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratoryIdentity'))).principalId]",
+            "principalType": "ServicePrincipal"
+          }
+        },
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))]",
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('laboratoryStorage'))]"
+          ],
+          "type": "providers/roleAssignments",
+          "apiVersion": "2018-09-01-preview",
+          "name": "[concat('Microsoft.Authorization/', guid(concat(resourceGroup().id, variables('laboratoryStorage'), variables('workerIdentity'), 'StorageQueueDataMessageProcessor')))]",
+          "properties": {
+            "roleDefinitionId": "[variables('storageQueueDataMessageProcessorRoleId')]",
+            "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))).principalId]",
+            "principalType": "ServicePrincipal"
+          }
+        },
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))]",
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('laboratoryStorage'))]"
+          ],
+          "type": "providers/roleAssignments",
+          "apiVersion": "2018-09-01-preview",
+          "name": "[concat('Microsoft.Authorization/', guid(concat(resourceGroup().id, variables('laboratoryStorage'), variables('workerIdentity'), 'Reader')))]",
           "properties": {
             "roleDefinitionId": "[variables('readerRoleId')]",
             "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))).principalId]",
@@ -445,11 +636,11 @@
         },
         {
           "dependsOn": [
-            "[resourceId('Microsoft.Storage/storageAccounts', variables('privateStorage'))]"
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('laboratoryStorage'))]"
           ],
           "type": "blobServices/containers",
           "apiVersion": "2019-06-01",
-          "name": "[concat('default/', variables('privateBlobContainer'))]",
+          "name": "[concat('default/', variables('laboratoryRunsBlobContainer'))]",
           "properties": {
             "publicAccess": "None"
           },
@@ -457,13 +648,13 @@
             {
               "dependsOn": [
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', variables('privateStorage'), 'default', variables('privateBlobContainer'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', variables('laboratoryStorage'), 'default', variables('laboratoryRunsBlobContainer'))]"
               ],
               "type": "providers/roleAssignments",
               "apiVersion": "2018-09-01-preview",
-              "name": "[concat('Microsoft.Authorization/', guid(resourceGroup().id, variables('privateStorage'), variables('privateBlobContainer'), variables('workerIdentity'), 'StorageBlobDataContributor'))]",
+              "name": "[concat('Microsoft.Authorization/', guid(resourceGroup().id, variables('laboratoryStorage'), variables('laboratoryRunsBlobContainer'), variables('workerIdentity'), 'StorageBlobDataContributor'))]",
               "properties": {
-                "roleDefinitionId": "[variables('blobDataContributorRoleId')]",
+                "roleDefinitionId": "[variables('storageBlobDataContributorRoleId')]",
                 "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))).principalId]",
                 "principalType": "ServicePrincipal"
               }
@@ -471,6 +662,130 @@
           ]
         }
       ]
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkProfiles', variables('aciNetworkProfile'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('laboratoryStorage'))]"
+      ],
+      "type": "Microsoft.ContainerInstance/containerGroups",
+      "apiVersion": "2018-10-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('deploymentACIStorage')]",
+      "properties": {
+        "containers": [
+          {
+            "name": "create-queue",
+            "properties": {
+              "image": "mcr.microsoft.com/azure-cli",
+              "command": [
+                "/bin/bash",
+                "-c",
+                "az storage queue create -n $LABORATORY_RUN_QUEUE"
+              ],
+              "environmentVariables": [
+                {
+                  "name": "AZURE_STORAGE_ACCOUNT",
+                  "value": "[variables('laboratoryStorage')]"
+                },
+                {
+                  "name": "AZURE_STORAGE_SAS_TOKEN",
+                  "secureValue": "[listAccountSas(resourceId('Microsoft.Storage/storageAccounts', variables('laboratoryStorage')), '2019-06-01', variables('deploymentACIStorageSASProperties')).accountSasToken]"
+                },
+                {
+                  "name": "LABORATORY_RUN_QUEUE",
+                  "value": "runs"
+                },
+                {
+                  "name": "RANDOM_SEED",
+                  "value": "[parameters('randomSeed')]"
+                }
+              ],
+              "resources": {
+                "requests": {
+                  "cpu": 0.5,
+                  "memoryInGB": 0.5
+                }
+              }
+            }
+          }
+        ],
+        "osType": "Linux",
+        "networkProfile": {
+          "id": "[resourceId('Microsoft.Network/networkProfiles', variables('aciNetworkProfile'))]"
+        },
+        "restartPolicy": "OnFailure"
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deploymentIdentity'))]",
+        "[resourceId('Microsoft.Sql/servers', variables('laboratorySqlServer'))]"
+      ],
+      "type": "Microsoft.ContainerInstance/containerGroups",
+      "apiVersion": "2018-10-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('deploymentACISql')]",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deploymentIdentity'))]": {
+          }
+        }
+      },
+      "properties": {
+        "containers": [
+          {
+            "name": "bootstrap-sql",
+            "properties": {
+              "image": "mcr.microsoft.com/azure-powershell",
+              "command": [
+                "pwsh",
+                "-Command",
+                "[format('iex ((New-Object System.Net.WebClient).DownloadString(''{0}''))', parameters('sqlBootstrapScriptUrl'))]"
+              ],
+              "environmentVariables": [
+                {
+                  "name": "RESOURCE_GROUP",
+                  "value": "[resourceGroup().name]"
+                },
+                {
+                  "name": "SERVER",
+                  "value": "[variables('laboratorySqlServer')]"
+                },
+                {
+                  "name": "SERVER_FQDN",
+                  "value": "[reference(resourceId('Microsoft.Sql/servers', variables('laboratorySqlServer'))).fullyQualifiedDomainName]"
+                },
+                {
+                  "name": "DATABASE",
+                  "value": "[variables('laboratorySqlDatabase')]"
+                },
+                {
+                  "name": "IDENTITY",
+                  "value": "[variables('laboratoryIdentity')]"
+                },
+                {
+                  "name": "CLIENT_ID",
+                  "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratoryIdentity'))).clientId]"
+                },
+                {
+                  "name": "RANDOM_SEED",
+                  "value": "[parameters('randomSeed')]"
+                }
+              ],
+              "resources": {
+                "requests": {
+                  "cpu": 0.5,
+                  "memoryInGB": 0.5
+                }
+              }
+            }
+          }
+        ],
+        "osType": "Linux",
+        "restartPolicy": "OnFailure"
+      }
     },
     {
       "copy": {
@@ -482,7 +797,7 @@
         "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet'))]"
       ],
       "type": "Microsoft.Network/privateEndpoints",
-      "apiVersion": "2019-09-01",
+      "apiVersion": "2019-11-01",
       "location": "[resourceGroup().location]",
       "name": "[variables('privateEndpoints')[copyIndex()].name]",
       "properties": {
@@ -552,7 +867,7 @@
                 "ttl": 3600,
                 "aRecords": [
                   {
-                    "ipv4Address": "[reference(parameters('endpointNicId'), '2019-09-01').ipConfigurations[0].properties.privateIPAddress]"
+                    "ipv4Address": "[reference(parameters('endpointNicId'), '2019-11-01').ipConfigurations[0].properties.privateIPAddress]"
                   }
                 ]
               }
