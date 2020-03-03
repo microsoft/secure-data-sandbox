@@ -10,7 +10,7 @@ function Bootstrap-Database {
 
   foreach ($byte in [System.Guid]::Parse($Env:CLIENT_ID).ToByteArray()) { $byteGuid += [System.String]::Format("{0:X2}", $byte) }
   $sql = @"
-if not exists (select name from sys.database_principals where name = '[$Env:IDENTITY]')
+if not exists (select name from sys.database_principals where name = '$Env:IDENTITY')
 begin
   create user [$Env:IDENTITY] with default_schema=[dbo], SID=0x$byteGuid, TYPE=E;
 end
