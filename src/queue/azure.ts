@@ -1,12 +1,12 @@
 import { DefaultAzureCredential, TokenCredential } from '@azure/identity';
 import { DequeuedMessageItem, QueueClient } from '@azure/storage-queue';
-import { Queue, QueueMessage } from './index';
+import { IQueue, QueueMessage } from '.';
 
 /**
  * Simple client to send/receive messages via Azure Storage Queue
  */
-export class AzureStorageQueue implements Queue {
-  static queueCreated: boolean;
+export class AzureStorageQueue<T> implements IQueue<T> {
+  private queueCreated = false;
 
   private readonly client: QueueClient;
 
@@ -22,14 +22,14 @@ export class AzureStorageQueue implements Queue {
     this.client = new QueueClient(url, credential);
   }
 
-  async enqueue<T>(message: T): Promise<void> {
+  async enqueue(message: T): Promise<void> {
     await this.ensureQueue();
 
     const wireMessage = JSON.stringify(message);
     await this.client.sendMessage(wireMessage);
   }
 
-  async dequeue<T>(count = 1): Promise<Array<QueueMessage<T>>> {
+  async dequeue(count = 1): Promise<Array<QueueMessage<T>>> {
     await this.ensureQueue();
 
     const response = await this.client.receiveMessages({
@@ -38,7 +38,8 @@ export class AzureStorageQueue implements Queue {
     return response.receivedMessageItems.map(m => {
       return {
         value: JSON.parse(m.messageText) as T,
-        complete: this.completeMessage.bind(this, m),
+        dequeueCount: m.dequeueCount,
+        complete: () => this.completeMessage(m),
       };
     });
   }
@@ -48,8 +49,9 @@ export class AzureStorageQueue implements Queue {
   }
 
   private async ensureQueue(): Promise<void> {
-    if (!AzureStorageQueue.queueCreated) {
+    if (!this.queueCreated) {
       await this.client.create();
+      this.queueCreated = true;
     }
   }
 }

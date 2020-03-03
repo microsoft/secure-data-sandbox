@@ -1,5 +1,21 @@
 // Data contracts for queue messages
 
-export interface Run {
-  readonly id: string;
+export interface PipelineRun
+  extends Readonly<{
+    name: string;
+    stages: ReadonlyArray<PipelineStage>;
+  }> {}
+
+export interface PipelineStage {
+  name: string;
+  image: string;
+  cmd?: string[];
+  env?: Readonly<{
+    [key: string]: string;
+  }>;
+  volumes?: ReadonlyArray<{
+    target: string;
+    source: string;
+    readonly: boolean;
+  }>;
 }
