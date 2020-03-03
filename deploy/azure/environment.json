@@ -29,6 +29,10 @@
     "randomSeed": {
       "type": "string",
       "defaultValue": "[newGuid()]"
+    },
+    "workerVmPassword": {
+      "type": "securestring",
+      "defaultValue": "[newGuid()]"
     }
   },
   "variables": {
@@ -50,6 +54,7 @@
     "deploymentACISql": "[concat(variables('prefix'), '-deployment-sql')]",
     "deploymentIdentity": "[concat(variables('prefix'), '-deployment')]",
     "laboratoryAppSvcPlan": "[concat(variables('prefix'), '-laboratory')]",
+    "laboratoryAssetsBlobContainer": "assets",
     "laboratoryBlobEndpoint": "[concat(variables('prefix'), '-blob-laboratory')]",
     "laboratoryIdentity": "[concat(variables('prefix'), '-laboratory')]",
     "laboratoryNsg": "[concat(variables('prefix'), '-laboratory')]",
@@ -104,6 +109,7 @@
       }
     ],
     "readerRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
+    "sqlSecurityManagerRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '056cd41c-7e88-42e1-933e-88ba6a50c9c3')]",
     "storageBlobDataContributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
     "storageBlobDataReaderRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1')]",
     "storageQueueDataContributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '974c5e8b-45b9-4653-ba55-5f855dd0fb88')]",
@@ -111,7 +117,9 @@
     "storageQueueDataMessageProcessorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8a0f0c08-91a1-4084-bc3d-661d67233fed')]",
     "virtualNetworkLink": "[concat(variables('prefix'), 'privatedns')]",
     "vnet": "[concat(variables('prefix'), '-environment')]",
-    "workerIdentity": "[concat(variables('prefix'), '-worker')]"
+    "workerIdentity": "[concat(variables('prefix'), '-worker')]",
+    "workerVm": "[concat(variables('prefix'), '-worker')]",
+    "workerVmNic": "[concat(variables('prefix'), '-worker')]"
   },
   "resources": [
     {
@@ -441,9 +449,9 @@
           ],
           "type": "providers/roleAssignments",
           "apiVersion": "2018-09-01-preview",
-          "name": "[concat('Microsoft.Authorization/', guid(concat(resourceGroup().id, variables('laboratorySqlServer'), variables('deploymentIdentity'), 'Contributor')))]",
+          "name": "[concat('Microsoft.Authorization/', guid(concat(resourceGroup().id, variables('laboratorySqlServer'), variables('deploymentIdentity'), 'SQLSecurityManager')))]",
           "properties": {
-            "roleDefinitionId": "[variables('contributorRoleId')]",
+            "roleDefinitionId": "[variables('sqlSecurityManagerRoleId')]",
             "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deploymentIdentity'))).principalId]",
             "principalType": "ServicePrincipal"
           }
@@ -655,6 +663,33 @@
               "name": "[concat('Microsoft.Authorization/', guid(resourceGroup().id, variables('laboratoryStorage'), variables('laboratoryRunsBlobContainer'), variables('workerIdentity'), 'StorageBlobDataContributor'))]",
               "properties": {
                 "roleDefinitionId": "[variables('storageBlobDataContributorRoleId')]",
+                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))).principalId]",
+                "principalType": "ServicePrincipal"
+              }
+            }
+          ]
+        },
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('laboratoryStorage'))]"
+          ],
+          "type": "blobServices/containers",
+          "apiVersion": "2019-06-01",
+          "name": "[concat('default/', variables('laboratoryAssetsBlobContainer'))]",
+          "properties": {
+            "publicAccess": "None"
+          },
+          "resources": [
+            {
+              "dependsOn": [
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', variables('laboratoryStorage'), 'default', variables('laboratoryAssetsBlobContainer'))]"
+              ],
+              "type": "providers/roleAssignments",
+              "apiVersion": "2018-09-01-preview",
+              "name": "[concat('Microsoft.Authorization/', guid(resourceGroup().id, variables('laboratoryStorage'), variables('laboratoryAssetsBlobContainer'), variables('workerIdentity'), 'StorageBlobDataReader'))]",
+              "properties": {
+                "roleDefinitionId": "[variables('storageBlobDataReaderRoleId')]",
                 "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))).principalId]",
                 "principalType": "ServicePrincipal"
               }
@@ -873,6 +908,78 @@
               }
             }
           ]
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet'))]"
+      ],
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('workerVmNic')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "default",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet'), variables('lockdownSubnet'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('workerVmNic'))]"
+      ],
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2019-07-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('workerVm')]",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))]": {
+          }
+        }
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_DS2_v2"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('workerVmNic'))]"
+            }
+          ]
+        },
+        "osProfile": {
+          "adminUsername": "azureuser",
+          "adminPassword": "[parameters('workerVmPassword')]",
+          "computerName": "[variables('workerVm')]",
+          "linuxConfiguration": {
+          }
+        },
+        "storageProfile": {
+          "imageReference": {
+            "offer": "UbuntuServer",
+            "publisher": "Canonical",
+            "sku": "18.04-LTS",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "Premium_LRS"
+            }
+          }
         }
       }
     }
