@@ -16,6 +16,7 @@ import {
 } from '../interfaces';
 
 import { PipelineRun, PipelineStage } from './messages';
+import { runInContext } from 'vm';
 
 export function normalizeRunRequest(runRequest: IRunRequest): IRunRequest {
   return {
@@ -112,9 +113,23 @@ export async function updateRunStatus(
   name: string,
   status: RunStatus
 ): Promise<void> {
+  // Verify that RunStatus is legal.
+  if (!Object.keys(RunStatus).includes(status)) {
+    const message = `Illegal run status "${status}"`;
+    throw new TypeError(message);
+  }
+
   // Find run in db
+  const run = await Run.findOne({
+    where: { name },
+  });
+  if (!run) {
+    const message = `Unknown run id ${name}`;
+    throw new TypeError(message);
+  }
+
   // Update its status field
-  throw new Error('Method not implemented.');
+  await Run.update({ status }, { where: { name } });
 }
 
 export async function reportResults(
@@ -122,8 +137,24 @@ export async function reportResults(
   results: object
 ): Promise<void> {
   // Find run in db
+  const run = await Run.findOne({
+    where: { name },
+  });
+  if (!run) {
+    const message = `Unknown run id ${name}`;
+    throw new TypeError(message);
+  }
+
   // Get run's benchmark
-  // Create model for results table
+  const benchmark = await Benchmark.findOne({
+    where: { name: run.benchmark.name },
+  });
+  if (!benchmark) {
+    const message = `Run references unknown benchmark ${run.benchmark.name}`;
+    throw new TypeError(message);
+  }
+
+  // Get model for results table
   // Upsert result row
   throw new Error('Method not implemented.');
 }
