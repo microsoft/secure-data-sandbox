@@ -14,7 +14,14 @@ import { PipelineRun } from './messages';
 import { Benchmark, Candidate, Run, Suite } from './models';
 import { normalizeName } from './normalize';
 import { IQueue } from './queue';
-import { normalizeRunRequest, processRunRequest } from './run';
+
+import {
+  normalizeRunRequest,
+  processRunResults,
+  processRunRequest,
+  processRunStatus,
+} from './run';
+
 import { normalizeSuite, processSuite } from './suite';
 
 export class SequelizeLaboratory implements ILaboratory {
@@ -158,17 +165,18 @@ export class SequelizeLaboratory implements ILaboratory {
     return run;
   }
 
-  async createRun(r: IRunRequest): Promise<IRun> {
+  async createRunRequest(r: IRunRequest): Promise<IRun> {
     const runRequest = normalizeRunRequest(r);
-
     return processRunRequest(runRequest, this.runBlobBase, this.queue);
   }
 
-  async updateRunStatus(name: string, status: RunStatus): Promise<void> {
-    throw new Error('Method not implemented.');
+  async updateRunStatus(rawName: string, status: RunStatus): Promise<void> {
+    const name = normalizeName(rawName);
+    await processRunStatus(name, status);
   }
 
-  async reportResults(name: string, results: object): Promise<void> {
-    throw new Error('Method not implemented.');
+  async reportRunResults(rawName: string, measures: object): Promise<void> {
+    const name = normalizeName(rawName);
+    await processRunResults(name, measures);
   }
 }

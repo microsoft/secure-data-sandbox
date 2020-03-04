@@ -1,17 +1,28 @@
 import * as AJV from 'ajv';
 import * as betterAjvErrors from 'better-ajv-errors';
 
-import { IBenchmark, ICandidate, IRunRequest, ISuite } from '../interfaces';
+import {
+  IBenchmark,
+  ICandidate,
+  IRunRequest,
+  ISuite,
+  RunStatus,
+  Measures,
+} from '../interfaces';
 
 import { benchmarkSchema } from './benchmark';
 import { candidateSchema } from './candidate';
+import { measuresSchema } from './measures';
 import { runRequestSchema } from './run_request';
+import { runStatusSchema } from './run_status';
 import { suiteSchema } from './suite';
 
 const ajv = new AJV();
 const benchmarkValidator = ajv.compile(benchmarkSchema);
 const candidateValidator = ajv.compile(candidateSchema);
+const measuresValidator = ajv.compile(measuresSchema);
 const runRequestValidator = ajv.compile(runRequestSchema);
+const runStatusValidator = ajv.compile(runStatusSchema);
 const suiteValidator = ajv.compile(suiteSchema);
 
 // tslint:disable-next-line:no-any
@@ -34,8 +45,18 @@ export function validateCandidate(spec: any): ICandidate {
 }
 
 // tslint:disable-next-line:no-any
+export function validateMeasures(spec: any): Measures {
+  return validate<Measures>(spec, measuresValidator, measuresSchema);
+}
+
+// tslint:disable-next-line:no-any
 export function validateRunRequest(spec: any): IRunRequest {
   return validate<IRunRequest>(spec, runRequestValidator, runRequestSchema);
+}
+
+// tslint:disable-next-line:no-any
+export function validateRunStatus(spec: any): RunStatus {
+  return validate<RunStatus>(spec, runStatusValidator, runStatusSchema);
 }
 
 // tslint:disable-next-line:no-any

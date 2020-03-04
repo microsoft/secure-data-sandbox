@@ -166,7 +166,7 @@ class MockLaboratory implements ILaboratory {
     throw new Error('Method not implemented.');
   }
 
-  createRun(spec: IRunRequest): Promise<IRun> {
+  createRunRequest(spec: IRunRequest): Promise<IRun> {
     throw new Error('Method not implemented.');
   }
 
@@ -174,7 +174,7 @@ class MockLaboratory implements ILaboratory {
     throw new Error('Method not implemented.');
   }
 
-  reportResults(name: string, results: object): Promise<void> {
+  reportRunResults(name: string, results: object): Promise<void> {
     throw new Error('Method not implemented.');
   }
 }
@@ -444,7 +444,7 @@ describe('laboratory', () => {
         };
 
         let observed: IRun;
-        lab.createRun = async (spec: IRunRequest): Promise<IRun> => {
+        lab.createRunRequest = async (spec: IRunRequest): Promise<IRun> => {
           observed = run1;
           return observed;
         };

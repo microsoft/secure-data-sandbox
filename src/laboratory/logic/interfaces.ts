@@ -115,9 +115,20 @@ export enum RunStatus {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Results will be dynamically typed.
+// IResult
 //
 ///////////////////////////////////////////////////////////////////////////////
+
+export type Measures = object;
+
+// tslint:disable-next-line:interface-name
+export interface IResult extends IEntityBase {
+  benchmark: string;
+  mode: string;
+  suite: string;
+  candidate: string;
+  measures: Measures;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -140,7 +151,9 @@ export interface ILaboratory {
 
   allRuns(): Promise<IRun[]>;
   oneRun(name: string): Promise<IRun>;
-  createRun(spec: IRunRequest): Promise<IRun>;
+  createRunRequest(spec: IRunRequest): Promise<IRun>;
   updateRunStatus(name: string, status: RunStatus): Promise<void>;
-  reportResults(name: string, results: object): Promise<void>;
+
+  reportRunResults(name: string, measures: Measures): Promise<void>;
+  // allRunResults(benchmark: string, mode: string): Promise<IResult>;
 }

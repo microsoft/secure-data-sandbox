@@ -1,7 +1,7 @@
 import { v1 } from 'uuid';
 import { URL } from 'url';
 
-import { Benchmark, Candidate, Suite, Run } from './models';
+import { Benchmark, Candidate, Suite, Run, Result } from './models';
 import { normalizeName } from './normalize';
 import { IQueue } from './queue';
 
@@ -13,10 +13,10 @@ import {
   IRun,
   IRunRequest,
   RunStatus,
+  IResult,
 } from '../interfaces';
 
 import { PipelineRun, PipelineStage } from './messages';
-import { runInContext } from 'vm';
 
 export function normalizeRunRequest(runRequest: IRunRequest): IRunRequest {
   return {
@@ -109,16 +109,10 @@ export async function processRunRequest(
   return result;
 }
 
-export async function updateRunStatus(
+export async function processRunStatus(
   name: string,
   status: RunStatus
 ): Promise<void> {
-  // Verify that RunStatus is legal.
-  if (!Object.keys(RunStatus).includes(status)) {
-    const message = `Illegal run status "${status}"`;
-    throw new TypeError(message);
-  }
-
   // Find run in db
   const run = await Run.findOne({
     where: { name },
@@ -132,9 +126,9 @@ export async function updateRunStatus(
   await Run.update({ status }, { where: { name } });
 }
 
-export async function reportResults(
+export async function processRunResults(
   name: string,
-  results: object
+  measures: object
 ): Promise<void> {
   // Find run in db
   const run = await Run.findOne({
@@ -145,18 +139,19 @@ export async function reportResults(
     throw new TypeError(message);
   }
 
-  // Get run's benchmark
-  const benchmark = await Benchmark.findOne({
-    where: { name: run.benchmark.name },
-  });
-  if (!benchmark) {
-    const message = `Run references unknown benchmark ${run.benchmark.name}`;
-    throw new TypeError(message);
-  }
+  // Upsert to Results table.
+  const results: IResult = {
+    name: run.name,
+    author: run.author,
+    version: run.version,
+    benchmark: run.benchmark.name,
+    mode: run.suite.mode,
+    suite: run.suite.name,
+    candidate: run.candidate.name,
+    measures,
+  };
 
-  // Get model for results table
-  // Upsert result row
-  throw new Error('Method not implemented.');
+  await Result.upsert(results);
 }
 
 function createMessage(
