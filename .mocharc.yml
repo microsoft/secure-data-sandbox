@@ -1,1 +1,3 @@
 recursive: true
+ignore:
+  - "**/functional/**/*.js"   # don't run functional tests by default

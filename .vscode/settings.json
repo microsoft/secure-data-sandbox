@@ -2,5 +2,6 @@
   "editor.tabSize": 2,
   "editor.detectIndentation": false,
   "files.insertFinalNewline": true,
+  "mochaExplorer.files": "build/test/unit/**/*.js",
   "typescript.tsdk": "node_modules/typescript/lib"
 }

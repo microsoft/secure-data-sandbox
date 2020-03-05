@@ -1,5 +1,9 @@
 # Laboratory TODO
 
+* Top
+  * Remove column definitions from Benchmark
+  * Unit tests for runs
+  * Messages should include reporting endpoints (statusEndpoint, resultsEndpoint)
 * Items to track in Project
   * SequelizeLaboratory run methods
     * allRuns()
