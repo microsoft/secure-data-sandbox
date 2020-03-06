@@ -2,8 +2,14 @@
 
 * Top
   * Remove column definitions from Benchmark
+  * Express routes
+    * Schema validation for ReportRunResultsRequestBody
+    * Schema validation for UpdateRunStatusRequestBody
   * Unit tests for runs
+    * Express routes
+    * Laboratory
   * Messages should include reporting endpoints (statusEndpoint, resultsEndpoint)
+  * CLI
 * Items to track in Project
   * SequelizeLaboratory run methods
     * allRuns()

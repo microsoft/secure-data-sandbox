@@ -34,8 +34,12 @@ import {
   ResultColumn,
   ResultColumnType,
   RunStatus,
+  Measures,
+  ReportRunResultsRequestBody,
+  UpdateRunStatusRequestBody,
 } from '../../../../src/laboratory/logic';
 import e = require('express');
+import { measuresSchema } from '../../../../src/laboratory/logic/schemas/measures';
 
 // TODO: combine with duplicate from laboratory.test.ts
 function toPOJO<T>(x: T): T {
@@ -471,67 +475,70 @@ describe('laboratory', () => {
       // This test fails because RunStatus.COMPLETED is serialized and transported as
       // Object {completed: ""}
       //
-      // it('updateRunStatus()', async () => {
-      //   const lab = new MockLaboratory();
+      it('updateRunStatus()', async () => {
+        const lab = new MockLaboratory();
 
-      //   const runRequest: IRunRequest = {
-      //     candidate: run1.candidate.name,
-      //     suite: run1.suite.name,
-      //   };
+        const name = 'foobar';
+        const status = RunStatus.COMPLETED;
+        const body: UpdateRunStatusRequestBody = { status };
 
-      //   const name = 'foobar';
-      //   const status = RunStatus.COMPLETED;
+        let observedRawName: string;
+        let observedStatus: RunStatus;
+        lab.updateRunStatus = async (
+          rawName: string,
+          status: RunStatus
+        ): Promise<void> => {
+          observedRawName = rawName;
+          observedStatus = status;
+        };
 
-      //   let observedRawName: string;
-      //   let observedStatus: RunStatus;
-      //   lab.updateRunStatus = async (rawName: string, status: RunStatus): Promise<void> => {
-      //     observedRawName = rawName;
-      //     observedStatus = status;
-      //   };
+        chai
+          .request(await createApp(lab))
+          .patch(`/runs/${name}`)
+          .send(body)
+          .end((err, res) => {
+            assert.equal(res.status, 200);
+            assert.equal(observedRawName, name);
+            assert.equal(observedStatus, status);
+          });
+      });
 
-      //   chai
-      //     .request(await createApp(lab))
-      //     .patch(`/runs/${name}`)
-      //     .send(status)
-      //     .end((err, res) => {
-      //       assert.equal(res.status, 200);
-      //       assert.equal(observedRawName, name);
-      //       assert.equal(observedStatus, status);
-      //     });
-      // });
+      it('reportRunResults()', async () => {
+        const lab = new MockLaboratory();
 
-      // it('reportRunResults()', async () => {
-      //   const lab = new MockLaboratory();
+        const name = 'foobar';
+        const measures = { passed: 1, failed: 2 };
+        const body: ReportRunResultsRequestBody = { measures };
 
-      //   const runRequest: IRunRequest = {
-      //     candidate: run1.candidate.name,
-      //     suite: run1.suite.name,
-      //   };
+        let observedName: string;
+        let observedMeasures: Measures;
+        lab.reportRunResults = async (
+          name: string,
+          measures: Measures
+        ): Promise<void> => {
+          observedName = name;
+          observedMeasures = measures;
+        };
 
-      //   let observed: IRun;
-      //   lab.createRunRequest = async (spec: IRunRequest): Promise<IRun> => {
-      //     observed = run1;
-      //     return observed;
-      //   };
+        chai
+          .request(await createApp(lab))
+          .patch(`/runs/${name}/results`)
+          .send(body)
+          .end((err, res) => {
+            assert.equal(res.status, 200);
+            assert.equal(observedName, name);
+            assert.deepEqual(observedMeasures, measures);
 
-      //   chai
-      //     .request(await createApp(lab))
-      //     .post(`/runs`)
-      //     .send(runRequest)
-      //     .end((err, res) => {
-      //       assert.equal(res.status, 200);
-      //       assert.deepEqual(observed, run1);
+            // // HACK: JSON stringify then parse in order to use reviver for the
+            // // createdAt and updatedAt fields.
+            // const body = JSON.parse(
+            //   JSON.stringify(res.body),
+            //   entityBaseReviver
+            // );
 
-      //       // HACK: JSON stringify then parse in order to use reviver for the
-      //       // createdAt and updatedAt fields.
-      //       const body = JSON.parse(
-      //         JSON.stringify(res.body),
-      //         entityBaseReviver
-      //       );
-
-      //       assert.deepEqual(body, run1);
-      //     });
-      // });
+            // assert.deepEqual(body, run1);
+          });
+      });
     });
   });
 });

@@ -113,6 +113,15 @@ export enum RunStatus {
   FAILED = 'failed',
 }
 
+// tslint:disable-next-line:interface-name
+export interface UpdateRunStatusRequestBody {
+  status: RunStatus;
+}
+
+export interface ReportRunResultsRequestBody {
+  measures: Measures;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // IResult

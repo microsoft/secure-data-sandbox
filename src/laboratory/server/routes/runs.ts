@@ -28,7 +28,9 @@ export function createRunRouter(lab: ILaboratory): Router {
 
   router.patch('/:name', async (req, res, next) => {
     try {
-      const status = validateRunStatus(req.body);
+      // TODO: validate UpdateRunStatusRequestBody.
+      // const status = validateRunStatus(req.body);
+      const { status } = req.body;
       res.json(await lab.updateRunStatus(req.params['name'], status));
     } catch (e) {
       next(e);
@@ -47,7 +49,9 @@ export function createRunRouter(lab: ILaboratory): Router {
 
   router.patch('/:name/results', async (req, res, next) => {
     try {
-      const measures = validateMeasures(req.body);
+      // TODO: validate ReportRunResultsRequestBody.
+      // const measures = validateMeasures(req.body);
+      const { measures } = req.body;
       res.json(await lab.reportRunResults(req.params['name'], measures));
     } catch (e) {
       next(e);
