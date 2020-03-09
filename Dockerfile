@@ -18,10 +18,13 @@ RUN chown node:node .
 USER node
 
 COPY --from=build /app/package*.json ./
-RUN npm install
+RUN npm install --ignore-scripts
 
 COPY --from=build /app/build/src /app/build/src
 
 # Custom targets for specific entrypoints
 FROM app AS worker
 CMD npm run worker
+
+FROM app AS laboratory
+CMD npm run laboratory

@@ -18,10 +18,6 @@ chai.use(chaiHttp);
 
 import { createApp } from '../../../../src/laboratory/server';
 
-// TODO: Perhaps move this to shims.ts.
-// https://github.com/DefinitelyTyped/DefinitelyTyped/issues/12044
-interface XMLHttpRequest {}
-
 import {
   IBenchmark,
   ICandidate,

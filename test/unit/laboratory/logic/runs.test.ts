@@ -12,10 +12,6 @@ import {
   SequelizeLaboratory,
 } from '../../../../src';
 
-// TODO: remove these temporary imports after integration.
-import { PipelineRun } from '../../../../src/laboratory/logic/sequelize_laboratory/messages';
-import { InMemoryQueue } from '../../../../src/laboratory/logic/sequelize_laboratory/queue';
-
 import {
   benchmark1,
   blobBase,
@@ -27,6 +23,8 @@ import {
 } from '../data';
 
 import { assertDeepEqual } from '../shared';
+import { PipelineRun } from '../../../../src/messages';
+import { FakeQueue } from '../../queue';
 
 chai.use(chaiExclude);
 chai.use(chaiAsPromised);
@@ -36,7 +34,7 @@ chai.use(chaiAsPromised);
 //
 describe('laboratory/runs', () => {
   it('end-to-end scenario', async () => {
-    const queue = new InMemoryQueue<PipelineRun>();
+    const queue = new FakeQueue<PipelineRun>();
     const lab = new SequelizeLaboratory(serviceURL, blobBase, queue);
 
     // Initially, there should be no runs.

@@ -109,6 +109,7 @@
       }
     ],
     "readerRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
+    "runQueue": "runs",
     "sqlSecurityManagerRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '056cd41c-7e88-42e1-933e-88ba6a50c9c3')]",
     "storageBlobDataContributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
     "storageBlobDataReaderRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1')]",
@@ -188,6 +189,7 @@
         "serverFarmId": "[resourceId('Microsoft.Web/serverFarms', variables('laboratoryAppSvcPlan'))]",
         "siteConfig": {
           "alwaysOn": true,
+          "appCommandLine": "npm run laboratory",
           "appSettings": [
             {
               "name": "LABORATORY_CLIENT_ID",
@@ -200,6 +202,14 @@
             {
               "name": "LABORATORY_SQL_DB",
               "value": "[variables('laboratorySqlDatabase')]"
+            },
+            {
+              "name": "QUEUE_ENDPOINT",
+              "value": "[format('{0}{1}', reference(resourceId('Microsoft.Storage/storageAccounts', variables('laboratoryStorage'))).primaryEndpoints.queue, variables('runQueue'))]"
+            },
+            {
+              "name": "WEBSITE_RUN_FROM_PACKAGE",
+              "value": "1"
             }
           ],
           "linuxFxVersion": "NODE|12-lts",
@@ -438,7 +448,6 @@
         "administratorLogin": "[parameters('laboratorySqlAdminUsername')]",
         "administratorLoginPassword": "[parameters('laboratorySqlAdminPassword')]",
         "minimalTlsVersion": "1.2",
-        "publicNetworkAccess": "Disabled",
         "version": "12.0"
       },
       "resources": [
@@ -490,7 +499,8 @@
         },
         {
           "dependsOn": [
-            "[resourceId('Microsoft.Sql/servers', variables('laboratorySqlServer'))]"
+            "[resourceId('Microsoft.Sql/servers', variables('laboratorySqlServer'))]",
+            "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet'))]"
           ],
           "type": "virtualNetworkRules",
           "apiVersion": "2015-05-01-preview",
@@ -729,7 +739,7 @@
                 },
                 {
                   "name": "LABORATORY_RUN_QUEUE",
-                  "value": "runs"
+                  "value": "[variables('runQueue')]"
                 },
                 {
                   "name": "RANDOM_SEED",

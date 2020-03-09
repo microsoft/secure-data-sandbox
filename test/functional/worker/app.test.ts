@@ -30,8 +30,12 @@ describe('functional.worker', () => {
   it('executesSingleContainer', async () => {
     const createContainer = sinon.spy(docker, 'createContainer');
 
+    const runId = v1();
     await queue.enqueue({
-      name: v1(),
+      name: runId,
+      blobPrefix: `https://test.blob.core.windows.net/runs/${runId}`,
+      statusEndpoint: `http://localhost:3000/runs/${runId}`,
+      resultsEndpoint: `http://localhost/runs/${runId}/results`,
       stages: [
         {
           name: 'test',
@@ -48,8 +52,12 @@ describe('functional.worker', () => {
   it('deletesContainerAfterSuccessfulRun', async () => {
     const createContainer = sinon.spy(docker, 'createContainer');
 
+    const runId = v1();
     await queue.enqueue({
-      name: v1(),
+      name: runId,
+      blobPrefix: `https://test.blob.core.windows.net/runs/${runId}`,
+      statusEndpoint: `http://localhost:3000/runs/${runId}`,
+      resultsEndpoint: `http://localhost/runs/${runId}/results`,
       stages: [
         {
           name: 'test',
@@ -83,7 +91,10 @@ describe('functional.worker', () => {
     fs.closeSync(fs.openSync(`${basePath}/input/file3.txt`, 'w'));
 
     await queue.enqueue({
-      name: `${runId}`,
+      name: runId,
+      blobPrefix: `https://test.blob.core.windows.net/runs/${runId}`,
+      statusEndpoint: `http://localhost:3000/runs/${runId}`,
+      resultsEndpoint: `http://localhost/runs/${runId}/results`,
       stages: [
         // Simulate a candidate that simply lists files from the input directory
         {

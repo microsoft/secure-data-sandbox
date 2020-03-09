@@ -6,10 +6,6 @@ import { Sequelize } from 'sequelize-typescript';
 
 import { initializeSequelize, SequelizeLaboratory } from '../../../../src';
 
-// TODO: remove these temporary imports after integration.
-import { PipelineRun } from '../../../../src/laboratory/logic/sequelize_laboratory/messages';
-import { InMemoryQueue } from '../../../../src/laboratory/logic/sequelize_laboratory/queue';
-
 import {
   benchmark1,
   benchmark2,
@@ -19,6 +15,8 @@ import {
 } from '../data';
 
 import { assertDeepEqual } from '../shared';
+import { FakeQueue } from '../../queue';
+import { PipelineRun } from '../../../../src/messages';
 
 chai.use(chaiExclude);
 chai.use(chaiAsPromised);
@@ -31,14 +29,15 @@ export let lab: SequelizeLaboratory;
 
 before(async () => {
   console.log('before');
-  sequelize = await initializeSequelize();
+  sequelize = new Sequelize('sqlite::memory:');
+  await initializeSequelize(sequelize);
 });
 
 beforeEach(async () => {
   console.log('beforeEach');
   await sequelize.drop();
   await sequelize.sync();
-  const queue = new InMemoryQueue<PipelineRun>();
+  const queue = new FakeQueue<PipelineRun>();
   lab = new SequelizeLaboratory(serviceURL, blobBase, queue);
 });
 

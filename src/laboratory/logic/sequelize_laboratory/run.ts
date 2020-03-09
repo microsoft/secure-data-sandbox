@@ -15,10 +15,10 @@ import {
   RunStatus,
 } from '../interfaces';
 
-import { PipelineRun, PipelineStage } from './messages';
+import { PipelineRun, PipelineStage } from '../../../messages';
 import { Benchmark, Candidate, Suite, Run, Result } from './models';
 import { normalizeName } from './normalize';
-import { IQueue } from './queue';
+import { IQueue } from '../../../queue';
 
 export function normalizeRunRequest(runRequest: IRunRequest): IRunRequest {
   return {
