@@ -9,4 +9,14 @@
   "mochaExplorer.files": "build/test/unit/**/*.js",
   "mochaExplorer.mochaPath": "./node_modules/mocha",
   "mochaExplorer.require": "source-map-support/register",
+
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  "rest-client.environmentVariables": {
+    "$shared": {
+      "laboratoryHost": "https://<mylaboratory>.azurewebsites.net"
+    }
+  }
 }

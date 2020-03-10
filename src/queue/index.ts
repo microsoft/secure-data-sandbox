@@ -1,4 +1,4 @@
-import { AzureStorageQueue } from './azure';
+import { AzureStorageQueue, AzureStorageQueueConfiguration } from './azure';
 
 /**
  * Simple interface to send/receive messages from a queue.
@@ -50,7 +50,8 @@ export function GetQueue<T>(config: QueueConfiguration): IQueue<T> {
   // tslint:disable:switch-default
   switch (config.mode) {
     case QueueMode.Azure:
-      return new AzureStorageQueue<T>(config.endpoint);
+      const azureConfig = config as AzureStorageQueueConfiguration;
+      return new AzureStorageQueue<T>(azureConfig);
   }
 }
 

@@ -3,6 +3,7 @@ import {
   ChainedTokenCredential,
   ManagedIdentityCredential,
   EnvironmentCredential,
+  TokenCredential,
 } from '@azure/identity';
 import * as env from 'env-var';
 
@@ -11,7 +12,33 @@ import {
   DatabaseConfiguration,
   DatabaseMode,
 } from './database';
-import { QueueMode, QueueConfiguration } from './queue';
+
+import {
+  QueueMode,
+  QueueConfiguration,
+  AzureStorageQueueConfiguration,
+} from './queue';
+
+class AzureCredential {
+  private static instance: TokenCredential;
+
+  private constructor() {}
+
+  static getInstance(): TokenCredential {
+    if (!AzureCredential.instance) {
+      const clientId = env.get('AZURE_CLIENT_ID').asString();
+
+      // DefaultAzureCredential in JS doesn't yet support passing clientId, so we use our own credential as a fallback
+      AzureCredential.instance = clientId
+        ? new ChainedTokenCredential(
+            new EnvironmentCredential(),
+            new ManagedIdentityCredential(clientId)
+          )
+        : new DefaultAzureCredential();
+    }
+    return AzureCredential.instance;
+  }
+}
 
 /**
  * Retrieve a QueueConfiguration from the current execution environment.
@@ -27,10 +54,14 @@ export function ParseQueueConfiguration(): QueueConfiguration {
     .required()
     .asUrlString();
 
-  return {
+  const config: AzureStorageQueueConfiguration = {
     mode,
     endpoint,
+    credential: AzureCredential.getInstance(),
+    shouldCreateQueue: false,
   };
+
+  return config;
 }
 
 /**
@@ -56,23 +87,22 @@ export function ParseDatabaseConfiguration(): DatabaseConfiguration {
         .required()
         .asString();
 
-      const clientId = env.get('AZURE_CLIENT_ID').asString();
-
-      // DefaultAzureCredential in JS doesn't yet support passing clientId, so we use our own credential as a fallback
-      const credential = clientId
-        ? new ChainedTokenCredential(
-            new EnvironmentCredential(),
-            new ManagedIdentityCredential(clientId)
-          )
-        : new DefaultAzureCredential();
-
       const config: AzureSqlDatabaseConfiguration = {
         mode,
         host,
         database,
-        credential,
+        credential: AzureCredential.getInstance(),
       };
 
       return config;
   }
+}
+
+export function ParseBlobConfiguration() {
+  return {
+    baseUrl: env
+      .get('BLOB_CONTAINER')
+      .required()
+      .asUrlString(),
+  };
 }

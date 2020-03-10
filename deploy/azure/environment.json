@@ -59,6 +59,7 @@
     "laboratoryIdentity": "[concat(variables('prefix'), '-laboratory')]",
     "laboratoryNsg": "[concat(variables('prefix'), '-laboratory')]",
     "laboratoryRunsBlobContainer": "runs",
+    "laboratoryRunsQueue": "runs",
     "laboratoryQueueEndpoint": "[concat(variables('prefix'), '-queue-laboratory')]",
     "laboratorySqlDnsName": "[variables('laboratorySqlServer')]",
     "laboratoryStorageDnsName": "[variables('laboratoryStorage')]",
@@ -109,7 +110,6 @@
       }
     ],
     "readerRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
-    "runQueue": "runs",
     "sqlSecurityManagerRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '056cd41c-7e88-42e1-933e-88ba6a50c9c3')]",
     "storageBlobDataContributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
     "storageBlobDataReaderRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1')]",
@@ -192,20 +192,24 @@
           "appCommandLine": "npm run laboratory",
           "appSettings": [
             {
-              "name": "LABORATORY_CLIENT_ID",
+              "name": "AZURE_CLIENT_ID",
               "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratoryIdentity'))).clientId]"
             },
             {
-              "name": "LABORATORY_SQL_HOST",
-              "value": "[reference(resourceId('Microsoft.Sql/servers', variables('laboratorySqlServer'))).fullyQualifiedDomainName]"
-            },
-            {
-              "name": "LABORATORY_SQL_DB",
-              "value": "[variables('laboratorySqlDatabase')]"
+              "name": "BLOB_CONTAINER",
+              "value": "[format('{0}{1}', reference(resourceId('Microsoft.Storage/storageAccounts', variables('laboratoryStorage'))).primaryEndpoints.blob, variables('laboratoryRunsBlobContainer'))]"
             },
             {
               "name": "QUEUE_ENDPOINT",
-              "value": "[format('{0}{1}', reference(resourceId('Microsoft.Storage/storageAccounts', variables('laboratoryStorage'))).primaryEndpoints.queue, variables('runQueue'))]"
+              "value": "[format('{0}{1}', reference(resourceId('Microsoft.Storage/storageAccounts', variables('laboratoryStorage'))).primaryEndpoints.queue, variables('laboratoryRunsQueue'))]"
+            },
+            {
+              "name": "SQL_HOST",
+              "value": "[reference(resourceId('Microsoft.Sql/servers', variables('laboratorySqlServer'))).fullyQualifiedDomainName]"
+            },
+            {
+              "name": "SQL_DB",
+              "value": "[variables('laboratorySqlDatabase')]"
             },
             {
               "name": "WEBSITE_RUN_FROM_PACKAGE",
@@ -739,7 +743,7 @@
                 },
                 {
                   "name": "LABORATORY_RUN_QUEUE",
-                  "value": "[variables('runQueue')]"
+                  "value": "[variables('laboratoryRunsQueue')]"
                 },
                 {
                   "name": "RANDOM_SEED",

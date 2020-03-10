@@ -90,6 +90,13 @@ export async function processRunRequest(
 
   // TODO: consider moving name generation to normalize.ts.
   const name = v1();
+
+  // `new URL()` will clobber the final path segment unless the
+  // base ends with a trailing slash, so ensure it here
+  if (!runBlobBase.endsWith('/')) {
+    runBlobBase += '/';
+  }
+
   const blobURI: URL = new URL(name, runBlobBase);
 
   const run: IRun = {

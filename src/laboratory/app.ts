@@ -5,6 +5,7 @@ import { GetQueue } from '../queue';
 import {
   ParseQueueConfiguration,
   ParseDatabaseConfiguration,
+  ParseBlobConfiguration,
 } from '../configuration';
 import { PipelineRun } from '../messages';
 
@@ -12,7 +13,7 @@ import { initializeSequelize, SequelizeLaboratory } from './logic';
 import { createApp } from './server';
 
 async function main() {
-  const blobBase = 'http://blobs'; // TODO: plumb real url.
+  const blobConfig = ParseBlobConfiguration();
   const queueConfig = ParseQueueConfiguration();
   const queue = GetQueue<PipelineRun>(queueConfig);
 
@@ -21,7 +22,7 @@ async function main() {
   const sequelize = GetSequelize(dbConfig);
   await initializeSequelize(sequelize);
 
-  const lab = new SequelizeLaboratory('http://localhost:3000', blobBase, queue); // TODO: plumb real url.
+  const lab = new SequelizeLaboratory('http://localhost:3000', blobConfig.baseUrl, queue); // TODO: plumb real url.
   const port = process.env.PORT || 3000;
   const app = await createApp(lab);
 
