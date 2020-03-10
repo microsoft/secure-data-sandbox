@@ -33,6 +33,7 @@
     "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {
+    "@sinonjs/fake-timers": "^6.0.0",
     "@types/ajv": "^1.0.0",
     "@types/bluebird": "^3.5.29",
     "@types/body-parser": "^1.19.0",
@@ -46,21 +47,20 @@
     "@types/mocha": "^7.0.1",
     "@types/node": "^10.0.3",
     "@types/request-promise": "^4.1.45",
-    "@types/uuid": "^3.4.7",
     "@types/sinon": "^7.5.2",
     "@types/sinonjs__fake-timers": "^6.0.0",
+    "@types/uuid": "^3.4.7",
     "@types/validator": "^12.0.1",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "chai-exclude": "^2.0.2",
     "chai-http": "^4.3.0",
     "gts": "^1.1.2",
-    "luxon": "^1.22.0",
     "mocha": "^7.0.1",
     "reflect-metadata": "^0.1.13",
-    "sqlite3": "^4.1.1",
     "sinon": "^9.0.0",
-    "@sinonjs/fake-timers": "^6.0.0",
-    "typescript": "~3.8.2"
+    "sqlite3": "^4.1.1",
+    "typescript": "~3.8.2",
+    "typescript-json-schema": "^0.42.0"
   }
 }

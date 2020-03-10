@@ -26,32 +26,10 @@ export const benchmarkSchema = {
       },
       type: 'object',
     },
-    ResultColumn: {
-      properties: {
-        name: {
-          type: 'string',
-        },
-        type: {
-          $ref: '#/definitions/ResultColumnType',
-        },
-      },
-      required: ['name', 'type'],
-      type: 'object',
-    },
-    ResultColumnType: {
-      enum: ['float', 'integer', 'string'],
-      type: 'string',
-    },
   },
   properties: {
     author: {
       type: 'string',
-    },
-    columns: {
-      items: {
-        $ref: '#/definitions/ResultColumn',
-      },
-      type: 'array',
     },
     createdAt: {
       description: 'Enables basic storage and retrieval of dates and times.',
@@ -76,6 +54,6 @@ export const benchmarkSchema = {
       type: 'string',
     },
   },
-  required: ['author', 'columns', 'name', 'pipelines', 'version'],
+  required: ['author', 'name', 'pipelines', 'version'],
   type: 'object',
 };

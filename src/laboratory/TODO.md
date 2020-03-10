@@ -1,6 +1,7 @@
 # Laboratory TODO
 
 * Top
+  * x Review models.test.ts - dead code, duplicated code with data.js
   * Review laboratory/server unit test
     * Shims
     * Commented out code
@@ -17,7 +18,7 @@
   * Figure out better, less manual process for schema validation
     * Route generator?
     * Is there some automatic Express-app implementer that works from existing TS types?
-  * Remove column definitions from Benchmark
+  * x Remove column definitions from Benchmark
   * Express routes
     * Schema validation for ReportRunResultsRequestBody
     * Schema validation for UpdateRunStatusRequestBody

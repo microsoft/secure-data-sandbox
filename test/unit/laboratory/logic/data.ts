@@ -12,8 +12,6 @@ import {
   IPipeline,
   IRun,
   ISuite,
-  ResultColumn,
-  ResultColumnType,
   RunStatus,
 } from '../../../../src';
 
@@ -35,17 +33,11 @@ export const pipelines: IPipeline[] = [
   },
 ];
 
-export const columns: ResultColumn[] = [
-  { name: 'pass', type: ResultColumnType.INT },
-  { name: 'fail', type: ResultColumnType.INT },
-];
-
 export const benchmark1: IBenchmark = {
   name: 'benchmark1',
   author: 'author1',
   version: apiVersion,
   pipelines,
-  columns,
 };
 
 export const benchmark2: IBenchmark = {
@@ -53,7 +45,6 @@ export const benchmark2: IBenchmark = {
   author: 'author2',
   version: apiVersion,
   pipelines,
-  columns,
 };
 
 export const benchmark3: IBenchmark = {
@@ -61,7 +52,6 @@ export const benchmark3: IBenchmark = {
   author: 'author3',
   version: apiVersion,
   pipelines,
-  columns,
 };
 
 export const candidate1: ICandidate = {

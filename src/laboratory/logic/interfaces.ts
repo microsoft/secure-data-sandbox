@@ -30,7 +30,6 @@ export interface IEntityBase {
 // tslint:disable-next-line:interface-name
 export interface IBenchmark extends IEntityBase {
   pipelines: IPipeline[];
-  columns: ResultColumn[];
 }
 
 // tslint:disable-next-line:interface-name
@@ -42,17 +41,6 @@ export interface IPipeline {
 // tslint:disable-next-line:interface-name
 export interface IPipelineStage {
   image?: string;
-}
-
-export enum ResultColumnType {
-  INT = 'integer',
-  FLOAT = 'float',
-  STRING = 'string',
-}
-
-export interface ResultColumn {
-  name: string;
-  type: ResultColumnType;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

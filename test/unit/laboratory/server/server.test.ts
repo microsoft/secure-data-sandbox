@@ -322,7 +322,6 @@ describe('laboratory/server', () => {
 
     // This test fails because RunStatus.COMPLETED is serialized and transported as
     // Object {completed: ""}
-    //
     it('updateRunStatus()', async () => {
       const lab = new MockLaboratory();
 
