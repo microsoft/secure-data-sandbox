@@ -26,7 +26,7 @@ import {
   suite1,
 } from './data';
 
-import { assertDeepEqual, toPOJO } from './shared';
+import { assertDeepEqual } from './shared';
 
 chai.use(chaiExclude);
 chai.use(chaiAsPromised);
@@ -49,29 +49,20 @@ describe('laboratory/runs', () => {
     await lab.upsertCandidate(candidate2);
     await lab.upsertSuite(suite1);
 
-    // Get the actual benchmark, candidate, and suite records back with
-    // sequelize ids, createdAt, and updatedAt fields.
-    const b1 = toPOJO(await lab.oneBenchmark(benchmark1.name));
-    const c1 = toPOJO(await lab.oneCandidate(candidate1.name));
-    const c2 = toPOJO(await lab.oneCandidate(candidate2.name));
-    const s1 = toPOJO(await lab.oneSuite(suite1.name));
-
     // Submit a run request
-    const run1 = toPOJO(
-      await lab.createRunRequest({
-        candidate: candidate1.name,
-        suite: suite1.name,
-      })
-    );
+    const run1 = await lab.createRunRequest({
+      candidate: candidate1.name,
+      suite: suite1.name,
+    });
 
     // Verify entry in Runs table.
     const expectedRun1: IRun = {
       name: run1.name,
       author: 'unknown',
       version: apiVersion,
-      benchmark: b1,
-      candidate: c1,
-      suite: s1,
+      benchmark: benchmark1,
+      candidate: candidate1,
+      suite: suite1,
       blob: `${blobBase}/${run1.name}`,
       status: RunStatus.CREATED,
     };
@@ -139,12 +130,10 @@ describe('laboratory/runs', () => {
     assertDeepEqual(results[0], expectedResults);
 
     // Submit a second run request
-    const r2 = toPOJO(
-      await lab.createRunRequest({
-        candidate: candidate2.name,
-        suite: suite1.name,
-      })
-    );
+    const r2 = await lab.createRunRequest({
+      candidate: candidate2.name,
+      suite: suite1.name,
+    });
 
     // Verify that allRuns() returns a list containing both runs
     const bothRuns = await lab.allRuns();
@@ -154,9 +143,9 @@ describe('laboratory/runs', () => {
       name: r2.name,
       author: 'unknown',
       version: apiVersion,
-      benchmark: b1,
-      candidate: c2,
-      suite: s1,
+      benchmark: benchmark1,
+      candidate: candidate2,
+      suite: suite1,
       blob: `${blobBase}/${r2.name}`,
       status: RunStatus.CREATED,
     };

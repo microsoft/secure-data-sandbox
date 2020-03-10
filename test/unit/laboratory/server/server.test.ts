@@ -26,524 +26,366 @@ import {
   entityBaseReviver,
   IBenchmark,
   ICandidate,
-  ILaboratory,
-  IPipeline,
   IRun,
-  ISuite,
-  IResult,
   IRunRequest,
-  ResultColumn,
-  ResultColumnType,
-  RunStatus,
+  ISuite,
   Measures,
   ReportRunResultsRequestBody,
+  RunStatus,
   UpdateRunStatusRequestBody,
-} from '../../../../src/laboratory/logic';
-import e = require('express');
-import { measuresSchema } from '../../../../src/laboratory/logic/schemas/measures';
+} from '../../../../src';
 
-// TODO: combine with duplicate from laboratory.test.ts
-function toPOJO<T>(x: T): T {
-  return JSON.parse(JSON.stringify(x)) as T;
-}
+import { benchmark1, candidate1, run1, suite1 } from '../logic/data';
+import { assertDeepEqual, MockLaboratory } from '../logic/shared';
 
-// TODO: combine with duplicate from laboratory.test.ts
-function assertDeepEqual(
-  // tslint:disable-next-line:no-any
-  observed: any,
-  // tslint:disable-next-line:no-any
-  expected: any
-): void {
-  const o = toPOJO(observed);
+describe('laboratory/server', () => {
+  ///////////////////////////////////////////////////////////////////////////
+  //
+  // Benchmarks
+  //
+  ///////////////////////////////////////////////////////////////////////////
+  describe('benchmarks', () => {
+    it('allBenchmarks()', async () => {
+      const lab = new MockLaboratory();
 
-  assert.deepEqualExcludingEvery(o, expected, ['createdAt', 'updatedAt', 'id']);
-}
+      const expected: IBenchmark[] = [];
 
-const pipelines: IPipeline[] = [
-  {
-    mode: 'mode1',
-    stages: [
-      {
-        image: 'stage1 image',
-      },
-      {
-        image: 'stage2 image',
-      },
-    ],
-  },
-];
+      let called = false;
+      lab.allBenchmarks = async (): Promise<IBenchmark[]> => {
+        called = true;
+        return expected;
+      };
 
-const columns: ResultColumn[] = [
-  { name: 'pass', type: ResultColumnType.INT },
-  { name: 'fail', type: ResultColumnType.INT },
-];
-
-const benchmark1: IBenchmark = {
-  name: 'benchmark1',
-  author: 'author1',
-  version: 'v1.0.0',
-  pipelines,
-  createdAt: new Date('1970-01-01T00:00:00.000Z'),
-  updatedAt: new Date('1970-01-01T00:00:00.000Z'),
-  columns,
-};
-
-const candidate1: ICandidate = {
-  name: 'candidate1',
-  author: 'author1',
-  version: 'v1.0.0',
-  benchmark: 'benchmark1',
-  mode: 'mode1',
-  createdAt: new Date('1970-01-01T00:00:00.000Z'),
-  updatedAt: new Date('1970-01-01T00:00:00.000Z'),
-  image: 'image1',
-};
-
-const suite1: ISuite = {
-  name: 'suite1',
-  author: 'author1',
-  version: 'v1.0.0',
-  benchmark: 'benchmark1',
-  mode: 'mode1',
-  createdAt: new Date('1970-01-01T00:00:00.000Z'),
-  updatedAt: new Date('1970-01-01T00:00:00.000Z'),
-};
-
-const run1: IRun = {
-  name: 'run1',
-  author: 'author1',
-  version: 'v1.0.0',
-  benchmark: benchmark1,
-  candidate: candidate1,
-  suite: suite1,
-  blob: 'http://blobs/run1',
-  status: RunStatus.CREATED,
-};
-
-class MockLaboratory implements ILaboratory {
-  allBenchmarks(): Promise<IBenchmark[]> {
-    throw new Error('Method not implemented.');
-  }
-
-  oneBenchmark(name: string): Promise<IBenchmark> {
-    throw new Error('Method not implemented.');
-  }
-
-  upsertBenchmark(
-    benchmark: IBenchmark,
-    name?: string | undefined
-  ): Promise<void> {
-    throw new Error('Method not implemented.');
-  }
-
-  allCandidates(): Promise<ICandidate[]> {
-    throw new Error('Method not implemented.');
-  }
-
-  oneCandidate(name: string): Promise<ICandidate> {
-    throw new Error('Method not implemented.');
-  }
-
-  upsertCandidate(
-    candidate: ICandidate,
-    name?: string | undefined
-  ): Promise<void> {
-    throw new Error('Method not implemented.');
-  }
-
-  allSuites(): Promise<ISuite[]> {
-    throw new Error('Method not implemented.');
-  }
-
-  oneSuite(name: string): Promise<ISuite> {
-    throw new Error('Method not implemented.');
-  }
-
-  upsertSuite(suite: ISuite, name?: string | undefined): Promise<void> {
-    throw new Error('Method not implemented.');
-  }
-
-  allRuns(): Promise<IRun[]> {
-    throw new Error('Method not implemented.');
-  }
-
-  oneRun(name: string): Promise<IRun> {
-    throw new Error('Method not implemented.');
-  }
-
-  createRunRequest(spec: IRunRequest): Promise<IRun> {
-    throw new Error('Method not implemented.');
-  }
-
-  updateRunStatus(name: string, status: RunStatus): Promise<void> {
-    throw new Error('Method not implemented.');
-  }
-
-  reportRunResults(name: string, results: object): Promise<void> {
-    throw new Error('Method not implemented.');
-  }
-
-  allRunResults(benchmark: string, mode: string): Promise<IResult[]> {
-    throw new Error('Method not implemented.');
-  }
-}
-
-describe('laboratory', () => {
-  describe('server', () => {
-    ///////////////////////////////////////////////////////////////////////////
-    //
-    // Benchmarks
-    //
-    ///////////////////////////////////////////////////////////////////////////
-    describe('benchmarks', () => {
-      it('allBenchmarks()', async () => {
-        const lab = new MockLaboratory();
-
-        const expected: IBenchmark[] = [];
-
-        let called = false;
-        lab.allBenchmarks = async (): Promise<IBenchmark[]> => {
-          called = true;
-          return expected;
-        };
-
-        chai
-          .request(await createApp(lab))
-          .get(`/benchmarks`)
-          .end((err, res) => {
-            assert.equal(res.status, 200);
-            assert.deepEqual(res.body, expected);
-            assert.isTrue(called);
-          });
-      });
-
-      it('oneBenchmark()', async () => {
-        const lab = new MockLaboratory();
-
-        const expected = 'benchmark1';
-        let observed: string | undefined;
-        lab.oneBenchmark = async (name: string): Promise<IBenchmark> => {
-          observed = name;
-          return benchmark1;
-        };
-
-        chai
-          .request(await createApp(lab))
-          .get(`/benchmarks/${expected}`)
-          .end((err, res) => {
-            assert.equal(res.status, 200);
-            assertDeepEqual(res.body, benchmark1);
-            assert.equal(observed, expected);
-          });
-      });
-
-      it('upsertBenchmark()', async () => {
-        const lab = new MockLaboratory();
-
-        let observed: IBenchmark;
-        lab.upsertBenchmark = async (
-          benchmark: IBenchmark,
-          name?: string
-        ): Promise<void> => {
-          observed = benchmark;
-        };
-
-        chai
-          .request(await createApp(lab))
-          .put(`/benchmarks/${benchmark1.name}`)
-          .send(benchmark1)
-          .end((err, res) => {
-            assert.equal(res.status, 200);
-            assert.deepEqual(observed, benchmark1);
-          });
-      });
+      chai
+        .request(await createApp(lab))
+        .get(`/benchmarks`)
+        .end((err, res) => {
+          assert.equal(res.status, 200);
+          assert.deepEqual(res.body, expected);
+          assert.isTrue(called);
+        });
     });
 
-    ///////////////////////////////////////////////////////////////////////////
-    //
-    // Candidates
-    //
-    ///////////////////////////////////////////////////////////////////////////
-    describe('candidates', () => {
-      it('allCandidates()', async () => {
-        const lab = new MockLaboratory();
+    it('oneBenchmark()', async () => {
+      const lab = new MockLaboratory();
 
-        const expected: ICandidate[] = [];
+      const expected = 'benchmark1';
+      let observed: string | undefined;
+      lab.oneBenchmark = async (name: string): Promise<IBenchmark> => {
+        observed = name;
+        return benchmark1;
+      };
 
-        let called = false;
-        lab.allCandidates = async (): Promise<ICandidate[]> => {
-          called = true;
-          return expected;
-        };
-
-        chai
-          .request(await createApp(lab))
-          .get(`/candidates`)
-          .end((err, res) => {
-            assert.equal(res.status, 200);
-            assert.deepEqual(res.body, expected);
-            assert.isTrue(called);
-          });
-      });
-
-      it('oneCandidate()', async () => {
-        const lab = new MockLaboratory();
-
-        const expected = 'candidate1';
-        let observed: string | undefined;
-        lab.oneCandidate = async (name: string): Promise<ICandidate> => {
-          observed = name;
-          return candidate1;
-        };
-
-        chai
-          .request(await createApp(lab))
-          .get(`/candidates/${expected}`)
-          .end((err, res) => {
-            assert.equal(res.status, 200);
-            assertDeepEqual(res.body, candidate1);
-            assert.equal(observed, expected);
-          });
-      });
-
-      it('upsertCandidate()', async () => {
-        const lab = new MockLaboratory();
-
-        let observed: ICandidate;
-        lab.upsertCandidate = async (
-          candidate: ICandidate,
-          name?: string
-        ): Promise<void> => {
-          observed = candidate;
-        };
-
-        chai
-          .request(await createApp(lab))
-          .put(`/candidates/${candidate1.name}`)
-          .send(candidate1)
-          .end((err, res) => {
-            assert.equal(res.status, 200);
-            assert.deepEqual(observed, candidate1);
-          });
-      });
+      chai
+        .request(await createApp(lab))
+        .get(`/benchmarks/${expected}`)
+        .end((err, res) => {
+          assert.equal(res.status, 200);
+          assertDeepEqual(res.body, benchmark1);
+          assert.equal(observed, expected);
+        });
     });
 
-    ///////////////////////////////////////////////////////////////////////////
-    //
-    // Suites
-    //
-    ///////////////////////////////////////////////////////////////////////////
-    describe('suites', () => {
-      it('allSuites()', async () => {
-        const lab = new MockLaboratory();
+    it('upsertBenchmark()', async () => {
+      const lab = new MockLaboratory();
 
-        const expected: ISuite[] = [];
+      let observed: IBenchmark;
+      lab.upsertBenchmark = async (
+        benchmark: IBenchmark,
+        name?: string
+      ): Promise<void> => {
+        observed = benchmark;
+      };
 
-        let called = false;
-        lab.allSuites = async (): Promise<ISuite[]> => {
-          called = true;
-          return expected;
-        };
+      chai
+        .request(await createApp(lab))
+        .put(`/benchmarks/${benchmark1.name}`)
+        .send(benchmark1)
+        .end((err, res) => {
+          assert.equal(res.status, 200);
+          assert.deepEqual(observed, benchmark1);
+        });
+    });
+  });
 
-        chai
-          .request(await createApp(lab))
-          .get(`/suites`)
-          .end((err, res) => {
-            assert.equal(res.status, 200);
-            assert.deepEqual(res.body, expected);
-            assert.isTrue(called);
-          });
-      });
+  ///////////////////////////////////////////////////////////////////////////
+  //
+  // Candidates
+  //
+  ///////////////////////////////////////////////////////////////////////////
+  describe('candidates', () => {
+    it('allCandidates()', async () => {
+      const lab = new MockLaboratory();
 
-      it('oneSuite()', async () => {
-        const lab = new MockLaboratory();
+      const expected: ICandidate[] = [];
 
-        const expected = 'suite1';
-        let observed: string | undefined;
-        lab.oneSuite = async (name: string): Promise<ISuite> => {
-          observed = name;
-          return suite1;
-        };
+      let called = false;
+      lab.allCandidates = async (): Promise<ICandidate[]> => {
+        called = true;
+        return expected;
+      };
 
-        chai
-          .request(await createApp(lab))
-          .get(`/suites/${expected}`)
-          .end((err, res) => {
-            assert.equal(res.status, 200);
-            assertDeepEqual(res.body, suite1);
-            assert.equal(observed, expected);
-          });
-      });
-
-      it('upsertSuite()', async () => {
-        const lab = new MockLaboratory();
-
-        let observed: ISuite;
-        lab.upsertSuite = async (
-          suite: ISuite,
-          name?: string
-        ): Promise<void> => {
-          observed = suite;
-        };
-
-        chai
-          .request(await createApp(lab))
-          .put(`/suites/${suite1.name}`)
-          .send(suite1)
-          .end((err, res) => {
-            assert.equal(res.status, 200);
-            assert.deepEqual(observed, suite1);
-          });
-      });
+      chai
+        .request(await createApp(lab))
+        .get(`/candidates`)
+        .end((err, res) => {
+          assert.equal(res.status, 200);
+          assert.deepEqual(res.body, expected);
+          assert.isTrue(called);
+        });
     });
 
-    ///////////////////////////////////////////////////////////////////////////
+    it('oneCandidate()', async () => {
+      const lab = new MockLaboratory();
+
+      const expected = 'candidate1';
+      let observed: string | undefined;
+      lab.oneCandidate = async (name: string): Promise<ICandidate> => {
+        observed = name;
+        return candidate1;
+      };
+
+      chai
+        .request(await createApp(lab))
+        .get(`/candidates/${expected}`)
+        .end((err, res) => {
+          assert.equal(res.status, 200);
+          assertDeepEqual(res.body, candidate1);
+          assert.equal(observed, expected);
+        });
+    });
+
+    it('upsertCandidate()', async () => {
+      const lab = new MockLaboratory();
+
+      let observed: ICandidate;
+      lab.upsertCandidate = async (
+        candidate: ICandidate,
+        name?: string
+      ): Promise<void> => {
+        observed = candidate;
+      };
+
+      chai
+        .request(await createApp(lab))
+        .put(`/candidates/${candidate1.name}`)
+        .send(candidate1)
+        .end((err, res) => {
+          assert.equal(res.status, 200);
+          assert.deepEqual(observed, candidate1);
+        });
+    });
+  });
+
+  ///////////////////////////////////////////////////////////////////////////
+  //
+  // Suites
+  //
+  ///////////////////////////////////////////////////////////////////////////
+  describe('suites', () => {
+    it('allSuites()', async () => {
+      const lab = new MockLaboratory();
+
+      const expected: ISuite[] = [];
+
+      let called = false;
+      lab.allSuites = async (): Promise<ISuite[]> => {
+        called = true;
+        return expected;
+      };
+
+      chai
+        .request(await createApp(lab))
+        .get(`/suites`)
+        .end((err, res) => {
+          assert.equal(res.status, 200);
+          assert.deepEqual(res.body, expected);
+          assert.isTrue(called);
+        });
+    });
+
+    it('oneSuite()', async () => {
+      const lab = new MockLaboratory();
+
+      const expected = 'suite1';
+      let observed: string | undefined;
+      lab.oneSuite = async (name: string): Promise<ISuite> => {
+        observed = name;
+        return suite1;
+      };
+
+      chai
+        .request(await createApp(lab))
+        .get(`/suites/${expected}`)
+        .end((err, res) => {
+          assert.equal(res.status, 200);
+          assertDeepEqual(res.body, suite1);
+          assert.equal(observed, expected);
+        });
+    });
+
+    it('upsertSuite()', async () => {
+      const lab = new MockLaboratory();
+
+      let observed: ISuite;
+      lab.upsertSuite = async (suite: ISuite, name?: string): Promise<void> => {
+        observed = suite;
+      };
+
+      chai
+        .request(await createApp(lab))
+        .put(`/suites/${suite1.name}`)
+        .send(suite1)
+        .end((err, res) => {
+          assert.equal(res.status, 200);
+          assert.deepEqual(observed, suite1);
+        });
+    });
+  });
+
+  ///////////////////////////////////////////////////////////////////////////
+  //
+  // Runs
+  //
+  ///////////////////////////////////////////////////////////////////////////
+  describe('runs', () => {
+    it('allRuns()', async () => {
+      const lab = new MockLaboratory();
+
+      const expected: IRun[] = [];
+
+      let called = false;
+      lab.allRuns = async (): Promise<IRun[]> => {
+        called = true;
+        return expected;
+      };
+
+      chai
+        .request(await createApp(lab))
+        .get(`/runs`)
+        .end((err, res) => {
+          assert.equal(res.status, 200);
+          assert.deepEqual(res.body, expected);
+          assert.isTrue(called);
+        });
+    });
+
+    it('oneRun()', async () => {
+      const lab = new MockLaboratory();
+
+      const expected = 'run1';
+      let observed: string | undefined;
+      lab.oneRun = async (name: string): Promise<IRun> => {
+        observed = name;
+        return run1;
+      };
+
+      chai
+        .request(await createApp(lab))
+        .get(`/runs/${expected}`)
+        .end((err, res) => {
+          assert.equal(res.status, 200);
+          assertDeepEqual(res.body, run1);
+          assert.equal(observed, expected);
+        });
+    });
+
+    it('createRunRequest()', async () => {
+      const lab = new MockLaboratory();
+
+      const runRequest: IRunRequest = {
+        candidate: run1.candidate.name,
+        suite: run1.suite.name,
+      };
+
+      let observed: IRun;
+      lab.createRunRequest = async (spec: IRunRequest): Promise<IRun> => {
+        observed = run1;
+        return observed;
+      };
+
+      chai
+        .request(await createApp(lab))
+        .post(`/runs`)
+        .send(runRequest)
+        .end((err, res) => {
+          assert.equal(res.status, 200);
+          assert.deepEqual(observed, run1);
+
+          // HACK: JSON stringify then parse in order to use reviver for the
+          // createdAt and updatedAt fields.
+          const body = JSON.parse(JSON.stringify(res.body), entityBaseReviver);
+
+          assert.deepEqual(body, run1);
+        });
+    });
+
+    // This test fails because RunStatus.COMPLETED is serialized and transported as
+    // Object {completed: ""}
     //
-    // Runs
-    //
-    ///////////////////////////////////////////////////////////////////////////
-    describe('runs', () => {
-      it('allRuns()', async () => {
-        const lab = new MockLaboratory();
+    it('updateRunStatus()', async () => {
+      const lab = new MockLaboratory();
 
-        const expected: IRun[] = [];
+      const name = 'foobar';
+      const status = RunStatus.COMPLETED;
+      const body: UpdateRunStatusRequestBody = { status };
 
-        let called = false;
-        lab.allRuns = async (): Promise<IRun[]> => {
-          called = true;
-          return expected;
-        };
+      let observedRawName: string;
+      let observedStatus: RunStatus;
+      lab.updateRunStatus = async (
+        rawName: string,
+        status: RunStatus
+      ): Promise<void> => {
+        observedRawName = rawName;
+        observedStatus = status;
+      };
 
-        chai
-          .request(await createApp(lab))
-          .get(`/runs`)
-          .end((err, res) => {
-            assert.equal(res.status, 200);
-            assert.deepEqual(res.body, expected);
-            assert.isTrue(called);
-          });
-      });
+      chai
+        .request(await createApp(lab))
+        .patch(`/runs/${name}`)
+        .send(body)
+        .end((err, res) => {
+          assert.equal(res.status, 200);
+          assert.equal(observedRawName, name);
+          assert.equal(observedStatus, status);
+        });
+    });
 
-      it('oneRun()', async () => {
-        const lab = new MockLaboratory();
+    it('reportRunResults()', async () => {
+      const lab = new MockLaboratory();
 
-        const expected = 'run1';
-        let observed: string | undefined;
-        lab.oneRun = async (name: string): Promise<IRun> => {
-          observed = name;
-          return run1;
-        };
+      const name = 'foobar';
+      const measures = { passed: 1, failed: 2 };
+      const body: ReportRunResultsRequestBody = { measures };
 
-        chai
-          .request(await createApp(lab))
-          .get(`/runs/${expected}`)
-          .end((err, res) => {
-            assert.equal(res.status, 200);
-            assertDeepEqual(res.body, run1);
-            assert.equal(observed, expected);
-          });
-      });
+      let observedName: string;
+      let observedMeasures: Measures;
+      lab.reportRunResults = async (
+        name: string,
+        measures: Measures
+      ): Promise<void> => {
+        observedName = name;
+        observedMeasures = measures;
+      };
 
-      it('createRunRequest()', async () => {
-        const lab = new MockLaboratory();
+      chai
+        .request(await createApp(lab))
+        .patch(`/runs/${name}/results`)
+        .send(body)
+        .end((err, res) => {
+          assert.equal(res.status, 200);
+          assert.equal(observedName, name);
+          assert.deepEqual(observedMeasures, measures);
 
-        const runRequest: IRunRequest = {
-          candidate: run1.candidate.name,
-          suite: run1.suite.name,
-        };
+          // // HACK: JSON stringify then parse in order to use reviver for the
+          // // createdAt and updatedAt fields.
+          // const body = JSON.parse(
+          //   JSON.stringify(res.body),
+          //   entityBaseReviver
+          // );
 
-        let observed: IRun;
-        lab.createRunRequest = async (spec: IRunRequest): Promise<IRun> => {
-          observed = run1;
-          return observed;
-        };
-
-        chai
-          .request(await createApp(lab))
-          .post(`/runs`)
-          .send(runRequest)
-          .end((err, res) => {
-            assert.equal(res.status, 200);
-            assert.deepEqual(observed, run1);
-
-            // HACK: JSON stringify then parse in order to use reviver for the
-            // createdAt and updatedAt fields.
-            const body = JSON.parse(
-              JSON.stringify(res.body),
-              entityBaseReviver
-            );
-
-            assert.deepEqual(body, run1);
-          });
-      });
-
-      // This test fails because RunStatus.COMPLETED is serialized and transported as
-      // Object {completed: ""}
-      //
-      it('updateRunStatus()', async () => {
-        const lab = new MockLaboratory();
-
-        const name = 'foobar';
-        const status = RunStatus.COMPLETED;
-        const body: UpdateRunStatusRequestBody = { status };
-
-        let observedRawName: string;
-        let observedStatus: RunStatus;
-        lab.updateRunStatus = async (
-          rawName: string,
-          status: RunStatus
-        ): Promise<void> => {
-          observedRawName = rawName;
-          observedStatus = status;
-        };
-
-        chai
-          .request(await createApp(lab))
-          .patch(`/runs/${name}`)
-          .send(body)
-          .end((err, res) => {
-            assert.equal(res.status, 200);
-            assert.equal(observedRawName, name);
-            assert.equal(observedStatus, status);
-          });
-      });
-
-      it('reportRunResults()', async () => {
-        const lab = new MockLaboratory();
-
-        const name = 'foobar';
-        const measures = { passed: 1, failed: 2 };
-        const body: ReportRunResultsRequestBody = { measures };
-
-        let observedName: string;
-        let observedMeasures: Measures;
-        lab.reportRunResults = async (
-          name: string,
-          measures: Measures
-        ): Promise<void> => {
-          observedName = name;
-          observedMeasures = measures;
-        };
-
-        chai
-          .request(await createApp(lab))
-          .patch(`/runs/${name}/results`)
-          .send(body)
-          .end((err, res) => {
-            assert.equal(res.status, 200);
-            assert.equal(observedName, name);
-            assert.deepEqual(observedMeasures, measures);
-
-            // // HACK: JSON stringify then parse in order to use reviver for the
-            // // createdAt and updatedAt fields.
-            // const body = JSON.parse(
-            //   JSON.stringify(res.body),
-            //   entityBaseReviver
-            // );
-
-            // assert.deepEqual(body, run1);
-          });
-      });
+          // assert.deepEqual(body, run1);
+        });
     });
   });
 });

@@ -3,14 +3,18 @@
 // Data for tests in this directory.
 //
 ///////////////////////////////////////////////////////////////////////////////
+import { URL } from 'url';
+
 import {
   apiVersion,
   IBenchmark,
   ICandidate,
   IPipeline,
+  IRun,
   ISuite,
   ResultColumn,
   ResultColumnType,
+  RunStatus,
 } from '../../../../src';
 
 export const serviceURL = 'http://localhost:3000'; // TODO: plumb real url.
@@ -109,4 +113,16 @@ export const suite3: ISuite = {
   version: apiVersion,
   benchmark: 'benchmark1',
   mode: 'mode1',
+};
+
+const runid = '69bd5df9-48a2-4fd0-81c5-0a7d6932eef2';
+export const run1: IRun = {
+  name: runid,
+  author: 'author1',
+  version: apiVersion,
+  benchmark: benchmark1,
+  candidate: candidate1,
+  suite: suite1,
+  blob: new URL(runid, blobBase).toString(),
+  status: RunStatus.CREATED,
 };

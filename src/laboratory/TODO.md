@@ -1,6 +1,11 @@
 # Laboratory TODO
 
 * Top
+  * Review laboratory/server unit test
+    * Shims
+    * Commented out code
+  * Rework express body payload format
+  * Move test data.ts and shared.ts up one level.
   * Figure out better structure for laboratory class.
     * Perhaps use mixins to break up large file.
     * Perhaps use partial classes if they exist in Typescript
