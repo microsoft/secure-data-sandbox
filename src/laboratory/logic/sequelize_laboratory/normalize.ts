@@ -22,10 +22,14 @@ export function normalizeRunName(name: string): string {
 
   // Verify that n is a guid.
   // https://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid
-  if (!n.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i)) {
+  if (
+    !n.match(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    )
+  ) {
     const message = `Invalid uuid ${name}`;
     throw new TypeError(message);
   }
 
-  return n; 
+  return n;
 }

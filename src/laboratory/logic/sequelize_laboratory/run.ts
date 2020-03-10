@@ -105,7 +105,14 @@ export async function processRunRequest(
   const result = await Run.create(run);
 
   // Queue the run request.
-  const message = createMessage(server, blobURI.toString(), name, benchmark, candidate, pipeline);
+  const message = createMessage(
+    server,
+    blobURI.toString(),
+    name,
+    benchmark,
+    candidate,
+    pipeline
+  );
   await queue.enqueue(message);
 
   return result;
@@ -193,7 +200,7 @@ function createMessage(
     blobPrefix,
     statusEndpoint: statusEndpoint.toString(),
     resultsEndpoint: resultsEndpoint.toString(),
-    stages
+    stages,
   };
   return message;
 }

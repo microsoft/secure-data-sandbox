@@ -536,10 +536,12 @@ describe('laboratory', () => {
         const s1 = toPOJO(await lab.oneSuite(suite1.name));
 
         // Submit a run request
-        const r1 = toPOJO(await lab.createRunRequest({
-          candidate: candidate1.name,
-          suite: suite1.name,
-        }));
+        const r1 = toPOJO(
+          await lab.createRunRequest({
+            candidate: candidate1.name,
+            suite: suite1.name,
+          })
+        );
 
         // Verify entry in Runs table.
         const expected1: IRun = {
@@ -597,21 +599,24 @@ describe('laboratory', () => {
         await messages[0].complete();
 
         const expected = {
-          blobPrefix: (new URL(r1.name, blobBase)).toString(),
+          blobPrefix: new URL(r1.name, blobBase).toString(),
           name: r1.name,
-          resultsEndpoint: (new URL(`runs/${r1.name}/results`, serviceURL)).toString(),
+          resultsEndpoint: new URL(
+            `runs/${r1.name}/results`,
+            serviceURL
+          ).toString(),
           stages: [
             {
               image: candidate1.image,
-              name: 'candidate'
+              name: 'candidate',
             },
             {
               image: pipelines[0].stages[1].image!,
-              name: 'benchmark'
-            }
+              name: 'benchmark',
+            },
           ],
-          statusEndpoint: (new URL(`runs/${r1.name}`, serviceURL)).toString()
-        }
+          statusEndpoint: new URL(`runs/${r1.name}`, serviceURL).toString(),
+        };
         assert.deepEqual(messages[0].value, expected);
 
         // UpdateRunStatus()
@@ -619,8 +624,8 @@ describe('laboratory', () => {
         const updatedRun = await lab.oneRun(r1.name);
         const updatedExpected1 = {
           ...expected1,
-          status: RunStatus.COMPLETED
-        }
+          status: RunStatus.COMPLETED,
+        };
         assertDeepEqual(updatedRun, updatedExpected1);
         expected1.status = RunStatus.COMPLETED;
 
@@ -637,16 +642,18 @@ describe('laboratory', () => {
           mode: suite1.mode,
           name: r1.name,
           suite: suite1.name,
-          version: apiVersion
-        }
+          version: apiVersion,
+        };
         assertDeepEqual(results[0], expectedResults);
 
         // Submit a second run request
-        const r2 = toPOJO(await lab.createRunRequest({
-          candidate: candidate2.name,
-          suite: suite1.name,
-        }));
-        
+        const r2 = toPOJO(
+          await lab.createRunRequest({
+            candidate: candidate2.name,
+            suite: suite1.name,
+          })
+        );
+
         // TODO: verify that allRuns() returns a list containing both runs
         const bothRuns = await lab.allRuns();
         assert.equal(bothRuns.length, 2);

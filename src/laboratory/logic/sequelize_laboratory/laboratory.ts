@@ -170,7 +170,12 @@ export class SequelizeLaboratory implements ILaboratory {
 
   async createRunRequest(r: IRunRequest): Promise<IRun> {
     const runRequest = normalizeRunRequest(r);
-    return processRunRequest(this.server, runRequest, this.runBlobBase, this.queue);
+    return processRunRequest(
+      this.server,
+      runRequest,
+      this.runBlobBase,
+      this.queue
+    );
   }
 
   async updateRunStatus(rawName: string, status: RunStatus): Promise<void> {
@@ -189,6 +194,6 @@ export class SequelizeLaboratory implements ILaboratory {
   }
 
   async allRunResults(benchmark: string, mode: string): Promise<IResult[]> {
-    return Result.findAll({ where: { benchmark, mode }})
+    return Result.findAll({ where: { benchmark, mode } });
   }
 }
