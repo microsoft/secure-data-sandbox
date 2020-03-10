@@ -28,8 +28,7 @@ export class Run extends Model<Run> implements IRun {
   @Column(DataType.STRING)
   blob!: string;
 
-  // TODO: REVIEW: magic number 1024
-  @Column(jsonColumn<RunStatus>('status', 1024))
+  @Column(DataType.STRING)
   status!: RunStatus;
 
   // TODO: REVIEW: magic number 1024
@@ -43,34 +42,4 @@ export class Run extends Model<Run> implements IRun {
   // TODO: REVIEW: magic number 1024
   @Column(jsonColumn<ISuite[]>('suite', 1024))
   suite!: ISuite;
-}
-
-@Table
-export class Result extends Model<Result> implements IResult {
-  @Column({
-    type: DataType.STRING,
-    unique: true,
-  })
-  name!: string;
-
-  @Column(DataType.STRING)
-  author!: string;
-
-  @Column(DataType.STRING)
-  version!: string;
-
-  @Column(DataType.STRING)
-  benchmark!: string;
-
-  @Column(DataType.STRING)
-  mode!: string;
-
-  @Column(DataType.STRING)
-  suite!: string;
-
-  @Column(DataType.STRING)
-  candidate!: string;
-
-  @Column(jsonColumn<object>('measures', 1024))
-  measures!: object;
 }

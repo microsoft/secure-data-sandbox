@@ -27,6 +27,7 @@ export function normalizeRunRequest(runRequest: IRunRequest): IRunRequest {
 }
 
 export async function processRunRequest(
+  server: string,
   runRequest: IRunRequest,
   runBlobBase: string,
   queue: IQueue<PipelineRun>
@@ -85,6 +86,7 @@ export async function processRunRequest(
   // All ok. Create the run.
   //
 
+  // TODO: consider moving name generation to normalize.ts.
   const name = v1();
   const blobURI: URL = new URL(name, runBlobBase);
 
@@ -103,7 +105,7 @@ export async function processRunRequest(
   const result = await Run.create(run);
 
   // Queue the run request.
-  const message = createMessage(name, benchmark, candidate, pipeline);
+  const message = createMessage(server, blobURI.toString(), name, benchmark, candidate, pipeline);
   await queue.enqueue(message);
 
   return result;
@@ -113,7 +115,11 @@ export async function processRunStatus(
   name: string,
   status: RunStatus
 ): Promise<void> {
-  // Find run in db
+  // Verify that named run exists in the database.
+  // DESIGN NOTE: this is a friendly, convenience check that warns the user
+  // of a referential integrity problem at the time of the check. It makes
+  // no attempt to guard against race conditions.
+  // TODO: REVIEW: why not just rely on update() failing?
   const run = await Run.findOne({
     where: { name },
   });
@@ -130,7 +136,9 @@ export async function processRunResults(
   name: string,
   measures: object
 ): Promise<void> {
-  // Find run in db
+  // Find run in the database.
+  // TODO: consider using transaction here to protect against race condition
+  // where run is updated between the return of findOne() and the upsert().
   const run = await Run.findOne({
     where: { name },
   });
@@ -140,6 +148,10 @@ export async function processRunResults(
   }
 
   // Upsert to Results table.
+  // TODO: REVIEW: is it ok that the upsert can update all of the run-related
+  // fields on subsequent calls to processRunResults? This could bring in new
+  // values for these fields, if run were to change in the interim period.
+  // Perhaps this should do a create(), instead.
   const results: IResult = {
     name: run.name,
     author: run.author,
@@ -155,6 +167,8 @@ export async function processRunResults(
 }
 
 function createMessage(
+  server: string,
+  blobPrefix: string,
   name: string,
   b: IBenchmark,
   c: ICandidate,
@@ -170,6 +184,16 @@ function createMessage(
     return stage;
   });
 
-  const message: PipelineRun = { name, stages };
+  // const blobPrefix = `runs/${name}`;
+  const statusEndpoint = new URL(`runs/${name}`, server);
+  const resultsEndpoint = new URL(`runs/${name}/results`, server);
+
+  const message: PipelineRun = {
+    name,
+    blobPrefix,
+    statusEndpoint: statusEndpoint.toString(),
+    resultsEndpoint: resultsEndpoint.toString(),
+    stages
+  };
   return message;
 }

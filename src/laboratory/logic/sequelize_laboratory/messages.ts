@@ -6,6 +6,9 @@
 export interface PipelineRun
   extends Readonly<{
     name: string;
+    blobPrefix: string,
+    statusEndpoint: string,
+    resultsEndpoint: string,
     stages: ReadonlyArray<PipelineStage>;
   }> {}
 

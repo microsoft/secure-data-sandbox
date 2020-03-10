@@ -12,9 +12,10 @@ export async function startServer(): Promise<Server> {
   // TODO: remove this singleton pattern, parameterize by dialect.
   await initializeSequelize();
 
+  const serviceURL = 'http://localhost:3000'; // TODO: plumb real url.
   const blobBase = 'http://blobs'; // TODO: plumb real url.
   const queue = new InMemoryQueue<PipelineRun>();
-  const lab = new SequelizeLaboratory(blobBase, queue);
+  const lab = new SequelizeLaboratory(serviceURL, blobBase, queue);
 
   const port = process.env.PORT || 3000;
 

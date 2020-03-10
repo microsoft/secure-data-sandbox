@@ -7,13 +7,21 @@ import { DataType } from 'sequelize-typescript';
 export function jsonColumn<T>(name: string, length: number) {
   return {
     type: DataType.STRING(length),
-    get(): T {
+    get(): T | undefined {
       // tslint:disable-next-line:no-any
       const value = (this as any).getDataValue(name) as string;
       // TODO: validate schema here.
       // Will likely need to pass in a schema parameter or
       // use some sort of global registry of schemas for types.
-      return JSON.parse(value) as T;
+
+      // DESIGN NOTE: sequelize will attempt to get all columns, whether their
+      // values are undefined or not. (e.g. in the case of an Update). Need to
+      // handle undefined here.
+      if (value) {
+        return JSON.parse(value) as T;
+      } else {
+        return undefined;
+      }
     },
     set(value: T) {
       const text = JSON.stringify(value);

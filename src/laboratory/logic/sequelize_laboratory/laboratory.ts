@@ -2,6 +2,7 @@ import {
   IBenchmark,
   ICandidate,
   ILaboratory,
+  IResult,
   IRun,
   ISuite,
   RunStatus,
@@ -11,8 +12,8 @@ import {
 import { normalizeBenchmark, processBenchmark } from './benchmark';
 import { normalizeCandidate, processCandidate } from './candidate';
 import { PipelineRun } from './messages';
-import { Benchmark, Candidate, Run, Suite } from './models';
-import { normalizeName } from './normalize';
+import { Benchmark, Candidate, Run, Suite, Result } from './models';
+import { normalizeName, normalizeRunName } from './normalize';
 import { IQueue } from './queue';
 
 import {
@@ -25,12 +26,14 @@ import {
 import { normalizeSuite, processSuite } from './suite';
 
 export class SequelizeLaboratory implements ILaboratory {
+  private readonly server: string;
   private readonly runBlobBase: string;
   private readonly queue: IQueue<PipelineRun>;
 
-  constructor(runBlobBase: string, queue: IQueue<PipelineRun>) {
+  constructor(server: string, runBlobBase: string, queue: IQueue<PipelineRun>) {
     this.runBlobBase = runBlobBase;
     this.queue = queue;
+    this.server = server;
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -154,7 +157,7 @@ export class SequelizeLaboratory implements ILaboratory {
   }
 
   async oneRun(rawName: string): Promise<IRun> {
-    const name = normalizeName(rawName);
+    const name = normalizeRunName(rawName);
     const run = await Run.findOne({ where: { name } });
 
     if (run === null) {
@@ -167,16 +170,25 @@ export class SequelizeLaboratory implements ILaboratory {
 
   async createRunRequest(r: IRunRequest): Promise<IRun> {
     const runRequest = normalizeRunRequest(r);
-    return processRunRequest(runRequest, this.runBlobBase, this.queue);
+    return processRunRequest(this.server, runRequest, this.runBlobBase, this.queue);
   }
 
   async updateRunStatus(rawName: string, status: RunStatus): Promise<void> {
-    const name = normalizeName(rawName);
+    const name = normalizeRunName(rawName);
     await processRunStatus(name, status);
   }
 
+  /////////////////////////////////////////////////////////////////////////////
+  //
+  // Results
+  //
+  /////////////////////////////////////////////////////////////////////////////
   async reportRunResults(rawName: string, measures: object): Promise<void> {
-    const name = normalizeName(rawName);
+    const name = normalizeRunName(rawName);
     await processRunResults(name, measures);
+  }
+
+  async allRunResults(benchmark: string, mode: string): Promise<IResult[]> {
+    return Result.findAll({ where: { benchmark, mode }})
   }
 }

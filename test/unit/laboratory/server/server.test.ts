@@ -30,6 +30,7 @@ import {
   IPipeline,
   IRun,
   ISuite,
+  IResult,
   IRunRequest,
   ResultColumn,
   ResultColumnType,
@@ -179,6 +180,10 @@ class MockLaboratory implements ILaboratory {
   }
 
   reportRunResults(name: string, results: object): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  allRunResults(benchmark: string, mode: string): Promise<IResult[]> {
     throw new Error('Method not implemented.');
   }
 }

@@ -1,6 +1,17 @@
 # Laboratory TODO
 
 * Top
+  * Figure out better structure for laboratory class.
+    * Perhaps use mixins to break up large file.
+    * Perhaps use partial classes if they exist in Typescript
+  * x Figure out tsc/bluebird versioning problem on the mac.
+    * x VSCode reports errors in laboratory.ts
+    * x typescript-json-schema errors
+    * x Problem due to old version of tsc, globally installed, and used by VSCode
+    * x https://code.visualstudio.com/docs/typescript/typescript-compiling#_using-newer-typescript-versions
+  * Figure out better, less manual process for schema validation
+    * Route generator?
+    * Is there some automatic Express-app implementer that works from existing TS types?
   * Remove column definitions from Benchmark
   * Express routes
     * Schema validation for ReportRunResultsRequestBody

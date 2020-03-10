@@ -11,6 +11,7 @@ import { assert } from 'chai';
 const chaiAsPromised = require('chai-as-promised');
 import chaiExclude from 'chai-exclude';
 import { Sequelize } from 'sequelize-typescript';
+import { URL } from 'url';
 
 chai.use(chaiExclude);
 chai.use(chaiAsPromised);
@@ -26,6 +27,7 @@ import {
   ResultColumn,
   ResultColumnType,
   RunStatus,
+  IResult,
 } from '../../../../src/laboratory/logic';
 
 import { SequelizeLaboratory } from '../../../../src/laboratory/logic/sequelize_laboratory/laboratory';
@@ -33,10 +35,17 @@ import { SequelizeLaboratory } from '../../../../src/laboratory/logic/sequelize_
 // TODO: remove these temporary imports after integration.
 import { PipelineRun } from '../../../../src/laboratory/logic/sequelize_laboratory/messages';
 import { InMemoryQueue } from '../../../../src/laboratory/logic/sequelize_laboratory/queue';
+// import { Run } from '../../../../src/laboratory/logic/sequelize_laboratory/models';
 
+// Strip off most sequelize properties, by round-tripping through JSON.
 function toPOJO<T>(x: T): T {
   return JSON.parse(JSON.stringify(x)) as T;
 }
+
+// function toPOJO<T>(x: T): T {
+//   const {id, ...rest} = JSON.parse(JSON.stringify(x));
+//   return rest as T;
+// }
 
 function assertDeepEqual(
   // tslint:disable-next-line:no-any
@@ -62,19 +71,33 @@ beforeEach(async () => {
   await sequelize.sync();
 });
 
+const serviceURL = 'http://localhost:3000'; // TODO: plumb real url.
 const blobBase = 'http://blobs';
 const queue = new InMemoryQueue<PipelineRun>();
-const lab = new SequelizeLaboratory(blobBase, queue);
+const lab = new SequelizeLaboratory(serviceURL, blobBase, queue);
+
+// class MockQueue<T> implements IQueue<T> {
+//   items: T[] = [];
+
+//   async enqueue(message: T): Promise<void> {
+//     this.items.push(message);
+//   }
+
+//   async dequeue(count: number): Promise<Array<QueueMessage<T>>> {
+//     throw new Error("Method not implemented.");
+//   }
+// }
 
 const pipelines: IPipeline[] = [
   {
     mode: 'mode1',
     stages: [
       {
-        image: 'stage1 image',
+        // Candidate
       },
       {
-        image: 'stage2 image',
+        // Benchmark
+        image: 'benchmark-image-mode1',
       },
     ],
   },
@@ -88,7 +111,7 @@ const columns: ResultColumn[] = [
 const benchmark1: IBenchmark = {
   name: 'benchmark1',
   author: 'author1',
-  version: 'v1.0.0',
+  version: apiVersion,
   pipelines,
   columns,
 };
@@ -96,7 +119,7 @@ const benchmark1: IBenchmark = {
 const benchmark2: IBenchmark = {
   name: 'benchmark2',
   author: 'author2',
-  version: 'v1.0.0',
+  version: apiVersion,
   pipelines,
   columns,
 };
@@ -104,7 +127,7 @@ const benchmark2: IBenchmark = {
 const benchmark3: IBenchmark = {
   name: 'benchmark3',
   author: 'author3',
-  version: 'v1.0.0',
+  version: apiVersion,
   pipelines,
   columns,
 };
@@ -112,34 +135,34 @@ const benchmark3: IBenchmark = {
 const candidate1: ICandidate = {
   name: 'candidate1',
   author: 'author1',
-  version: 'v1.0.0',
+  version: apiVersion,
   benchmark: 'benchmark1',
   mode: 'mode1',
-  image: 'image1',
+  image: 'candidate1-image',
 };
 
 const candidate2: ICandidate = {
   name: 'candidate2',
   author: 'author2',
-  version: 'v1.0.0',
+  version: apiVersion,
   benchmark: 'benchmark1',
   mode: 'mode1',
-  image: 'image1',
+  image: 'candidate2-image',
 };
 
 const candidate3: ICandidate = {
   name: 'candidate3',
   author: 'author3',
-  version: 'v1.0.0',
+  version: apiVersion,
   benchmark: 'benchmark1',
   mode: 'mode1',
-  image: 'image1',
+  image: 'candidate3-image',
 };
 
 const suite1: ISuite = {
   name: 'suite1',
   author: 'author1',
-  version: 'v1.0.0',
+  version: apiVersion,
   benchmark: 'benchmark1',
   mode: 'mode1',
 };
@@ -147,7 +170,7 @@ const suite1: ISuite = {
 const suite2: ISuite = {
   name: 'suite2',
   author: 'author2',
-  version: 'v1.0.0',
+  version: apiVersion,
   benchmark: 'benchmark1',
   mode: 'mode1',
 };
@@ -155,7 +178,7 @@ const suite2: ISuite = {
 const suite3: ISuite = {
   name: 'suite3',
   author: 'author3',
-  version: 'v1.0.0',
+  version: apiVersion,
   benchmark: 'benchmark1',
   mode: 'mode1',
 };
@@ -491,40 +514,156 @@ describe('laboratory', () => {
     describe('run', () => {
       // // Test development in progress.
       // // Commented out until finished.
-      // it('allRuns()', async () => {
-      //   const lab = new SequelizeLaboratory(blobBase);
-      //   // First add benchmark, candidate, and suite
-      //   await lab.upsertBenchmark(benchmark1);
-      //   await lab.upsertCandidate(candidate1);
-      //   await lab.upsertCandidate(candidate2);
-      //   await lab.upsertSuite(suite1);
-      //   const c1 = toPOJO(await lab.oneCandidate(candidate1.name));
-      //   const s1 = toPOJO(await lab.oneSuite(suite1.name));
-      //   const empty = await lab.allRuns();
-      //   assert.deepEqual(empty, []);
-      //   const r1 = toPOJO(await lab.createRun({
-      //     candidate: candidate1.name,
-      //     suite: suite1.name,
-      //   }));
-      //   const expected1: IRun = {
-      //     name: r1.name,
-      //     createdAt: r1.createdAt,
-      //     updatedAt: r1.updatedAt,
-      //     author: 'unknown',
-      //     version: apiVersion,
-      //     benchmark: benchmark1,
-      //     candidate: c1,
-      //     suite: s1,
-      //     blob: `${blobBase}/${r1.name}`,
-      //     status: RunStatus.CREATED,
-      //   };
-      //   assert.deepEqual(r1, expected1);
-      //   // const results1 = toPOJO(await lab.allRuns());
-      //   // assert.deepEqual(results1, [expected1]);
-      //   // await lab.upsertSuite(suite2);
-      //   // const results2 = await lab.allSuites();
-      //   // assertDeepEqual(results2, [suite1, suite2]);
-      // });
+      it('allRuns()', async () => {
+        const queue = new InMemoryQueue<PipelineRun>();
+        const lab = new SequelizeLaboratory(serviceURL, blobBase, queue);
+
+        // Initially, there should be no runs.
+        const empty = await lab.allRuns();
+        assert.deepEqual(empty, []);
+
+        // First add benchmark, candidate, and suite
+        await lab.upsertBenchmark(benchmark1);
+        await lab.upsertCandidate(candidate1);
+        await lab.upsertCandidate(candidate2);
+        await lab.upsertSuite(suite1);
+
+        // Get the actual benchmark, candidate, and suite records back with
+        // sequelize ids, createdAt, and updatedAt fields.
+        const b1 = toPOJO(await lab.oneBenchmark(benchmark1.name));
+        const c1 = toPOJO(await lab.oneCandidate(candidate1.name));
+        const c2 = toPOJO(await lab.oneCandidate(candidate2.name));
+        const s1 = toPOJO(await lab.oneSuite(suite1.name));
+
+        // Submit a run request
+        const r1 = toPOJO(await lab.createRunRequest({
+          candidate: candidate1.name,
+          suite: suite1.name,
+        }));
+
+        // Verify entry in Runs table.
+        const expected1: IRun = {
+          name: r1.name,
+          author: 'unknown',
+          version: apiVersion,
+          benchmark: b1,
+          candidate: c1,
+          suite: s1,
+          blob: `${blobBase}/${r1.name}`,
+          status: RunStatus.CREATED,
+        };
+        // tslint:disable-next-line:no-any
+        // assert.deepEqualExcludingEvery(r1 as any, expected1 as any, ['createdAt', 'id', 'updatedAt']);
+        assertDeepEqual(r1, expected1);
+
+        // Verify that allRuns() returns a list containing just this one run.
+        const allRuns = await lab.allRuns();
+        assert.equal(allRuns.length, 1);
+        assertDeepEqual(allRuns[0], expected1);
+
+        // Verify that oneRun() returns this one run.
+        const oneRun = await lab.oneRun(r1.name);
+        assertDeepEqual(oneRun, expected1);
+
+        // // UpdateRunStatus
+        // await lab.updateRunStatus(r1.name, RunStatus.COMPLETED);
+        // const updatedRun = await lab.oneRun(r1.name);
+        // const updatedExpected1 = {
+        //   ...expected1,
+        //   status: RunStatus.COMPLETED
+        // }
+        // assertDeepEqual(updatedRun, updatedExpected1);
+
+        // // TODO: updateResults
+        // const measures = { passed: 100, failed: 200 };
+        // await lab.reportRunResults(r1.name, measures);
+        // const results = await lab.allRunResults(suite1.benchmark, suite1.mode);
+        // assert.equal(results.length, 1);
+        // // TODO: implement lab.allRunResults()
+
+        // TODO: create a second run
+        // TODO: verify that allRuns() returns a list containing both runs
+
+        // assert.deepEqual(r1, expected1);
+        // const results1 = toPOJO(await lab.allRuns());
+        // assert.deepEqual(results1, [expected1]);
+        // await lab.upsertSuite(suite2);
+        // const results2 = await lab.allSuites();
+        // assertDeepEqual(results2, [suite1, suite2]);
+
+        // Verify queue message.
+        const messages = await queue.dequeue(2);
+        assert.equal(messages.length, 1);
+        await messages[0].complete();
+
+        const expected = {
+          blobPrefix: (new URL(r1.name, blobBase)).toString(),
+          name: r1.name,
+          resultsEndpoint: (new URL(`runs/${r1.name}/results`, serviceURL)).toString(),
+          stages: [
+            {
+              image: candidate1.image,
+              name: 'candidate'
+            },
+            {
+              image: pipelines[0].stages[1].image!,
+              name: 'benchmark'
+            }
+          ],
+          statusEndpoint: (new URL(`runs/${r1.name}`, serviceURL)).toString()
+        }
+        assert.deepEqual(messages[0].value, expected);
+
+        // UpdateRunStatus()
+        await lab.updateRunStatus(r1.name, RunStatus.COMPLETED);
+        const updatedRun = await lab.oneRun(r1.name);
+        const updatedExpected1 = {
+          ...expected1,
+          status: RunStatus.COMPLETED
+        }
+        assertDeepEqual(updatedRun, updatedExpected1);
+        expected1.status = RunStatus.COMPLETED;
+
+        // UpdateResults()
+        const measures = { passed: 100, failed: 200 };
+        await lab.reportRunResults(r1.name, measures);
+        const results = await lab.allRunResults(suite1.benchmark, suite1.mode);
+        assert.equal(results.length, 1);
+        const expectedResults: IResult = {
+          author: 'unknown',
+          benchmark: benchmark1.name,
+          candidate: candidate1.name,
+          measures,
+          mode: suite1.mode,
+          name: r1.name,
+          suite: suite1.name,
+          version: apiVersion
+        }
+        assertDeepEqual(results[0], expectedResults);
+
+        // Submit a second run request
+        const r2 = toPOJO(await lab.createRunRequest({
+          candidate: candidate2.name,
+          suite: suite1.name,
+        }));
+        
+        // TODO: verify that allRuns() returns a list containing both runs
+        const bothRuns = await lab.allRuns();
+        assert.equal(bothRuns.length, 2);
+        assertDeepEqual(bothRuns[0], expected1);
+        const expected2: IRun = {
+          name: r2.name,
+          author: 'unknown',
+          version: apiVersion,
+          benchmark: b1,
+          candidate: c2,
+          suite: s1,
+          blob: `${blobBase}/${r2.name}`,
+          status: RunStatus.CREATED,
+        };
+        assertDeepEqual(bothRuns[1], expected2);
+      });
+
       // it('oneRun()', async () => {
       //   // Test development in progress.
       //   // Commented out until finished.
