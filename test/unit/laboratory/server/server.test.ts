@@ -35,8 +35,8 @@ import {
   UpdateRunStatusRequestBody,
 } from '../../../../src';
 
-import { benchmark1, candidate1, run1, suite1 } from '../logic/data';
-import { assertDeepEqual, MockLaboratory } from '../logic/shared';
+import { benchmark1, candidate1, run1, suite1 } from '../data';
+import { assertDeepEqual, MockLaboratory } from '../shared';
 
 describe('laboratory/server', () => {
   ///////////////////////////////////////////////////////////////////////////

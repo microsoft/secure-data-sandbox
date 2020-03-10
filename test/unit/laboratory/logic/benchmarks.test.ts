@@ -4,21 +4,21 @@ import chaiAsPromised = require('chai-as-promised');
 import chaiExclude from 'chai-exclude';
 import { Sequelize } from 'sequelize-typescript';
 
-import {
-  benchmark1,
-  benchmark2,
-  benchmark3,
-  blobBase,
-  serviceURL,
-} from './data';
-
 import { initializeSequelize, SequelizeLaboratory } from '../../../../src';
 
 // TODO: remove these temporary imports after integration.
 import { PipelineRun } from '../../../../src/laboratory/logic/sequelize_laboratory/messages';
 import { InMemoryQueue } from '../../../../src/laboratory/logic/sequelize_laboratory/queue';
 
-import { assertDeepEqual } from './shared';
+import {
+  benchmark1,
+  benchmark2,
+  benchmark3,
+  blobBase,
+  serviceURL,
+} from '../data';
+
+import { assertDeepEqual } from '../shared';
 
 chai.use(chaiExclude);
 chai.use(chaiAsPromised);

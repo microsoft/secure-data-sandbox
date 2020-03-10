@@ -16,7 +16,7 @@ import {
   IRunRequest,
   ISuite,
   RunStatus,
-} from '../../../../src';
+} from '../../../src';
 
 chai.use(chaiExclude);
 

@@ -24,9 +24,9 @@ import {
   pipelines,
   serviceURL,
   suite1,
-} from './data';
+} from '../data';
 
-import { assertDeepEqual } from './shared';
+import { assertDeepEqual } from '../shared';
 
 chai.use(chaiExclude);
 chai.use(chaiAsPromised);

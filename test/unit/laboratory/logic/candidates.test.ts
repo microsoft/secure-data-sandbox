@@ -17,9 +17,9 @@ import {
   candidate2,
   candidate3,
   serviceURL,
-} from './data';
+} from '../data';
 
-import { assertDeepEqual } from './shared';
+import { assertDeepEqual } from '../shared';
 
 chai.use(chaiExclude);
 chai.use(chaiAsPromised);

@@ -10,9 +10,9 @@ import {
 
 import { jsonColumn } from '../../../../../../src/laboratory/logic/sequelize_laboratory/models/decorators';
 
-import { benchmark1, candidate1, suite1, run1 } from '../../../logic/data';
+import { benchmark1, candidate1, suite1, run1 } from '../../../data';
 
-import { assertDeepEqual } from '../../../logic/shared';
+import { assertDeepEqual } from '../../../shared';
 
 let sequelize: Sequelize;
 

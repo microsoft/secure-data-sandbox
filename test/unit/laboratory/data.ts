@@ -13,7 +13,7 @@ import {
   IRun,
   ISuite,
   RunStatus,
-} from '../../../../src';
+} from '../../../src';
 
 export const serviceURL = 'http://localhost:3000'; // TODO: plumb real url.
 export const blobBase = 'http://blobs';

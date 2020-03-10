@@ -17,9 +17,9 @@ import {
   suite1,
   suite2,
   suite3,
-} from './data';
+} from '../data';
 
-import { assertDeepEqual } from './shared';
+import { assertDeepEqual } from '../shared';
 
 chai.use(chaiExclude);
 chai.use(chaiAsPromised);
