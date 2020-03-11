@@ -27,8 +27,25 @@ export interface IEntityBase {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-import { IBenchmark, ICandidate, IRun, IRunRequest, ISuite, Measures, RunStatus } from './types';
-export { IBenchmark, ICandidate, IPipeline, IRun, IRunRequest, ISuite, Measures, RunStatus } from './types';
+import {
+  IBenchmark,
+  ICandidate,
+  IRun,
+  IRunRequest,
+  ISuite,
+  Measures,
+  RunStatus,
+} from './types';
+export {
+  IBenchmark,
+  ICandidate,
+  IPipeline,
+  IRun,
+  IRunRequest,
+  ISuite,
+  Measures,
+  RunStatus,
+} from './types';
 
 // // tslint:disable-next-line:interface-name
 // export interface IBenchmark extends EntityBase {

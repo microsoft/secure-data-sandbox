@@ -1,7 +1,6 @@
-
 import * as AJV from 'ajv';
 import * as betterAjvErrors from 'better-ajv-errors';
-import { isLeft } from 'fp-ts/lib/Either'
+import { isLeft } from 'fp-ts/lib/Either';
 import { Decoder } from 'io-ts';
 
 export function validate<A, I>(decoder: Decoder<I, A>, data: I): A {

@@ -8,10 +8,11 @@ const Date2 = new t.Type<Date, Date, unknown>(
   'Date2',
   (input: unknown): input is Date => input instanceof Date,
   // `t.success` and `t.failure` are helpers used to build `Either` instances
-  (input, context) => (input instanceof Date ? t.success(input) : t.failure(input, context)),
+  (input, context) =>
+    input instanceof Date ? t.success(input) : t.failure(input, context),
   // `A` and `O` are the same, so `encode` is just the identity function
   t.identity
-)
+);
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -29,7 +30,7 @@ export const EntityBaseType = t.intersection([
   t.partial({
     createdAt: Date2,
     updatedAt: Date2,
-  })
+  }),
 ]);
 export type EntityBase = t.TypeOf<typeof EntityBaseType>;
 
@@ -41,23 +42,23 @@ export type EntityBase = t.TypeOf<typeof EntityBaseType>;
 
 // tslint:disable-next-line:variable-name
 const PipelineStageType = t.partial({
-  image: t.string
+  image: t.string,
 });
 type PipelineStage = t.TypeOf<typeof PipelineStageType>;
 
 // tslint:disable-next-line:variable-name
 export const PipelineType = t.type({
   mode: t.string,
-  stages: t.array(PipelineStageType)
+  stages: t.array(PipelineStageType),
 });
 export type IPipeline = t.TypeOf<typeof PipelineType>;
 
 // tslint:disable-next-line:variable-name
 export const BenchmarkType = t.intersection([
-    EntityBaseType,
-    t.interface({
-        pipelines: t.array(PipelineType),
-    }),
+  EntityBaseType,
+  t.interface({
+    pipelines: t.array(PipelineType),
+  }),
 ]);
 export type IBenchmark = t.TypeOf<typeof BenchmarkType>;
 
@@ -72,11 +73,10 @@ export const CandidateType = t.intersection([
   t.interface({
     benchmark: t.string,
     mode: t.string,
-    image: t.string
+    image: t.string,
   }),
 ]);
 export type ICandidate = t.TypeOf<typeof CandidateType>;
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -93,7 +93,6 @@ export const SuiteType = t.intersection([
 ]);
 export type ISuite = t.TypeOf<typeof SuiteType>;
 
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // IRun
@@ -102,13 +101,13 @@ export type ISuite = t.TypeOf<typeof SuiteType>;
 // tslint:disable-next-line:no-any
 export const createEnum = <E>(e: any, name: string): t.Type<E> => {
   // tslint:disable-next-line:no-any
-  const keys: any = {}
+  const keys: any = {};
   Object.keys(e).forEach(k => {
-    keys[e[k]] = null
-  })
+    keys[e[k]] = null;
+  });
   // tslint:disable-next-line:no-any
-  return t.keyof(keys, name) as any
-}
+  return t.keyof(keys, name) as any;
+};
 
 // enum KeysT {
 //   foo = 'fooValue',
@@ -125,7 +124,7 @@ export enum RunStatus {
   FAILED = 'failed',
 }
 // tslint:disable-next-line:variable-name
-const RunStatusType = createEnum<RunStatus>(RunStatus, 'RunStatus')
+const RunStatusType = createEnum<RunStatus>(RunStatus, 'RunStatus');
 //type RST = t.TypeOf<typeof RunStatusType>
 
 // // tslint:disable-next-line:variable-name
@@ -145,7 +144,7 @@ export const RunType = t.intersection([
     suite: SuiteType,
     candidate: CandidateType,
     blob: t.string,
-    status: RunStatusType
+    status: RunStatusType,
   }),
 ]);
 export type IRun = t.TypeOf<typeof RunType>;
