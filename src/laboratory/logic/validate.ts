@@ -10,12 +10,3 @@ export function validate<A, I>(decoder: Decoder<I, A>, data: I): A {
     return x.right;
   }
 }
-
-// tslint:disable-next-line:no-any
-export function entityBaseReviver(key: string, value: any) {
-  if (key === 'updatedAt' || key === 'createdAt') {
-    return new Date(value);
-  } else {
-    return value;
-  }
-}

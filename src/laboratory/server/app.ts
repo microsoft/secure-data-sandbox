@@ -2,7 +2,7 @@ import * as bodyParser from 'body-parser';
 import * as express from 'express';
 import * as errorhandler from 'strong-error-handler';
 
-import { entityBaseReviver, ILaboratory } from '../logic';
+import { ILaboratory } from '../logic';
 
 import {
   createBenchmarkRouter,
@@ -54,4 +54,13 @@ export async function createApp(lab: ILaboratory): Promise<express.Express> {
   );
 
   return app;
+}
+
+// tslint:disable-next-line:no-any
+export function entityBaseReviver(key: string, value: any) {
+  if (key === 'updatedAt' || key === 'createdAt') {
+    return new Date(value);
+  } else {
+    return value;
+  }
 }
