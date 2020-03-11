@@ -3,7 +3,6 @@ import { DataType, Column, Model, Table } from 'sequelize-typescript';
 import {
   IBenchmark,
   ICandidate,
-  IResult,
   IRun,
   ISuite,
   RunStatus,

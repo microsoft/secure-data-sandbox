@@ -1,5 +1,18 @@
+
 import * as AJV from 'ajv';
 import * as betterAjvErrors from 'better-ajv-errors';
+import { isLeft } from 'fp-ts/lib/Either'
+import { Decoder } from 'io-ts';
+
+export function validate<A, I>(decoder: Decoder<I, A>, data: I): A {
+  const x = decoder.decode(data);
+  if (isLeft(x)) {
+    const message = `${decoder.name}: data does not conform to schema`;
+    throw new TypeError(message);
+  } else {
+    return x.right;
+  }
+}
 
 import {
   IBenchmark,
@@ -36,35 +49,35 @@ export function entityBaseReviver(key: string, value: any) {
 
 // tslint:disable-next-line:no-any
 export function validateBenchmark(spec: any): IBenchmark {
-  return validate<IBenchmark>(spec, benchmarkValidator, benchmarkSchema);
+  return validateOld<IBenchmark>(spec, benchmarkValidator, benchmarkSchema);
 }
 
 // tslint:disable-next-line:no-any
 export function validateCandidate(spec: any): ICandidate {
-  return validate<ICandidate>(spec, candidateValidator, candidateSchema);
+  return validateOld<ICandidate>(spec, candidateValidator, candidateSchema);
 }
 
 // tslint:disable-next-line:no-any
 export function validateMeasures(spec: any): Measures {
-  return validate<Measures>(spec, measuresValidator, measuresSchema);
+  return validateOld<Measures>(spec, measuresValidator, measuresSchema);
 }
 
 // tslint:disable-next-line:no-any
 export function validateRunRequest(spec: any): IRunRequest {
-  return validate<IRunRequest>(spec, runRequestValidator, runRequestSchema);
+  return validateOld<IRunRequest>(spec, runRequestValidator, runRequestSchema);
 }
 
 // tslint:disable-next-line:no-any
 export function validateRunStatus(spec: any): RunStatus {
-  return validate<RunStatus>(spec, runStatusValidator, runStatusSchema);
+  return validateOld<RunStatus>(spec, runStatusValidator, runStatusSchema);
 }
 
 // tslint:disable-next-line:no-any
 export function validateSuite(spec: any): ISuite {
-  return validate<ISuite>(spec, suiteValidator, suiteSchema);
+  return validateOld<ISuite>(spec, suiteValidator, suiteSchema);
 }
 
-function validate<T>(
+function validateOld<T>(
   // tslint:disable-next-line:no-any
   spec: any,
   validator: AJV.ValidateFunction,

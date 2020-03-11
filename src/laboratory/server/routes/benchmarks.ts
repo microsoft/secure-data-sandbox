@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { ILaboratory, validateBenchmark } from '../../logic';
+import { BenchmarkType, ILaboratory, validate } from '../../logic';
 
 export function createBenchmarkRouter(lab: ILaboratory): Router {
   const router = Router();
@@ -23,8 +23,8 @@ export function createBenchmarkRouter(lab: ILaboratory): Router {
 
   router.put('/:name', async (req, res, next) => {
     try {
-      const spec = validateBenchmark(req.body);
-      await lab.upsertBenchmark(spec);
+      const benchmark = validate(BenchmarkType, req.body);
+      await lab.upsertBenchmark(benchmark);
       res.sendStatus(200);
     } catch (e) {
       next(e);

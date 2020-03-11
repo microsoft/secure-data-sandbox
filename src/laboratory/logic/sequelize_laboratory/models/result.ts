@@ -1,6 +1,7 @@
 import { DataType, Column, Model, Table } from 'sequelize-typescript';
 
 import { IResult } from '../../interfaces';
+import { Measures } from '../../types';
 
 import { jsonColumn } from './decorators';
 
@@ -31,5 +32,5 @@ export class Result extends Model<Result> implements IResult {
   candidate!: string;
 
   @Column(jsonColumn<object>('measures', 1024))
-  measures!: object;
+  measures!: Measures;
 }

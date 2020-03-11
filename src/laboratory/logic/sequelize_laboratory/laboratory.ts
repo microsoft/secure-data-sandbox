@@ -9,6 +9,8 @@ import {
   IRunRequest,
 } from '../interfaces';
 
+import { Measures } from '../types';
+
 import { normalizeBenchmark, processBenchmark } from './benchmark';
 import { normalizeCandidate, processCandidate } from './candidate';
 import { PipelineRun } from './messages';
@@ -188,7 +190,7 @@ export class SequelizeLaboratory implements ILaboratory {
   // Results
   //
   /////////////////////////////////////////////////////////////////////////////
-  async reportRunResults(rawName: string, measures: object): Promise<void> {
+  async reportRunResults(rawName: string, measures: Measures): Promise<void> {
     const name = normalizeRunName(rawName);
     await processRunResults(name, measures);
   }

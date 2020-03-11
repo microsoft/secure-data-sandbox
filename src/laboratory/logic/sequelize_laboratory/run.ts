@@ -1,10 +1,6 @@
 import { v1 } from 'uuid';
 import { URL } from 'url';
 
-import { Benchmark, Candidate, Suite, Run, Result } from './models';
-import { normalizeName } from './normalize';
-import { IQueue } from './queue';
-
 import {
   apiVersion,
   IBenchmark,
@@ -16,7 +12,13 @@ import {
   IResult,
 } from '../interfaces';
 
+import { Measures } from '../types';
+
 import { PipelineRun, PipelineStage } from './messages';
+import { Benchmark, Candidate, Suite, Run, Result } from './models';
+import { normalizeName } from './normalize';
+import { IQueue } from './queue';
+
 
 export function normalizeRunRequest(runRequest: IRunRequest): IRunRequest {
   return {
@@ -141,7 +143,7 @@ export async function processRunStatus(
 
 export async function processRunResults(
   name: string,
-  measures: object
+  measures: Measures
 ): Promise<void> {
   // Find run in the database.
   // TODO: consider using transaction here to protect against race condition

@@ -27,21 +27,24 @@ export interface IEntityBase {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// tslint:disable-next-line:interface-name
-export interface IBenchmark extends IEntityBase {
-  pipelines: IPipeline[];
-}
+import { IBenchmark, ICandidate, IRun, IRunRequest, ISuite, Measures, RunStatus } from './types';
+export { IBenchmark, ICandidate, IPipeline, IRun, IRunRequest, ISuite, Measures, RunStatus } from './types';
 
-// tslint:disable-next-line:interface-name
-export interface IPipeline {
-  mode: string;
-  stages: IPipelineStage[];
-}
+// // tslint:disable-next-line:interface-name
+// export interface IBenchmark extends EntityBase {
+//   pipelines: IPipeline[];
+// }
 
-// tslint:disable-next-line:interface-name
-export interface IPipelineStage {
-  image?: string;
-}
+// // tslint:disable-next-line:interface-name
+// export interface IPipeline {
+//   mode: string;
+//   stages: IPipelineStage[];
+// }
+
+// // tslint:disable-next-line:interface-name
+// export interface IPipelineStage {
+//   image?: string;
+// }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -49,11 +52,11 @@ export interface IPipelineStage {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// tslint:disable-next-line:interface-name
-export interface ISuite extends IEntityBase {
-  benchmark: string;
-  mode: string;
-}
+// // tslint:disable-next-line:interface-name
+// export interface ISuite extends IEntityBase {
+//   benchmark: string;
+//   mode: string;
+// }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -61,12 +64,12 @@ export interface ISuite extends IEntityBase {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// tslint:disable-next-line:interface-name
-export interface ICandidate extends IEntityBase {
-  benchmark: string;
-  mode: string;
-  image: string;
-}
+// // tslint:disable-next-line:interface-name
+// export interface ICandidate extends IEntityBase {
+//   benchmark: string;
+//   mode: string;
+//   image: string;
+// }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -74,10 +77,10 @@ export interface ICandidate extends IEntityBase {
 //
 ///////////////////////////////////////////////////////////////////////////////
 // tslint:disable-next-line:interface-name
-export interface IRunRequest {
-  candidate: string;
-  suite: string;
-}
+// export interface IRunRequest {
+//   candidate: string;
+//   suite: string;
+// }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -85,30 +88,30 @@ export interface IRunRequest {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// tslint:disable-next-line:interface-name
-export interface IRun extends IEntityBase {
-  benchmark: IBenchmark;
-  suite: ISuite;
-  candidate: ICandidate;
-  blob: string;
-  status: RunStatus;
-}
+// // tslint:disable-next-line:interface-name
+// export interface IRun extends IEntityBase {
+//   benchmark: IBenchmark;
+//   suite: ISuite;
+//   candidate: ICandidate;
+//   blob: string;
+//   status: RunStatus;
+// }
 
-export enum RunStatus {
-  CREATED = 'created',
-  RUNNING = 'running',
-  COMPLETED = 'completed',
-  FAILED = 'failed',
-}
+// export enum RunStatus {
+//   CREATED = 'created',
+//   RUNNING = 'running',
+//   COMPLETED = 'completed',
+//   FAILED = 'failed',
+// }
 
-// tslint:disable-next-line:interface-name
-export interface UpdateRunStatusRequestBody {
-  status: RunStatus;
-}
+// // tslint:disable-next-line:interface-name
+// export interface UpdateRunStatusRequestBody {
+//   status: RunStatus;
+// }
 
-export interface ReportRunResultsRequestBody {
-  measures: Measures;
-}
+// export interface ReportRunResultsRequestBody {
+//   measures: Measures;
+// }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -116,7 +119,7 @@ export interface ReportRunResultsRequestBody {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-export type Measures = object;
+// export type Measures = object;
 
 // tslint:disable-next-line:interface-name
 export interface IResult extends IEntityBase {

@@ -26,13 +26,13 @@ import {
   entityBaseReviver,
   IBenchmark,
   ICandidate,
+  IReportRunResults,
   IRun,
   IRunRequest,
   ISuite,
+  IUpdateRunStatus,
   Measures,
-  ReportRunResultsRequestBody,
   RunStatus,
-  UpdateRunStatusRequestBody,
 } from '../../../../src';
 
 import { benchmark1, candidate1, run1, suite1 } from '../data';
@@ -327,7 +327,7 @@ describe('laboratory/server', () => {
 
       const name = 'foobar';
       const status = RunStatus.COMPLETED;
-      const body: UpdateRunStatusRequestBody = { status };
+      const body: IUpdateRunStatus = { status };
 
       let observedRawName: string;
       let observedStatus: RunStatus;
@@ -355,7 +355,7 @@ describe('laboratory/server', () => {
 
       const name = 'foobar';
       const measures = { passed: 1, failed: 2 };
-      const body: ReportRunResultsRequestBody = { measures };
+      const body: IReportRunResults = { measures };
 
       let observedName: string;
       let observedMeasures: Measures;

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { ILaboratory, validateSuite } from '../../logic';
+import { ILaboratory, SuiteType, validate } from '../../logic';
 
 export function createSuiteRouter(lab: ILaboratory): Router {
   const router = Router();
@@ -23,8 +23,8 @@ export function createSuiteRouter(lab: ILaboratory): Router {
 
   router.put('/:name', async (req, res, next) => {
     try {
-      const spec = validateSuite(req.body);
-      await lab.upsertSuite(spec);
+      const suite = validate(SuiteType, req.body);
+      await lab.upsertSuite(suite);
       res.sendStatus(200);
     } catch (e) {
       next(e);
