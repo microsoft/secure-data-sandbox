@@ -100,6 +100,8 @@ export type ISuite = t.TypeOf<typeof SuiteType>;
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+// From https://github.com/gcanti/io-ts/issues/67
+
 // tslint:disable-next-line:no-any
 export const createEnum = <E>(e: any, name: string): t.Type<E> => {
   // tslint:disable-next-line:no-any

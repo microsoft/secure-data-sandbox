@@ -1,8 +1,25 @@
 # Laboratory TODO
 
 * Top
+  * CLI
+    * connect
+    * create benchmark|suite|candidate
+    * list benchmark|suite|candidate
+    * run
+    * list results w/formatted table output
+    * deploy
+  * Shell
+  * sequelize configuration
   * Rename Date2
-  * Move validate() out of schemas directory.
+  * x Move validate() out of schemas directory. Remove schemas directory.
+  * Split validate.ts into type-specific (validate()) and JSON-specific (entityBaseReviver)
+  * Figure out where messages.ts goes.
+  * Review laboratory/server unit test
+    * Shims
+    * Commented out code in reportRunResults()
+  * Unit tests for runs
+    * . Express routes - review these tests - updateRunStatus() and reportRunResults()
+    * x Laboratory
   * x Rework express body payload format - e.g. UpdateRunStatusRequestBody
   * Figure out better, less manual process for schema validation
     * x io-ts?
@@ -11,9 +28,6 @@
   * Figure out better structure for laboratory class.
     * Perhaps use mixins to break up large file.
     * Perhaps use partial classes if they exist in Typescript
-  * Review laboratory/server unit test
-    * Shims
-    * Commented out code
   * x Review models.test.ts - dead code, duplicated code with data.js
   * x Move test data.ts and shared.ts up one level.
   * x Figure out tsc/bluebird versioning problem on the mac.
@@ -22,14 +36,10 @@
     * x Problem due to old version of tsc, globally installed, and used by VSCode
     * x https://code.visualstudio.com/docs/typescript/typescript-compiling#_using-newer-typescript-versions
   * x Remove column definitions from Benchmark
-  * Express routes
-    * Schema validation for ReportRunResultsRequestBody
-    * Schema validation for UpdateRunStatusRequestBody
-  * Unit tests for runs
-    * Express routes
-    * Laboratory
-  * Messages should include reporting endpoints (statusEndpoint, resultsEndpoint)
-  * CLI
+  * x Express routes
+    * x Schema validation for ReportRunResultsRequestBody
+    * x Schema validation for UpdateRunStatusRequestBody
+  * x Messages should include reporting endpoints (statusEndpoint, resultsEndpoint)
 * Items to track in Project
   * SequelizeLaboratory run methods
     * allRuns()
@@ -40,12 +50,6 @@
   * SequelizeLaboratory Results tables
     * Benchmark includes results schema
     * Dynamic sequelize model, created from Benchmarks table
-  * CLI
-    * connect
-    * create benchmark|suite|candidate
-    * list benchmark|suite|candidate
-    * run
-    * deploy
 * Integration
   * SQL server dialect
   * Azure queue
