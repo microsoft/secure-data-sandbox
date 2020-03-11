@@ -10,9 +10,9 @@
     * deploy
   * Shell
   * sequelize configuration
-  * Rename Date2
+  * x Rename Date2 => DateType
   * x Move validate() out of schemas directory. Remove schemas directory.
-  * Split validate.ts into type-specific (validate()) and JSON-specific (entityBaseReviver)
+  * x Split validate.ts into type-specific (validate()) and JSON-specific (entityBaseReviver)
   * Figure out where messages.ts goes.
   * Review laboratory/server unit test
     * Shims

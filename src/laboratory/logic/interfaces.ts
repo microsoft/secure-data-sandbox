@@ -3,7 +3,7 @@ import * as t from 'io-ts';
 export const apiVersion = '0.0.1';
 
 // tslint:disable-next-line:variable-name
-const Date2 = new t.Type<Date, Date, unknown>(
+const DateType = new t.Type<Date, Date, unknown>(
   'Date2',
   (input: unknown): input is Date => input instanceof Date,
   // `t.success` and `t.failure` are helpers used to build `Either` instances
@@ -27,8 +27,8 @@ export const EntityBaseType = t.intersection([
     version: t.string,
   }),
   t.partial({
-    createdAt: Date2,
-    updatedAt: Date2,
+    createdAt: DateType,
+    updatedAt: DateType,
   }),
 ]);
 export type IEntityBase = t.TypeOf<typeof EntityBaseType>;
