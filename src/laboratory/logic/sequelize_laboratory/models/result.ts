@@ -1,7 +1,6 @@
 import { DataType, Column, Model, Table } from 'sequelize-typescript';
 
-import { IResult } from '../../interfaces';
-import { Measures } from '../../types';
+import { IResult, Measures } from '../../interfaces';
 
 import { jsonColumn } from './decorators';
 

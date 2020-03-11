@@ -1,6 +1,8 @@
 # Laboratory TODO
 
 * Top
+  * Rename Date2
+  * Move validate() out of schemas directory.
   * x Rework express body payload format - e.g. UpdateRunStatusRequestBody
   * Figure out better, less manual process for schema validation
     * x io-ts?

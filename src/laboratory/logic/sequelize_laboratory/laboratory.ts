@@ -4,12 +4,11 @@ import {
   ILaboratory,
   IResult,
   IRun,
-  ISuite,
-  RunStatus,
   IRunRequest,
+  ISuite,
+  Measures,
+  RunStatus,
 } from '../interfaces';
-
-import { Measures } from '../types';
 
 import { normalizeBenchmark, processBenchmark } from './benchmark';
 import { normalizeCandidate, processCandidate } from './candidate';

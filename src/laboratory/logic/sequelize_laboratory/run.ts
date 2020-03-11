@@ -6,13 +6,12 @@ import {
   IBenchmark,
   ICandidate,
   IPipeline,
+  IResult,
   IRun,
   IRunRequest,
+  Measures,
   RunStatus,
-  IResult,
 } from '../interfaces';
-
-import { Measures } from '../types';
 
 import { PipelineRun, PipelineStage } from './messages';
 import { Benchmark, Candidate, Suite, Run, Result } from './models';
