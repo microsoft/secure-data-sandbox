@@ -55,5 +55,15 @@ export function createRunRouter(lab: ILaboratory): Router {
     }
   });
 
+  router.get('/:benchmark/:suite', async (req, res, next) => {
+    try {
+      res.json(
+        await lab.allRunResults(req.params['benchmark'], req.params['suite'])
+      );
+    } catch (e) {
+      next(e);
+    }
+  });
+
   return router;
 }

@@ -224,5 +224,5 @@ export interface ILaboratory {
   updateRunStatus(name: string, status: RunStatus): Promise<void>;
 
   reportRunResults(name: string, measures: Measures): Promise<void>;
-  allRunResults(benchmark: string, mode: string): Promise<IResult[]>;
+  allRunResults(benchmark: string, suite: string): Promise<IResult[]>;
 }

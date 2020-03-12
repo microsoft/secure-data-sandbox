@@ -115,7 +115,10 @@ describe('laboratory/runs', () => {
     // UpdateResults()
     const measures = { passed: 100, failed: 200 };
     await lab.reportRunResults(run1.name, measures);
-    const results = await lab.allRunResults(suite1.benchmark, suite1.mode);
+    const results = await lab.allRunResults(
+      run1.benchmark.name,
+      run1.suite.name
+    );
     assert.equal(results.length, 1);
     const expectedResults: IResult = {
       author: 'unknown',

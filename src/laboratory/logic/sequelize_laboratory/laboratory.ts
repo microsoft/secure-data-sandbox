@@ -194,7 +194,7 @@ export class SequelizeLaboratory implements ILaboratory {
     await processRunResults(name, measures);
   }
 
-  async allRunResults(benchmark: string, mode: string): Promise<IResult[]> {
-    return Result.findAll({ where: { benchmark, mode } });
+  async allRunResults(benchmark: string, suite: string): Promise<IResult[]> {
+    return Result.findAll({ where: { benchmark, suite } });
   }
 }

@@ -23,10 +23,10 @@ import { createApp } from '../../../../src/laboratory/server';
 interface XMLHttpRequest {}
 
 import {
-  entityBaseReviver,
   IBenchmark,
   ICandidate,
   IReportRunResults,
+  IResult,
   IRun,
   IRunRequest,
   ISuite,
@@ -370,6 +370,39 @@ describe('laboratory/server', () => {
           assert.equal(res.status, 200);
           assert.equal(observedName, name);
           assert.deepEqual(observedMeasures, measures);
+        });
+    });
+
+    it('allRunResults()', async () => {
+      const lab = new MockLaboratory();
+
+      const benchmark = 'benchmark1';
+      const suite = 'suite1';
+      const expected: IResult[] = [];
+
+      let called = false;
+      let observedBenchmark: string;
+      let observedSuite: string;
+      lab.allRunResults = async (
+        benchmark: string,
+        suite: string
+      ): Promise<IResult[]> => {
+        called = true;
+        observedBenchmark = benchmark;
+        observedSuite = suite;
+
+        return expected;
+      };
+
+      chai
+        .request(await createApp(lab))
+        .get(`/runs/${benchmark}/${suite}`)
+        .end((err, res) => {
+          assert.equal(res.status, 200);
+          assert.deepEqual(res.body, expected);
+          assert.isTrue(called);
+          assert.equal(observedBenchmark, benchmark);
+          assert.equal(observedSuite, suite);
         });
     });
   });
