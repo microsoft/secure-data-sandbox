@@ -1,13 +1,16 @@
 # Laboratory TODO
 
 * Top
+  * Express routes for AllResults()
   * CLI
+    * ILaboratory stubs
     * connect
     * create benchmark|suite|candidate
     * list benchmark|suite|candidate
     * run
     * list results w/formatted table output
     * deploy
+  * Recode server.test.ts to use ILaboratory stub
   * Shell
   * sequelize configuration
   * x Rename Date2 => DateType
@@ -18,7 +21,7 @@
     * Shims
     * Commented out code in reportRunResults()
   * Unit tests for runs
-    * . Express routes - review these tests - updateRunStatus() and reportRunResults()
+    * x Express routes - review these tests - updateRunStatus() and reportRunResults()
     * x Laboratory
   * x Rework express body payload format - e.g. UpdateRunStatusRequestBody
   * Figure out better, less manual process for schema validation
@@ -28,6 +31,8 @@
   * Figure out better structure for laboratory class.
     * Perhaps use mixins to break up large file.
     * Perhaps use partial classes if they exist in Typescript
+  * AAD Express middleware
+  * Telemetry
   * x Review models.test.ts - dead code, duplicated code with data.js
   * x Move test data.ts and shared.ts up one level.
   * x Figure out tsc/bluebird versioning problem on the mac.

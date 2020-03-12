@@ -311,12 +311,7 @@ describe('laboratory/server', () => {
         .end((err, res) => {
           assert.equal(res.status, 200);
           assert.deepEqual(observed, run1);
-
-          // HACK: JSON stringify then parse in order to use reviver for the
-          // createdAt and updatedAt fields.
-          const body = JSON.parse(JSON.stringify(res.body), entityBaseReviver);
-
-          assert.deepEqual(body, run1);
+          assertDeepEqual(res.body, run1);
         });
     });
 
@@ -375,15 +370,6 @@ describe('laboratory/server', () => {
           assert.equal(res.status, 200);
           assert.equal(observedName, name);
           assert.deepEqual(observedMeasures, measures);
-
-          // // HACK: JSON stringify then parse in order to use reviver for the
-          // // createdAt and updatedAt fields.
-          // const body = JSON.parse(
-          //   JSON.stringify(res.body),
-          //   entityBaseReviver
-          // );
-
-          // assert.deepEqual(body, run1);
         });
     });
   });
