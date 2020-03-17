@@ -1,7 +1,6 @@
 # Laboratory TODO
 
 * Top
-  * Express routes for AllResults()
   * CLI
     * ILaboratory stubs
     * connect
@@ -13,13 +12,14 @@
   * Recode server.test.ts to use ILaboratory stub
   * Shell
   * sequelize configuration
+  * x Express routes for AllResults()
   * x Rename Date2 => DateType
   * x Move validate() out of schemas directory. Remove schemas directory.
   * x Split validate.ts into type-specific (validate()) and JSON-specific (entityBaseReviver)
   * Figure out where messages.ts goes.
   * Review laboratory/server unit test
     * Shims
-    * Commented out code in reportRunResults()
+    * x Commented out code in reportRunResults()
   * Unit tests for runs
     * x Express routes - review these tests - updateRunStatus() and reportRunResults()
     * x Laboratory
