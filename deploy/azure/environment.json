@@ -6,10 +6,6 @@
       "type": "string",
       "defaultValue": "dct"
     },
-    "sqlBootstrapScriptUrl": {
-      "type": "string",
-      "defaultValue": "https://raw.githubusercontent.com/microsoft/data-contest-toolkit/master/deploy/azure/Bootstrap-Database.ps1"
-    },
     "laboratorySqlAdminUsername": {
       "type": "string",
       "defaultValue": "dct"
@@ -30,6 +26,10 @@
       "type": "string",
       "defaultValue": "[newGuid()]"
     },
+    "workerVmImageId": {
+      "type": "string",
+      "defaultValue": "[resourceId('Microsoft.Compute/images', 'dct-worker')]"
+    },
     "workerVmPassword": {
       "type": "securestring",
       "defaultValue": "[newGuid()]"
@@ -40,7 +40,7 @@
     "aciSubnet": "aci",
     "aciNsg": "[concat(variables('prefix'), '-aci')]",
     "appInsights": "[concat(variables('prefix'), '-insights')]",
-    "contributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+    "assetsBaseUrl": "[if(contains(deployment().properties, 'templateLink'), uri(deployment().properties.templateLink.uri, '../'), 'https://raw.githubusercontent.com/microsoft/data-contest-toolkit/master/deploy/')]",
     "defaultNsg": "[concat(variables('prefix'), '-default')]",
     "defaultSubnet": "default",
     "deploymentACIStorage": "[concat(variables('prefix'), '-deployment-storage')]",
@@ -109,15 +109,15 @@
         "subnet": "[variables('defaultSubnet')]"
       }
     ],
-    "readerRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'acdd72a7-3385-48ef-bd42-f606fba81ae7')]",
     "sqlSecurityManagerRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '056cd41c-7e88-42e1-933e-88ba6a50c9c3')]",
     "storageBlobDataContributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
     "storageBlobDataReaderRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '2a2b9908-6ea1-4ae2-8e65-a410df84e7d1')]",
-    "storageQueueDataContributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '974c5e8b-45b9-4653-ba55-5f855dd0fb88')]",
     "storageQueueDataMessageSenderRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'c6a89b2d-59bc-44d0-9896-0f6e12d7b80a')]",
     "storageQueueDataMessageProcessorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8a0f0c08-91a1-4084-bc3d-661d67233fed')]",
     "virtualNetworkLink": "[concat(variables('prefix'), 'privatedns')]",
     "vnet": "[concat(variables('prefix'), '-environment')]",
+    "workerAsg": "[concat(variables('prefix'), '-worker')]",
+    "workerCustomData": "[base64(format('#include\n{0}', uri(variables('assetsBaseUrl'), './worker/start.template.sh')))]",
     "workerIdentity": "[concat(variables('prefix'), '-worker')]",
     "workerVm": "[concat(variables('prefix'), '-worker')]",
     "workerVmNic": "[concat(variables('prefix'), '-worker')]"
@@ -268,6 +268,17 @@
       }
     },
     {
+      "type": "Microsoft.Network/applicationSecurityGroups",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('workerAsg')]",
+      "properties": {
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/applicationSecurityGroups', variables('workerAsg'))]"
+      ],
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2019-11-01",
       "location": "[resourceGroup().location]",
@@ -285,6 +296,23 @@
               "sourcePortRange": "*",
               "destinationAddressPrefix": "*",
               "destinationPortRange": "*"
+            }
+          },
+          {
+            "name": "private-endpoints-outbound-allow",
+            "properties": {
+              "priority": 1000,
+              "direction": "Outbound",
+              "access": "Allow",
+              "protocol": "TCP",
+              "sourceApplicationSecurityGroups": [
+                {
+                  "id": "[resourceId('Microsoft.Network/applicationSecurityGroups', variables('workerAsg'))]"
+                }
+              ],
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "10.0.0.0/24",
+              "destinationPortRange": "443"
             }
           },
           {
@@ -395,21 +423,7 @@
               "addressPrefix": "10.0.2.0/24",
               "networkSecurityGroup": {
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('lockdownNsg'))]"
-              },
-              "serviceEndpoints": [
-                {
-                  "service": "Microsoft.Sql",
-                  "locations": [
-                    "[resourceGroup().location]"
-                  ]
-                },
-                {
-                  "service": "Microsoft.Storage",
-                  "locations": [
-                    "[resourceGroup().location]"
-                  ]
-                }
-              ]
+              }
             }
           }
         ]
@@ -604,10 +618,6 @@
             {
               "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet'), variables('laboratorySubnet'))]",
               "action": "Allow"
-            },
-            {
-              "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet'), variables('lockdownSubnet'))]",
-              "action": "Allow"
             }
           ]
         },
@@ -638,20 +648,6 @@
           "name": "[concat('Microsoft.Authorization/', guid(concat(resourceGroup().id, variables('laboratoryStorage'), variables('workerIdentity'), 'StorageQueueDataMessageProcessor')))]",
           "properties": {
             "roleDefinitionId": "[variables('storageQueueDataMessageProcessorRoleId')]",
-            "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))).principalId]",
-            "principalType": "ServicePrincipal"
-          }
-        },
-        {
-          "dependsOn": [
-            "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))]",
-            "[resourceId('Microsoft.Storage/storageAccounts', variables('laboratoryStorage'))]"
-          ],
-          "type": "providers/roleAssignments",
-          "apiVersion": "2018-09-01-preview",
-          "name": "[concat('Microsoft.Authorization/', guid(concat(resourceGroup().id, variables('laboratoryStorage'), variables('workerIdentity'), 'Reader')))]",
-          "properties": {
-            "roleDefinitionId": "[variables('readerRoleId')]",
             "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))).principalId]",
             "principalType": "ServicePrincipal"
           }
@@ -791,7 +787,7 @@
               "command": [
                 "pwsh",
                 "-Command",
-                "[format('iex ((New-Object System.Net.WebClient).DownloadString(''{0}''))', parameters('sqlBootstrapScriptUrl'))]"
+                "[format('iex ((New-Object System.Net.WebClient).DownloadString(''{0}''))', uri(variables('assetsBaseUrl'), './azure/Bootstrap-Database.ps1'))]"
               ],
               "environmentVariables": [
                 {
@@ -927,6 +923,7 @@
     },
     {
       "dependsOn": [
+        "[resourceId('Microsoft.Network/applicationSecurityGroups', variables('workerAsg'))]",
         "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet'))]"
       ],
       "type": "Microsoft.Network/networkInterfaces",
@@ -938,6 +935,11 @@
           {
             "name": "default",
             "properties": {
+              "applicationSecurityGroups": [
+                {
+                  "id": "[resourceId('Microsoft.Network/applicationSecurityGroups', variables('workerAsg'))]"
+                }
+              ],
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet'), variables('lockdownSubnet'))]"
@@ -978,15 +980,13 @@
           "adminUsername": "azureuser",
           "adminPassword": "[parameters('workerVmPassword')]",
           "computerName": "[variables('workerVm')]",
+          "customData": "[variables('workerCustomData')]",
           "linuxConfiguration": {
           }
         },
         "storageProfile": {
           "imageReference": {
-            "offer": "UbuntuServer",
-            "publisher": "Canonical",
-            "sku": "18.04-LTS",
-            "version": "latest"
+            "id": "[parameters('workerVmImageId')]"
           },
           "osDisk": {
             "createOption": "FromImage",

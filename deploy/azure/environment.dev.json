@@ -1,0 +1,125 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "baseName": {
+      "type": "string",
+      "defaultValue": "dct"
+    },
+    "templateUrl": {
+      "type": "string",
+      "defaultValue": "http://dct-arm.serverless.social/azure/environment.json"
+    }
+  },
+  "variables": {
+    "baseDeployment": "environment",
+    "prefix": "[toLower(concat(parameters('baseName'), take(uniqueString(resourceGroup().id), 6)))]",
+    "lockdownNsg": "[concat(variables('prefix'), '-lockdown')]",
+    "lockdownSubnet": "lockdown",
+    "vnet": "[concat(variables('prefix'), '-environment')]",
+    "workerAsg": "[concat(variables('prefix'), '-worker')]",
+    "workerIp": "dev-worker",
+    "workerVmNic": "[concat(variables('prefix'), '-worker')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
+      "name": "[variables('baseDeployment')]",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "baseName": {
+            "value": "[parameters('baseName')]"
+          },
+          "workerVmImageId": {
+            "value": "[resourceId('dct-environment', 'Microsoft.Compute/images', 'dct-worker')]"
+          }
+        },
+        "templateLink": {
+          "uri": "[parameters('templateUrl')]"
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', variables('baseDeployment'))]"
+      ],
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
+      "name": "environment.dev-env",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": [
+            {
+              "name": "[variables('workerIp')]",
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2019-11-01",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "publicIPAllocationMethod": "Dynamic",
+                "dnsSettings": {
+                  "domainNameLabel": "dct-dev"
+                }
+              }
+            },
+            {
+              "name": "[concat(variables('lockdownNsg'), '/dev-worker-ssh')]",
+              "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+              "apiVersion": "2019-11-01",
+              "properties": {
+                "priority": 1000,
+                "direction": "Inbound",
+                "access": "Allow",
+                "protocol": "TCP",
+                "sourceAddressPrefix": "*",
+                "sourcePortRange": "*",
+                "destinationApplicationSecurityGroups": [
+                  {
+                    "id": "[resourceId('Microsoft.Network/applicationSecurityGroups', variables('workerAsg'))]"
+                  }
+                ],
+                "destinationPortRange": "22"
+              }
+            },
+            {
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', variables('workerIp'))]"
+              ],
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2019-11-01",
+              "location": "[resourceGroup().location]",
+              "name": "[variables('workerVmNic')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "default",
+                    "properties": {
+                      "applicationSecurityGroups": [
+                        {
+                          "id": "[resourceId('Microsoft.Network/applicationSecurityGroups', variables('workerAsg'))]"
+                        }
+                      ],
+                      "privateIPAllocationMethod": "Dynamic",
+                      "publicIPAddress": {
+                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('workerIp'))]"
+                      },
+                      "subnet": {
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet'), variables('lockdownSubnet'))]"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
