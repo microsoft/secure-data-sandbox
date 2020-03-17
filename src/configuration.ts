@@ -98,11 +98,23 @@ export function ParseDatabaseConfiguration(): DatabaseConfiguration {
   }
 }
 
-export function ParseBlobConfiguration() {
+export function ParseLaboratoryConfiguration() {
+  let endpointBaseUrl = env.get('LABORATORY_ENDPOINT').asUrlString();
+
+  // if endpoint is not explicitly specified, check for WEBSITE_HOSTNAME and assume HTTPS over 443
+  // this variable gets autowired by Azure App Service
+  if (!endpointBaseUrl) {
+    const hostname = env.get('WEBSITE_HOSTNAME').asString();
+    endpointBaseUrl = `https://${hostname}`;
+  }
+
   return {
-    baseUrl: env
+    endpointBaseUrl,
+    blobContainerUrl: env
       .get('BLOB_CONTAINER')
       .required()
       .asUrlString(),
+    queue: ParseQueueConfiguration(),
+    database: ParseDatabaseConfiguration(),
   };
 }

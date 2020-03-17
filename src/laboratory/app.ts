@@ -2,27 +2,25 @@ import { createServer } from 'http';
 
 import { GetSequelize } from '../database';
 import { GetQueue } from '../queue';
-import {
-  ParseQueueConfiguration,
-  ParseDatabaseConfiguration,
-  ParseBlobConfiguration,
-} from '../configuration';
+import { ParseLaboratoryConfiguration } from '../configuration';
 import { PipelineRun } from '../messages';
 
 import { initializeSequelize, SequelizeLaboratory } from './logic';
 import { createApp } from './server';
 
 async function main() {
-  const blobConfig = ParseBlobConfiguration();
-  const queueConfig = ParseQueueConfiguration();
-  const queue = GetQueue<PipelineRun>(queueConfig);
+  const config = ParseLaboratoryConfiguration();
+  const queue = GetQueue<PipelineRun>(config.queue);
 
   // initializeSequelize binds Sequelize to the models, effectively becoming a singleton / service locator
-  const dbConfig = ParseDatabaseConfiguration();
-  const sequelize = GetSequelize(dbConfig);
+  const sequelize = GetSequelize(config.database);
   await initializeSequelize(sequelize);
 
-  const lab = new SequelizeLaboratory('http://localhost:3000', blobConfig.baseUrl, queue); // TODO: plumb real url.
+  const lab = new SequelizeLaboratory(
+    config.endpointBaseUrl,
+    config.blobContainerUrl,
+    queue
+  );
   const port = process.env.PORT || 3000;
   const app = await createApp(lab);
 
