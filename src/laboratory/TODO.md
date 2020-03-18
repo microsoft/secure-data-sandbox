@@ -2,7 +2,9 @@
 
 * Top
   * CLI
-    * ILaboratory stubs
+    * x ILaboratory stubs
+    * Error handling strategy for ILaboratory
+    * Unit testing strategy for ILaboratory (need service on http://localhost)
     * connect
     * create benchmark|suite|candidate
     * list benchmark|suite|candidate

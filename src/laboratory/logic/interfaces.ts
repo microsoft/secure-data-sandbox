@@ -61,6 +61,9 @@ export const BenchmarkType = t.intersection([
 ]);
 export type IBenchmark = t.TypeOf<typeof BenchmarkType>;
 
+// tslint:disable-next-line:variable-name
+export const BenchmarkArrayType = t.array(BenchmarkType);
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // ICandidate
@@ -78,6 +81,9 @@ export const CandidateType = t.intersection([
 ]);
 export type ICandidate = t.TypeOf<typeof CandidateType>;
 
+// tslint:disable-next-line:variable-name
+export const CandidateArrayType = t.array(CandidateType);
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // ISuite
@@ -93,6 +99,9 @@ export const SuiteType = t.intersection([
   }),
 ]);
 export type ISuite = t.TypeOf<typeof SuiteType>;
+
+// tslint:disable-next-line:variable-name
+export const SuiteArrayType = t.array(SuiteType);
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -135,6 +144,9 @@ export const RunType = t.intersection([
   }),
 ]);
 export type IRun = t.TypeOf<typeof RunType>;
+
+// tslint:disable-next-line:variable-name
+export const RunArrayType = t.array(RunType);
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -189,14 +201,21 @@ export type IReportRunResults = t.TypeOf<typeof ReportRunResultsType>;
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// tslint:disable-next-line:interface-name
-export interface IResult extends IEntityBase {
-  benchmark: string;
-  mode: string;
-  suite: string;
-  candidate: string;
-  measures: Measures;
-}
+// tslint:disable-next-line:variable-name
+export const ResultType = t.intersection([
+  EntityBaseType,
+  t.type({
+    benchmark: t.string,
+    mode: t.string,
+    suite: t.string,
+    candidate: t.string,
+    measures: MeasuresType,
+  }),
+]);
+export type IResult = t.TypeOf<typeof ResultType>;
+
+// tslint:disable-next-line:variable-name
+export const ResultArrayType = t.array(ResultType);
 
 ///////////////////////////////////////////////////////////////////////////////
 //
