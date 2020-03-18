@@ -13,6 +13,7 @@ import {
   IRun,
   ISuite,
   RunStatus,
+  IRunRequest,
 } from '../../../src';
 
 export const serviceURL = 'http://localhost:3000'; // TODO: plumb real url.
@@ -103,6 +104,11 @@ export const suite3: ISuite = {
   version: apiVersion,
   benchmark: 'benchmark1',
   mode: 'mode1',
+};
+
+export const runRequest1: IRunRequest = {
+  candidate: 'candidate1',
+  suite: 'suite1',
 };
 
 const runid = '69bd5df9-48a2-4fd0-81c5-0a7d6932eef2';

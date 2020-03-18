@@ -38,7 +38,7 @@ const config = {
   transformResponse: [jsonParser],
 };
 
-class LaboratoryClient implements ILaboratory {
+export class LaboratoryClient implements ILaboratory {
   endpoint: string;
 
   constructor(endpoint: string) {
@@ -156,7 +156,7 @@ class LaboratoryClient implements ILaboratory {
   }
 
   async oneRun(rawName: string): Promise<IRun> {
-    const name = normalizeName(rawName);
+    const name = normalizeRunName(rawName);
     const url = new URL(`runs/${name}`, this.endpoint);
     const response = await axios.get(url.toString(), config);
     const run = validate(RunType, response.data);
