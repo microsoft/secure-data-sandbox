@@ -1,16 +1,19 @@
 import * as chai from 'chai';
 import { assert } from 'chai';
+import chaiAsPromised = require('chai-as-promised');
 import * as nock from 'nock';
 
 import { LaboratoryClient } from '../../../../src/laboratory/client';
 import { benchmark1, candidate1, run1, suite1, runRequest1 } from '../data';
+
 import {
   RunStatus,
   IUpdateRunStatus,
   IReportRunResults,
   Measures,
 } from '../../../../src';
-import { Run } from '../../../../src/laboratory/logic/sequelize_laboratory/models';
+
+chai.use(chaiAsPromised);
 
 const endpoint = 'http://localhost:3000';
 
