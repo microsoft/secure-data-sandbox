@@ -206,7 +206,7 @@ describe('laboratory/client', () => {
     it('createRunRequest()', async () => {
       let request: nock.Body;
       nock(endpoint)
-        .put('/runs')
+        .post('/runs')
         .reply(200, (uri: string, body: nock.Body) => {
           request = body;
           return run1;

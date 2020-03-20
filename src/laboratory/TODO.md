@@ -1,16 +1,31 @@
 # Laboratory TODO
 
 * Top
+  * REVIEW: are suite names globally unique or namespaced to benchmarks? 
   * CLI
-    * x ILaboratory stubs
-    * Error handling strategy for ILaboratory
-    * Unit testing strategy for ILaboratory (need service on http://localhost)
-    * connect
+    * Consider using luxon in reviver
+    * Set version
+    * list runs should show status, suite, candidate
+    * ReferenceError: Cannot access 'benchmarkOps' before initialization
+      * node build\src\cli\dct.js list benchmark
+    * Convert to class
+    * Consider using SQL ids instead of GUIDs for run name
+    * Better error messages for errors transported on the wire
+    * Top-level try/catch reporter for better error messages
+    * Formatting for measures - e.g. fixed, etc.
+    * x ILaboratory stubs (LaboratoryClient)
+    * Consistent use of config in LaboratoryClient
+    * Error handling strategy for LaboratoryClient
+    * x Unit testing strategy for LaboratoryClient (need service on http://localhost) - used nock
+    * connect command
+      * .dct file location
+      * report connection status on startup
     * create benchmark|suite|candidate
     * list benchmark|suite|candidate
     * run
     * list results w/formatted table output
-    * deploy
+    * deploy command
+    * demo command
   * Recode server.test.ts to use ILaboratory stub
   * Shell
   * sequelize configuration

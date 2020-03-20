@@ -29,6 +29,8 @@ import {
 
 import { entityBaseReviver } from '../server';
 
+// TODO: verify consistent use of config.
+
 // tslint:disable-next-line:no-any
 function jsonParser(data: any, headers: any): any {
   return JSON.parse(data, entityBaseReviver);
@@ -165,7 +167,7 @@ export class LaboratoryClient implements ILaboratory {
 
   async createRunRequest(spec: IRunRequest): Promise<IRun> {
     const url = new URL('runs', this.endpoint);
-    const response = await axios.put(url.toString(), spec);
+    const response = await axios.post(url.toString(), spec, config);
     const run = validate(RunType, response.data);
     return run;
   }

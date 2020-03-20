@@ -109,10 +109,10 @@ export const SuiteArrayType = t.array(SuiteType);
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// From https://github.com/gcanti/io-ts/issues/67
+// createEnum() from https://github.com/gcanti/io-ts/issues/67
 
 // tslint:disable-next-line:no-any
-export const createEnum = <E>(e: any, name: string): t.Type<E> => {
+const createEnum = <E>(e: any, name: string): t.Type<E> => {
   // tslint:disable-next-line:no-any
   const keys: any = {};
   Object.keys(e).forEach(k => {
