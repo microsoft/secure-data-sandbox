@@ -34,8 +34,7 @@
     "sequelize-typescript": "^1.1.0",
     "strong-error-handler": "^3.4.0",
     "uuid": "^3.4.0",
-    "xmlhttprequest": "^1.8.0",
-    "yargs": "^15.3.1"
+    "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {
     "@sinonjs/fake-timers": "^6.0.0",
