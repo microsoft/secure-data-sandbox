@@ -3,12 +3,21 @@
 * Top
   * REVIEW: are suite names globally unique or namespaced to benchmarks? 
   * CLI
-    * Consider using luxon in reviver
-    * Set version
+    * x Spike commander as replacement for yargs
+    * examples in usage()
+    * Bash completion api
+    * usage configuration in yargs
+    * = Consider using luxon in reviver - probably can't since io-ts uses Date
+    * x Set version
     * list runs should show status, suite, candidate
-    * ReferenceError: Cannot access 'benchmarkOps' before initialization
-      * node build\src\cli\dct.js list benchmark
-    * Convert to class
+    * error message
+      * node build\src\cli\dct.js create foo bar
+      * node build\src\cli\dct.js show foo
+    * x ReferenceError: Cannot access 'benchmarkOps' before initialization
+      * x node build\src\cli\dct.js list benchmark
+    * No error for bad command-line arguments
+      * node build\src\cli\dct.js r benchmark1 suite2
+    * x Convert to class - converted to function instead.
     * Consider using SQL ids instead of GUIDs for run name
     * Better error messages for errors transported on the wire
     * Top-level try/catch reporter for better error messages

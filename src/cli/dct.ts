@@ -1,8 +1,11 @@
+import { Command } from 'commander';
+
 import * as fs from 'fs';
+import { Decoder } from 'io-ts';
 import * as yaml from 'js-yaml';
 import { DateTime } from 'luxon';
-import * as yargs from 'yargs';
-import { Decoder } from 'io-ts';
+import * as path from 'path';
+// import * as yargs from 'yargs';
 
 import {
   apiVersion,
@@ -20,7 +23,6 @@ import {
 
 import { formatTable, Alignment } from './formatting';
 
-// TODO: set version
 // TODO: Top-level try/catch error reporter
 // TODO: errors across the wire
 // TODO: list runs should show status column, suite, candidate
@@ -28,80 +30,190 @@ import { formatTable, Alignment } from './formatting';
 const endpoint = 'http://localhost:3000';
 const lab = new LaboratoryClient(endpoint);
 
-// tslint:disable-next-line:no-unused-expression
-yargs
-  .command(
-    'create <type> <spec>',
-    'Create a benchmark, candidate, or suite from a specification where <type> is either "benchmark", "candidate", or "suite".',
-    () => {},
-    create
-  )
-  .command(
-    'list <type>',
-    'Display summary information about benchmarks, candidates, runs, and suites.',
-    () => {},
-    list
-  )
-  .command(
-    'results <benchmark> <suite>',
-    'Display the results of all runs against a named benchmark and suite.',
-    () => {},
-    results
-  )
-  .command(
-    'run <candidate> <suite>',
-    'Run a named <candidate> against a named <suite>.',
-    () => {},
-    run
-  )
-  .command(
-    'show <type> [name]',
-    'Display all benchmarks, candidates, suites, or runs. If optional [name] is specified, only show matching items.',
-    () => {},
-    show
-  )
-  .example(
-    '$0 create benchmark foo.yaml',
-    'Create or update the benchmark specified in foo.yaml.'
-  )
-  .example(
-    '$0 create candidate bar.yaml',
-    'Create or update the candidate specified in bar.yaml.'
-  )
-  .example(
-    '$0 create suite baz.yaml',
-    'Create or update the suite specified in baz.yaml.'
-  )
-  .example('$0 list benchmark', 'List benchmarks.')
-  .example('$0 list candidate', 'List candidates.')
-  .example('$0 list suite', 'List suites.')
-  .example('$0 list run', 'List runs.')
-  .example('$0 show benchmark', 'Display specifications for all benchmarks.')
-  .example('$0 show benchmark foo', 'Display specification for benchmark foo.')
-  .example('$0 show candidate', 'Display specifications for all candidates.')
-  .example('$0 show candidate bar', 'Display specification for candidate bar.')
-  .example('$0 show suite', 'Display specifications for all suites.')
-  .example('$0 show suite baz', 'Display specification for suite baz.')
-  .example('$0 run bar baz', 'Run candidate bar on suite baz.')
-  .example(
-    '$0 results foo baz',
-    'Display results for benchmark foo runs against suite baz.'
-  ).argv;
+function main2(argv: string[]) {
+  const program = new Command();
+
+  program.description('Data Contest Toolkit CLI');
+  program.version(apiVersion);
+
+  program
+    .command('create <type> <spec>')
+    .description(
+      'Create a benchmark, candidate, or suite from a specification where <type> is either "benchmark", "candidate", or "suite".'
+    )
+    .action(create);
+
+  program
+    .command('list <type>')
+    .description(
+      'Display summary information about benchmarks, candidates, runs, and suites.'
+    )
+    .action(list);
+
+  program
+    .command('results <benchmark> <suite>')
+    .description(
+      'Display the results of all runs against a named benchmark and suite.'
+    )
+    .action(results);
+
+  program
+    .command('run <candidate> <suite>')
+    .description('Run a named <candidate> against a named <suite>.')
+    .action(run);
+
+  program
+    .command('show <type> [name]')
+    .description(
+      'Display all benchmarks, candidates, suites, or runs. If optional [name] is specified, only show matching items.'
+    )
+    .action(show);
+
+  program
+    .command('examples')
+    .description('Show usage examples.')
+    .action(() => examples(argv));
+
+  // program.on('--help', showExamples);
+
+  program.parse(argv);
+}
+
+function examples(argv: string[]) {
+  const examples = [
+    ['list benchmark', 'List benchmarks.'],
+    ['list candidate', 'List candidates.'],
+    ['list suite', 'List suites.'],
+    ['list run', 'List runs.'],
+    ['show benchmark', 'Display specifications for all benchmarks.'],
+    ['show benchmark foo', 'Display specification for benchmark foo.'],
+    ['show candidate', 'Display specifications for all candidates.'],
+    ['show candidate bar', 'Display specification for candidate bar.'],
+    ['show suite', 'Display specifications for all suites.'],
+    ['show suite baz', 'Display specification for suite baz.'],
+    ['run bar baz', 'Run candidate bar on suite baz.'],
+    [
+      'results foo baz',
+      'Display results for runs against benchmark and suite baz.',
+    ],
+  ];
+
+  const program = path.basename(argv[1]);
+  const alignments = [Alignment.LEFT, Alignment.LEFT];
+  const rows: string[][] = [];
+  for (const [cmd, text] of examples) {
+    rows.push([`node ${program} ${cmd}`, text]);
+  }
+
+  console.log(
+    'For more information and examples, see https://github.com/microsoft/data-contest-toolkit.'
+  );
+  console.log();
+  for (const row of formatTable(alignments, rows)) {
+    console.log(row);
+  }
+}
+
+// function main(args: string[]) {
+//   // tslint:disable-next-line:no-unused-expression
+//   yargs
+//     .command(
+//       'create <type> <spec>',
+//       'Create a benchmark, candidate, or suite from a specification where <type> is either "benchmark", "candidate", or "suite".',
+//       () => {},
+//       create
+//     )
+//     .command(
+//       'list <type>',
+//       'Display summary information about benchmarks, candidates, runs, and suites.',
+//       () => {},
+//       list
+//     )
+//     .command(
+//       'results <benchmark> <suite>',
+//       'Display the results of all runs against a named benchmark and suite.',
+//       () => {},
+//       results
+//     )
+//     .command(
+//       'run <candidate> <suite>',
+//       'Run a named <candidate> against a named <suite>.',
+//       () => {},
+//       run
+//     )
+//     .command(
+//       'show <type> [name]',
+//       'Display all benchmarks, candidates, suites, or runs. If optional [name] is specified, only show matching items.',
+//       () => {},
+//       show
+//     )
+//     // .command(
+//     //   '$0',
+//     //   'The default command',
+//     //   () => {},
+//     //   () => {
+//     //     console.log('Expected a command');
+//     //     // yargs.showHelp();
+//     //   }
+//     // )
+//     .demandCommand(1, 'xxx')
+//     // .demandCommand(1, 'xxx')
+//     .showHelpOnFail(true)
+//     .example(
+//       '$0 create benchmark foo.yaml',
+//       'Create or update the benchmark specified in foo.yaml.'
+//     )
+//     .example(
+//       '$0 create candidate bar.yaml',
+//       'Create or update the candidate specified in bar.yaml.'
+//     )
+//     .example(
+//       '$0 create suite baz.yaml',
+//       'Create or update the suite specified in baz.yaml.'
+//     )
+//     .example('$0 list benchmark', 'List benchmarks.')
+//     .example('$0 list candidate', 'List candidates.')
+//     .example('$0 list suite', 'List suites.')
+//     .example('$0 list run', 'List runs.')
+//     .example('$0 show benchmark', 'Display specifications for all benchmarks.')
+//     .example('$0 show benchmark foo', 'Display specification for benchmark foo.')
+//     .example('$0 show candidate', 'Display specifications for all candidates.')
+//     .example('$0 show candidate bar', 'Display specification for candidate bar.')
+//     .example('$0 show suite', 'Display specifications for all suites.')
+//     .example('$0 show suite baz', 'Display specification for suite baz.')
+//     .example('$0 run bar baz', 'Run candidate bar on suite baz.')
+//     .example(
+//       '$0 results foo baz',
+//       'Display results for benchmark foo runs against suite baz.'
+//     )
+//     .version(apiVersion)
+//     .parse(args.slice(2))
+//     // .parse(['list', 'benchmark'])
+//     .argv;
+//     console.log(args);
+// }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Create
 //
 ///////////////////////////////////////////////////////////////////////////////
-async function create(params: { type: string; spec: string }) {
-  console.log(`execute create command ${params.type} ${params.spec}`);
-  await dispatch(
-    params.type,
-    ['benchmark', 'candidate', 'suite'],
-    createHelper,
-    [params.spec]
-  );
+async function create(type: string, spec: string) {
+  console.log(`execute create command ${type} ${spec}`);
+  await dispatch(type, ['benchmark', 'candidate', 'suite'], createHelper, [
+    spec,
+  ]);
 }
+
+// async function create(params: { type: string; spec: string }) {
+//   console.log(`execute create command ${params.type} ${params.spec}`);
+//   await dispatch(
+//     params.type,
+//     ['benchmark', 'candidate', 'suite'],
+//     createHelper,
+//     [params.spec]
+//   );
+// }
 
 async function createHelper<T>(ops: ISpecOps<T>, specFile: string) {
   const spec = ops.load(specFile);
@@ -113,14 +225,23 @@ async function createHelper<T>(ops: ISpecOps<T>, specFile: string) {
 // List
 //
 ///////////////////////////////////////////////////////////////////////////////
-async function list(params: { type: string }) {
+async function list(type: string) {
   await dispatch(
-    params.type,
+    type,
     ['benchmark', 'candidate', 'run', 'suite'],
     listHelper,
     []
   );
 }
+
+// async function list(params: { type: string }) {
+//   await dispatch(
+//     params.type,
+//     ['benchmark', 'candidate', 'run', 'suite'],
+//     listHelper,
+//     []
+//   );
+// }
 
 async function listHelper<T extends IEntityBase>(ops: ISpecOps<T>) {
   const specs = await ops.all();
@@ -148,9 +269,12 @@ async function listHelper<T extends IEntityBase>(ops: ISpecOps<T>) {
 // Results
 //
 ///////////////////////////////////////////////////////////////////////////////
-async function results(params: { benchmark: string; suite: string }) {
-  console.log(`execute results command ${params.benchmark} ${params.suite}`);
-  const results = await lab.allRunResults(params.benchmark, params.suite);
+// async function results(params: { benchmark: string; suite: string }) {
+// console.log(`execute results command ${params.benchmark} ${params.suite}`);
+// const results = await lab.allRunResults(params.benchmark, params.suite);
+async function results(benchmark: string, suite: string) {
+  console.log(`execute results command ${benchmark} ${suite}`);
+  const results = await lab.allRunResults(benchmark, suite);
 
   // TODO: format as table.
   const columns = new Set<string>();
@@ -201,26 +325,38 @@ async function results(params: { benchmark: string; suite: string }) {
 // Run
 //
 ///////////////////////////////////////////////////////////////////////////////
-async function run(params: { candidate: string; suite: string }) {
-  console.log(`execute run command ${params.candidate} ${params.suite}`);
-  const run = await lab.createRunRequest(params);
+async function run(candidate: string, suite: string) {
+  console.log(`execute run command ${candidate} ${suite}`);
+  const run = await lab.createRunRequest({ candidate, suite });
   console.log(`Scheduling run ${run.name}`);
 }
+// async function run(params: { candidate: string; suite: string }) {
+//   console.log(`execute run command ${params.candidate} ${params.suite}`);
+//   const run = await lab.createRunRequest(params);
+//   console.log(`Scheduling run ${run.name}`);
+// }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Show
 //
 ///////////////////////////////////////////////////////////////////////////////
-async function show(params: { type: string; name?: string }) {
-  console.log(`execute show command ${params.type} ${params.name}`);
-  await dispatch(
-    params.type,
-    ['benchmark', 'candidate', 'run', 'suite'],
-    showHelper,
-    [params.name]
-  );
+async function show(type: string, name?: string) {
+  console.log(`execute show command ${type} ${name}`);
+  await dispatch(type, ['benchmark', 'candidate', 'run', 'suite'], showHelper, [
+    name,
+  ]);
 }
+
+// async function show(params: { type: string; name?: string }) {
+//   console.log(`execute show command ${params.type} ${params.name}`);
+//   await dispatch(
+//     params.type,
+//     ['benchmark', 'candidate', 'run', 'suite'],
+//     showHelper,
+//     [params.name]
+//   );
+// }
 
 async function showHelper<T>(ops: ISpecOps<T>, name?: string) {
   if (name) {
@@ -336,32 +472,25 @@ async function go() {
   // await show({type: 'suite'});
   // await run({candidate: 'candidate1', suite: 'suite1'});
   // await run({candidate: 'candidate1', suite: 'suite1'});
-  await list({ type: 'benchmark' });
-  await list({ type: 'run' });
-  await results({ benchmark: 'benchmark1', suite: 'suite1' });
-  await lab.reportRunResults('14b37f60-6a2a-11ea-bd94-8fa64eaf2878', {
-    passed: 5,
-    failed: 6,
-  });
-  await lab.reportRunResults('7984abd0-6a2a-11ea-bd94-8fa64eaf2878', {
-    passed: 5,
-    skipped: 7,
-  });
-  await results({ benchmark: 'benchmark1', suite: 'suite1' });
+  // await list({ type: 'benchmark' });
+  // await list({ type: 'run' });
+  // await results({ benchmark: 'benchmark1', suite: 'suite1' });
+  // await lab.reportRunResults('14b37f60-6a2a-11ea-bd94-8fa64eaf2878', {
+  //   passed: 5,
+  //   failed: 6,
+  // });
+  // await lab.reportRunResults('7984abd0-6a2a-11ea-bd94-8fa64eaf2878', {
+  //   passed: 5,
+  //   skipped: 7,
+  // });
+  // await results({ benchmark: 'benchmark1', suite: 'suite1' });
 }
 
-go();
+// go();
 
-// function go2() {
-//   const now = new Date();
-//   const l = DateTime.fromJSDate(now);
-
-//   console.log(now.toISOString());
-//   console.log(l.toFormat('D ttt'));
-//   console.log(l.toFormat('D TTT'));
-//   console.log(l.toFormat('y-LL-dd TTT'));   // Best
-//   console.log(l.toFormat('y-LL-dd TTZZZZ'));
-// }
+// main2();
+main2(process.argv);
+// main(['node', 'dct.js', 'list', 'run']);
 
 // go2();
 
