@@ -5,7 +5,6 @@ import { Decoder } from 'io-ts';
 import * as yaml from 'js-yaml';
 import { DateTime } from 'luxon';
 import * as path from 'path';
-// import * as yargs from 'yargs';
 
 import {
   apiVersion,
@@ -74,8 +73,6 @@ function main2(argv: string[]) {
     .description('Show usage examples.')
     .action(() => examples(argv));
 
-  // program.on('--help', showExamples);
-
   program.parse(argv);
 }
 
@@ -114,85 +111,6 @@ function examples(argv: string[]) {
   }
 }
 
-// function main(args: string[]) {
-//   // tslint:disable-next-line:no-unused-expression
-//   yargs
-//     .command(
-//       'create <type> <spec>',
-//       'Create a benchmark, candidate, or suite from a specification where <type> is either "benchmark", "candidate", or "suite".',
-//       () => {},
-//       create
-//     )
-//     .command(
-//       'list <type>',
-//       'Display summary information about benchmarks, candidates, runs, and suites.',
-//       () => {},
-//       list
-//     )
-//     .command(
-//       'results <benchmark> <suite>',
-//       'Display the results of all runs against a named benchmark and suite.',
-//       () => {},
-//       results
-//     )
-//     .command(
-//       'run <candidate> <suite>',
-//       'Run a named <candidate> against a named <suite>.',
-//       () => {},
-//       run
-//     )
-//     .command(
-//       'show <type> [name]',
-//       'Display all benchmarks, candidates, suites, or runs. If optional [name] is specified, only show matching items.',
-//       () => {},
-//       show
-//     )
-//     // .command(
-//     //   '$0',
-//     //   'The default command',
-//     //   () => {},
-//     //   () => {
-//     //     console.log('Expected a command');
-//     //     // yargs.showHelp();
-//     //   }
-//     // )
-//     .demandCommand(1, 'xxx')
-//     // .demandCommand(1, 'xxx')
-//     .showHelpOnFail(true)
-//     .example(
-//       '$0 create benchmark foo.yaml',
-//       'Create or update the benchmark specified in foo.yaml.'
-//     )
-//     .example(
-//       '$0 create candidate bar.yaml',
-//       'Create or update the candidate specified in bar.yaml.'
-//     )
-//     .example(
-//       '$0 create suite baz.yaml',
-//       'Create or update the suite specified in baz.yaml.'
-//     )
-//     .example('$0 list benchmark', 'List benchmarks.')
-//     .example('$0 list candidate', 'List candidates.')
-//     .example('$0 list suite', 'List suites.')
-//     .example('$0 list run', 'List runs.')
-//     .example('$0 show benchmark', 'Display specifications for all benchmarks.')
-//     .example('$0 show benchmark foo', 'Display specification for benchmark foo.')
-//     .example('$0 show candidate', 'Display specifications for all candidates.')
-//     .example('$0 show candidate bar', 'Display specification for candidate bar.')
-//     .example('$0 show suite', 'Display specifications for all suites.')
-//     .example('$0 show suite baz', 'Display specification for suite baz.')
-//     .example('$0 run bar baz', 'Run candidate bar on suite baz.')
-//     .example(
-//       '$0 results foo baz',
-//       'Display results for benchmark foo runs against suite baz.'
-//     )
-//     .version(apiVersion)
-//     .parse(args.slice(2))
-//     // .parse(['list', 'benchmark'])
-//     .argv;
-//     console.log(args);
-// }
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Create
@@ -204,16 +122,6 @@ async function create(type: string, spec: string) {
     spec,
   ]);
 }
-
-// async function create(params: { type: string; spec: string }) {
-//   console.log(`execute create command ${params.type} ${params.spec}`);
-//   await dispatch(
-//     params.type,
-//     ['benchmark', 'candidate', 'suite'],
-//     createHelper,
-//     [params.spec]
-//   );
-// }
 
 async function createHelper<T>(ops: ISpecOps<T>, specFile: string) {
   const spec = ops.load(specFile);
@@ -233,15 +141,6 @@ async function list(type: string) {
     []
   );
 }
-
-// async function list(params: { type: string }) {
-//   await dispatch(
-//     params.type,
-//     ['benchmark', 'candidate', 'run', 'suite'],
-//     listHelper,
-//     []
-//   );
-// }
 
 async function listHelper<T extends IEntityBase>(ops: ISpecOps<T>) {
   const specs = await ops.all();
@@ -269,9 +168,6 @@ async function listHelper<T extends IEntityBase>(ops: ISpecOps<T>) {
 // Results
 //
 ///////////////////////////////////////////////////////////////////////////////
-// async function results(params: { benchmark: string; suite: string }) {
-// console.log(`execute results command ${params.benchmark} ${params.suite}`);
-// const results = await lab.allRunResults(params.benchmark, params.suite);
 async function results(benchmark: string, suite: string) {
   console.log(`execute results command ${benchmark} ${suite}`);
   const results = await lab.allRunResults(benchmark, suite);
@@ -330,11 +226,6 @@ async function run(candidate: string, suite: string) {
   const run = await lab.createRunRequest({ candidate, suite });
   console.log(`Scheduling run ${run.name}`);
 }
-// async function run(params: { candidate: string; suite: string }) {
-//   console.log(`execute run command ${params.candidate} ${params.suite}`);
-//   const run = await lab.createRunRequest(params);
-//   console.log(`Scheduling run ${run.name}`);
-// }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -347,16 +238,6 @@ async function show(type: string, name?: string) {
     name,
   ]);
 }
-
-// async function show(params: { type: string; name?: string }) {
-//   console.log(`execute show command ${params.type} ${params.name}`);
-//   await dispatch(
-//     params.type,
-//     ['benchmark', 'candidate', 'run', 'suite'],
-//     showHelper,
-//     [params.name]
-//   );
-// }
 
 async function showHelper<T>(ops: ISpecOps<T>, name?: string) {
   if (name) {
@@ -488,11 +369,7 @@ async function go() {
 
 // go();
 
-// main2();
 main2(process.argv);
-// main(['node', 'dct.js', 'list', 'run']);
-
-// go2();
 
 /*
 
