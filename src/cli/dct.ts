@@ -1,39 +1,42 @@
 import { Command } from 'commander';
-
 import * as fs from 'fs';
 import { Decoder } from 'io-ts';
+import * as t from 'io-ts';
 import * as yaml from 'js-yaml';
 import { DateTime } from 'luxon';
+import * as os from 'os';
 import * as path from 'path';
 
 import {
   apiVersion,
   BenchmarkType,
   CandidateType,
-  LaboratoryClient,
-  validate,
   IBenchmark,
   ICandidate,
   IEntityBase,
   IRun,
   ISuite,
+  LaboratoryClient,
   SuiteType,
+  validate,
 } from '../laboratory';
 
+import { decodeError } from './errors';
 import { formatTable, Alignment } from './formatting';
+import { URL } from 'url';
 
-// TODO: Top-level try/catch error reporter
-// TODO: errors across the wire
-// TODO: list runs should show status column, suite, candidate
+const readme = 'https://github.com/microsoft/data-contest-toolkit/README.md';
 
-const endpoint = 'http://localhost:3000';
-const lab = new LaboratoryClient(endpoint);
-
-function main2(argv: string[]) {
+function main(argv: string[]) {
   const program = new Command();
 
   program.description('Data Contest Toolkit CLI');
   program.version(apiVersion);
+
+  program
+    .command('connect <server>')
+    .description('PARTIALLY IMPLEMENTED. Connect to a Laboratory service.')
+    .action(connect);
 
   program
     .command('create <type> <spec>')
@@ -41,6 +44,23 @@ function main2(argv: string[]) {
       'Create a benchmark, candidate, or suite from a specification where <type> is either "benchmark", "candidate", or "suite".'
     )
     .action(create);
+
+  program
+    .command('demo')
+    .description(
+      'NOT YET IMPLEMENTED. Configures Laboratory service with demo data.'
+    )
+    .action(demo);
+
+  program
+    .command('deploy <server>')
+    .description('NOT YET IMPLEMENTED. Deploy a Laboratory service.')
+    .action(deploy);
+
+  program
+    .command('examples')
+    .description('Show usage examples.')
+    .action(() => examples(argv));
 
   program
     .command('list <type>')
@@ -68,16 +88,38 @@ function main2(argv: string[]) {
     )
     .action(show);
 
-  program
-    .command('examples')
-    .description('Show usage examples.')
-    .action(() => examples(argv));
+  program.on('--help', () => {
+    console.log();
+    console.log(`For more information and examples, see ${readme}`);
+  });
+
+  process.on('unhandledRejection', e => {
+    if (e instanceof Error) {
+      const message = decodeError(e);
+      console.log(`Error: ${message}`);
+      // console.log(`Error: ${e.name}:${e.message}`);
+    } else {
+      console.log('Unknown error.');
+    }
+  });
 
   program.parse(argv);
+
+  // try {
+  //   program.parse(argv);
+  // } catch (e) {
+  //   if (e instanceof Error) {
+  //     console.log(`Error: ${e.name}:${e.message}`);
+  //   }
+  // }
 }
 
 function examples(argv: string[]) {
   const examples = [
+    [
+      'connect http://localhost:3000',
+      'Connect the CLI to a laboratory service on localhost.',
+    ],
     ['list benchmark', 'List benchmarks.'],
     ['list candidate', 'List candidates.'],
     ['list suite', 'List suites.'],
@@ -102,9 +144,7 @@ function examples(argv: string[]) {
     rows.push([`node ${program} ${cmd}`, text]);
   }
 
-  console.log(
-    'For more information and examples, see https://github.com/microsoft/data-contest-toolkit.'
-  );
+  console.log(`For more information and examples, see ${readme}`);
   console.log();
   for (const row of formatTable(alignments, rows)) {
     console.log(row);
@@ -113,14 +153,29 @@ function examples(argv: string[]) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// Connect
+//
+///////////////////////////////////////////////////////////////////////////////
+async function connect(host: string) {
+  const url = new URL('http://localhost');
+  url.host = host;
+  const endpoint = url.toString();
+  console.log(`Connecting to ${endpoint}`);
+  const config = yaml.safeDump({ endpoint });
+  fs.writeFileSync(dctFile, config);
+  tryInitializeConnection();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // Create
 //
 ///////////////////////////////////////////////////////////////////////////////
 async function create(type: string, spec: string) {
-  console.log(`execute create command ${type} ${spec}`);
   await dispatch(type, ['benchmark', 'candidate', 'suite'], createHelper, [
     spec,
   ]);
+  console.log(`${type} created`);
 }
 
 async function createHelper<T>(ops: ISpecOps<T>, specFile: string) {
@@ -130,19 +185,38 @@ async function createHelper<T>(ops: ISpecOps<T>, specFile: string) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// Demo
+//
+///////////////////////////////////////////////////////////////////////////////
+async function demo() {
+  console.log(`demo command not implemented.`);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Deploy
+//
+///////////////////////////////////////////////////////////////////////////////
+async function deploy() {
+  console.log(`deploy command not implemented.`);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // List
 //
 ///////////////////////////////////////////////////////////////////////////////
 async function list(type: string) {
-  await dispatch(
+  // Idea: use type to either go to dispatch() or a custom runListHelper.
+  await dispatch(type, ['benchmark', 'candidate', 'run', 'suite'], listHelper, [
     type,
-    ['benchmark', 'candidate', 'run', 'suite'],
-    listHelper,
-    []
-  );
+  ]);
 }
 
-async function listHelper<T extends IEntityBase>(ops: ISpecOps<T>) {
+async function listHelper<T extends IEntityBase>(
+  ops: ISpecOps<T>,
+  type: string
+) {
   const specs = await ops.all();
 
   const alignments: Alignment[] = [
@@ -150,12 +224,27 @@ async function listHelper<T extends IEntityBase>(ops: ISpecOps<T>) {
     Alignment.LEFT,
     Alignment.LEFT,
   ];
-  const rows: string[][] = [['name', 'submitter', 'date']];
+  const header = ['name', 'submitter', 'date'];
+  if (type === 'run') {
+    alignments.push(Alignment.LEFT);
+    alignments.push(Alignment.LEFT);
+    alignments.push(Alignment.LEFT);
+    header.push('candidate');
+    header.push('suite');
+    header.push('status');
+  }
+  const rows: string[][] = [header];
   for (const spec of specs) {
     const dateTime = DateTime.fromJSDate(spec.createdAt!);
     const formattedDate = dateTime.toFormat('y-LL-dd TTT');
 
-    rows.push([spec.name, spec.author, formattedDate]);
+    const row: string[] = [spec.name, spec.author, formattedDate];
+    if (type === 'run') {
+      row.push((spec as IRun).candidate.name);
+      row.push((spec as IRun).suite.name);
+      row.push((spec as IRun).status);
+    }
+    rows.push(row);
   }
 
   for (const row of formatTable(alignments, rows)) {
@@ -169,10 +258,8 @@ async function listHelper<T extends IEntityBase>(ops: ISpecOps<T>) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 async function results(benchmark: string, suite: string) {
-  console.log(`execute results command ${benchmark} ${suite}`);
-  const results = await lab.allRunResults(benchmark, suite);
+  const results = await getLab().allRunResults(benchmark, suite);
 
-  // TODO: format as table.
   const columns = new Set<string>();
   for (const result of results) {
     for (const key in result.measures) {
@@ -222,8 +309,7 @@ async function results(benchmark: string, suite: string) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 async function run(candidate: string, suite: string) {
-  console.log(`execute run command ${candidate} ${suite}`);
-  const run = await lab.createRunRequest({ candidate, suite });
+  const run = await getLab().createRunRequest({ candidate, suite });
   console.log(`Scheduling run ${run.name}`);
 }
 
@@ -233,7 +319,6 @@ async function run(candidate: string, suite: string) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 async function show(type: string, name?: string) {
-  console.log(`execute show command ${type} ${name}`);
   await dispatch(type, ['benchmark', 'candidate', 'run', 'suite'], showHelper, [
     name,
   ]);
@@ -269,25 +354,27 @@ interface ISpecOps<T> {
 const benchmarkOps: ISpecOps<IBenchmark> = {
   load: (specFile: string) => load(BenchmarkType, specFile),
   format: (spec: IBenchmark) => formatSpec(spec),
-  all: () => lab.allBenchmarks(),
-  one: (name: string) => lab.oneBenchmark(name),
-  upsert: (spec: IBenchmark, name?: string) => lab.upsertBenchmark(spec, name),
+  all: () => getLab().allBenchmarks(),
+  one: (name: string) => getLab().oneBenchmark(name),
+  upsert: (spec: IBenchmark, name?: string) =>
+    getLab().upsertBenchmark(spec, name),
 };
 
 const candidateOps: ISpecOps<ICandidate> = {
   load: (specFile: string) => load(CandidateType, specFile),
   format: (spec: ICandidate) => formatSpec(spec),
-  all: () => lab.allCandidates(),
-  one: (name: string) => lab.oneCandidate(name),
-  upsert: (spec: ICandidate, name?: string) => lab.upsertCandidate(spec, name),
+  all: () => getLab().allCandidates(),
+  one: (name: string) => getLab().oneCandidate(name),
+  upsert: (spec: ICandidate, name?: string) =>
+    getLab().upsertCandidate(spec, name),
 };
 
 const suiteOps: ISpecOps<ISuite> = {
   load: (specFile: string) => load(SuiteType, specFile),
   format: (spec: ISuite) => formatSpec(spec),
-  all: () => lab.allSuites(),
-  one: (name: string) => lab.oneSuite(name),
-  upsert: (spec: ISuite, name?: string) => lab.upsertSuite(spec, name),
+  all: () => getLab().allSuites(),
+  one: (name: string) => getLab().oneSuite(name),
+  upsert: (spec: ISuite, name?: string) => getLab().upsertSuite(spec, name),
 };
 
 const runOps: ISpecOps<IRun> = {
@@ -295,8 +382,8 @@ const runOps: ISpecOps<IRun> = {
     throw new TypeError(`Load operation not supported for IRun.`);
   },
   format: (spec: IRun) => formatSpec(spec),
-  all: () => lab.allRuns(),
-  one: (name: string) => lab.oneRun(name),
+  all: () => getLab().allRuns(),
+  one: (name: string) => getLab().oneRun(name),
   upsert: (spec: IRun, name?: string) => {
     throw new TypeError(`Upsert operation not supported for IRun.`);
   },
@@ -334,7 +421,7 @@ async function dispatch<FUNCTION extends Function, PARAMS extends any[]>(
   }
 }
 
-function load<I, A>(decoder: Decoder<I, A>, specFile: string) {
+function load<I, A>(decoder: Decoder<I, A>, specFile: string): A {
   const yamlText = fs.readFileSync(specFile, 'utf8');
   const spec = yaml.safeLoad(yamlText);
   return validate(decoder, spec);
@@ -342,6 +429,49 @@ function load<I, A>(decoder: Decoder<I, A>, specFile: string) {
 
 function formatSpec(spec: object) {
   return yaml.safeDump(spec, {});
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Connection management
+//
+///////////////////////////////////////////////////////////////////////////////
+
+// tslint:disable-next-line:variable-name
+const ConnectConfigurationType = t.type({
+  endpoint: t.string,
+});
+export type IConnectConfiguration = t.TypeOf<typeof ConnectConfigurationType>;
+
+const dctFile = path.join(os.homedir(), '.dct');
+let connection: IConnectConfiguration | undefined;
+let lab: LaboratoryClient | undefined;
+
+function getLab(): LaboratoryClient {
+  if (connection === undefined || lab === undefined) {
+    tryInitializeConnection();
+  }
+  if (connection === undefined || lab === undefined) {
+    const message =
+      'No laboratory connection. Use the "connect" command to specify a laboratory.';
+    throw TypeError(message);
+  }
+  return lab;
+}
+
+function tryInitializeConnection() {
+  try {
+    const yamlText = fs.readFileSync(dctFile, 'utf8');
+    const root = yaml.safeLoad(yamlText);
+    connection = validate(ConnectConfigurationType, root);
+    lab = new LaboratoryClient(connection.endpoint);
+  } catch (e) {
+    const err = e as NodeJS.ErrnoException;
+    if (err.code !== 'ENOENT') {
+      const message = `Invalid ~/.dct file: "${err.message}"`;
+      console.log(message);
+    }
+  }
 }
 
 async function go() {
@@ -369,17 +499,4 @@ async function go() {
 
 // go();
 
-main2(process.argv);
-
-/*
-
-x dct create [benchmark|candidate|suite] spec.yaml
-x dct show [benchmark|candidate|suite|run] [name]
-x dct list [benchmark|candidate|suite|run]
-x dct run candidate suite
-x dct results benchmark suite
-dct connect
-dct deploy
-dct demo
-
-*/
+main(process.argv);

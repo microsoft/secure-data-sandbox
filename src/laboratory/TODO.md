@@ -2,40 +2,52 @@
 
 * Top
   * REVIEW: are suite names globally unique or namespaced to benchmarks? 
+  * README.md
+  * Consistent use of config in LaboratoryClient
+  * Enforce workflow for status changes (e.g. disallow complete to created)
   * CLI
-    * x Spike commander as replacement for yargs
-    * examples in usage()
-    * Bash completion api
-    * usage configuration in yargs
-    * = Consider using luxon in reviver - probably can't since io-ts uses Date
-    * x Set version
-    * list runs should show status, suite, candidate
-    * error message
-      * node build\src\cli\dct.js create foo bar
+    * x Connect command shouldn't show connected state error at top.
+    * = Convert to class - converted to function instead.
+    * Formatting for measures - e.g. fixed, etc.
+    * list run command should have id column instead of name
+    * x Top-level try/catch reporter for better error messages
+    * Suppress id property in show command
+    * . list runs should show status, suite, candidate
+    * improve error messages
+      * Message when connection refused: UnhandledPromiseRejectionWarning: Error: connect ECONNREFUSED 127.0.0.1:5000
+      * Message when list and show get no results
+        * node build\src\cli\dct.js results benchmark suite
+      * node build\src\cli\dct.js show benchmark foo (returns 500)
+      * node build\src\cli\dct.js show run 18538ce (TypeError: Invalid uuid 18538ce)
+      * node build\src\cli\dct.js create foo bar (TypeError: Invalid entity "foo")
+      * node build\src\cli\dct.js create benchmark bar (Error: ENOENT: no such file or directory, open 'bar')
       * node build\src\cli\dct.js show foo
-    * x ReferenceError: Cannot access 'benchmarkOps' before initialization
-      * x node build\src\cli\dct.js list benchmark
-    * No error for bad command-line arguments
-      * node build\src\cli\dct.js r benchmark1 suite2
-    * x Convert to class - converted to function instead.
     * Consider using SQL ids instead of GUIDs for run name
     * Better error messages for errors transported on the wire
-    * Top-level try/catch reporter for better error messages
-    * Formatting for measures - e.g. fixed, etc.
-    * x ILaboratory stubs (LaboratoryClient)
-    * Consistent use of config in LaboratoryClient
     * Error handling strategy for LaboratoryClient
+    * Commands
+      * connect command
+        * .dct file location
+        * report connection status on startup
+      * create benchmark|suite|candidate
+      * list benchmark|suite|candidate
+      * run
+      * list results w/formatted table output
+      * deploy command
+      * demo command
+    * Bash completion api
+    * = usage configuration in yargs
+    * = Consider using luxon in reviver - probably can't since io-ts uses Date
+    * x Set version
+    * x examples in usage()
+    * x Spike commander as replacement for yargs
+    * x ReferenceError: Cannot access 'benchmarkOps' before initialization
+      * x node build\src\cli\dct.js list benchmark
+    * x No error for bad command-line arguments
+      * x node build\src\cli\dct.js r benchmark1 suite2
+    * x ILaboratory stubs (LaboratoryClient)
     * x Unit testing strategy for LaboratoryClient (need service on http://localhost) - used nock
-    * connect command
-      * .dct file location
-      * report connection status on startup
-    * create benchmark|suite|candidate
-    * list benchmark|suite|candidate
-    * run
-    * list results w/formatted table output
-    * deploy command
-    * demo command
-  * Recode server.test.ts to use ILaboratory stub
+  * = Recode server.test.ts to use ILaboratory stub - decided not to do this
   * Shell
   * sequelize configuration
   * x Express routes for AllResults()
