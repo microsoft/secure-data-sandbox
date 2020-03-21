@@ -1,6 +1,7 @@
 # Laboratory TODO
 
 * Top
+  * Are README.md dependencies correct? Does the user have to install anything else?
   * Service should print out port and hostname (for README.md demo script)
   * TODO: update readme to correct supported version of node. package.json says 10.0.3, README.md says 13.7.0.
   * REVIEW: are suite names globally unique or namespaced to benchmarks? 

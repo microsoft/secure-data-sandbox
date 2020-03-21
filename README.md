@@ -200,7 +200,7 @@ updatedAt: 2020-03-21T20:00:48.302Z
 **List runs**
 ~~~
 % node build/src/cli/dct.js list run
-name                                   submitter   date                          candidate    suite    status
+name                                   submitter   date                     candidate    suite    status
 f411c160-6bad-11ea-bd94-8fa64eaf2878   unknown     2020-03-21 12:55:45 PDT  candidate1   suite1   completed
 f4156ae0-6bad-11ea-bd94-8fa64eaf2878   unknown     2020-03-21 12:55:45 PDT  candidate1   suite1   completed
 dfc8c5e0-6bae-11ea-bd94-8fa64eaf2878   unknown     2020-03-21 13:02:21 PDT  candidate1   suite1   created

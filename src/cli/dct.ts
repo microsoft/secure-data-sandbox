@@ -26,7 +26,7 @@ import { decodeError } from './errors';
 import { formatTable, Alignment } from './formatting';
 import { URL } from 'url';
 
-const readme = 'https://github.com/microsoft/data-contest-toolkit/README.md';
+const readme = 'https://github.com/microsoft/data-contest-toolkit/blob/mhop/laboratory/README.md';
 
 function main(argv: string[]) {
   const program = new Command();
