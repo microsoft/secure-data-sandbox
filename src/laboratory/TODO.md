@@ -1,6 +1,8 @@
 # Laboratory TODO
 
 * Top
+  * Service should print out port and hostname (for README.md demo script)
+  * TODO: update readme to correct supported version of node. package.json says 10.0.3, README.md says 13.7.0.
   * REVIEW: are suite names globally unique or namespaced to benchmarks? 
   * README.md
   * Consistent use of config in LaboratoryClient
@@ -26,15 +28,15 @@
     * Better error messages for errors transported on the wire
     * Error handling strategy for LaboratoryClient
     * Commands
-      * connect command
-        * .dct file location
-        * report connection status on startup
-      * create benchmark|suite|candidate
-      * list benchmark|suite|candidate
-      * run
-      * list results w/formatted table output
+      * x connect command
+        * x .dct file location
+        * x report connection status on startup
+      * x create benchmark|suite|candidate
+      * x list benchmark|suite|candidate
+      * x run
+      * x list results w/formatted table output
       * deploy command
-      * demo command
+      * x demo command
     * Bash completion api
     * = usage configuration in yargs
     * = Consider using luxon in reviver - probably can't since io-ts uses Date

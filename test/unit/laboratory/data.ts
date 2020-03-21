@@ -11,9 +11,9 @@ import {
   ICandidate,
   IPipeline,
   IRun,
+  IRunRequest,
   ISuite,
   RunStatus,
-  IRunRequest,
 } from '../../../src';
 
 export const serviceURL = 'http://localhost:3000'; // TODO: plumb real url.

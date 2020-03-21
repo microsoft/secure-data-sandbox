@@ -21,6 +21,7 @@ import {
   validate,
 } from '../laboratory';
 
+import { configureDemo } from './demo';
 import { decodeError } from './errors';
 import { formatTable, Alignment } from './formatting';
 import { URL } from 'url';
@@ -47,10 +48,8 @@ function main(argv: string[]) {
 
   program
     .command('demo')
-    .description(
-      'NOT YET IMPLEMENTED. Configures Laboratory service with demo data.'
-    )
-    .action(demo);
+    .description('Configures Laboratory service with demo data.')
+    .action(() => demo());
 
   program
     .command('deploy <server>')
@@ -160,10 +159,10 @@ async function connect(host: string) {
   const url = new URL('http://localhost');
   url.host = host;
   const endpoint = url.toString();
-  console.log(`Connecting to ${endpoint}`);
   const config = yaml.safeDump({ endpoint });
   fs.writeFileSync(dctFile, config);
   tryInitializeConnection();
+  console.log(`Connected to ${endpoint}`);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -189,7 +188,7 @@ async function createHelper<T>(ops: ISpecOps<T>, specFile: string) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 async function demo() {
-  console.log(`demo command not implemented.`);
+  configureDemo(getLab());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -226,9 +225,11 @@ async function listHelper<T extends IEntityBase>(
   ];
   const header = ['name', 'submitter', 'date'];
   if (type === 'run') {
+    // alignments.push(Alignment.LEFT);
     alignments.push(Alignment.LEFT);
     alignments.push(Alignment.LEFT);
     alignments.push(Alignment.LEFT);
+    // header.push('benchmark');
     header.push('candidate');
     header.push('suite');
     header.push('status');
@@ -240,6 +241,7 @@ async function listHelper<T extends IEntityBase>(
 
     const row: string[] = [spec.name, spec.author, formattedDate];
     if (type === 'run') {
+      // row.push((spec as IRun).benchmark.name);
       row.push((spec as IRun).candidate.name);
       row.push((spec as IRun).suite.name);
       row.push((spec as IRun).status);
@@ -473,30 +475,5 @@ function tryInitializeConnection() {
     }
   }
 }
-
-async function go() {
-  // await create({type: 'benchmark', spec: 'c:\\temp\\benchmark1.yaml'});
-  // await create({type: 'candidate', spec: 'c:\\temp\\candidate1.yaml'});
-  // await create({type: 'suite', spec: 'c:\\temp\\suite1.yaml'});
-  // await show({type: 'benchmark'});
-  // await show({type: 'candidate'});
-  // await show({type: 'suite'});
-  // await run({candidate: 'candidate1', suite: 'suite1'});
-  // await run({candidate: 'candidate1', suite: 'suite1'});
-  // await list({ type: 'benchmark' });
-  // await list({ type: 'run' });
-  // await results({ benchmark: 'benchmark1', suite: 'suite1' });
-  // await lab.reportRunResults('14b37f60-6a2a-11ea-bd94-8fa64eaf2878', {
-  //   passed: 5,
-  //   failed: 6,
-  // });
-  // await lab.reportRunResults('7984abd0-6a2a-11ea-bd94-8fa64eaf2878', {
-  //   passed: 5,
-  //   skipped: 7,
-  // });
-  // await results({ benchmark: 'benchmark1', suite: 'suite1' });
-}
-
-// go();
 
 main(process.argv);

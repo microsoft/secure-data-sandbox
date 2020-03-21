@@ -195,16 +195,3 @@ export class LaboratoryClient implements ILaboratory {
     return results;
   }
 }
-
-// import { startServer } from '../server';
-// import { benchmark1 } from '../../../test/unit/laboratory/data';
-// async function go() {
-//   const server = await startServer();
-
-//   const client = new LaboratoryClient('http://localhost:3000');
-//   await client.upsertBenchmark(benchmark1, benchmark1.name);
-//   const benchmarks = await client.oneBenchmark(benchmark1.name);
-//   console.log(JSON.stringify(benchmarks));
-// }
-
-// go();
