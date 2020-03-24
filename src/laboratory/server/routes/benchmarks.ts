@@ -15,8 +15,15 @@ export function createBenchmarkRouter(lab: ILaboratory): Router {
 
   router.get('/:name', async (req, res, next) => {
     try {
+      console.log(`Before lab.oneBenchmark()`);
       res.json(await lab.oneBenchmark(req.params['name']));
+      console.log(`After lab.oneBenchmark()`);
     } catch (e) {
+      // console.log(`xxx Caught throw from lab.oneBenchmark()`);
+      // res.status(404).send(`Benchmark ${req.params['name']} not found.`);
+      // // res.json({});
+      // // res.statusMessage = `Benchmark ${req.params['name']} not found.`;
+      // // res.sendStatus(404);
       next(e);
     }
   });

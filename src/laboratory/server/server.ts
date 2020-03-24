@@ -1,4 +1,5 @@
 import { createServer, Server } from 'http';
+import * as os from 'os';
 
 import { initializeSequelize, SequelizeLaboratory } from '../logic';
 
@@ -7,23 +8,25 @@ import { PipelineRun } from '../logic/sequelize_laboratory/messages';
 import { InMemoryQueue } from '../logic/sequelize_laboratory/queue';
 
 import { createApp } from './app';
+import { URL } from 'url';
 
 export async function startServer(): Promise<Server> {
+  const port = process.env.PORT || 3000;
+
   // TODO: remove this singleton pattern, parameterize by dialect.
   await initializeSequelize();
 
-  const serviceURL = 'http://localhost:3000'; // TODO: plumb real url.
+  const url = new URL(`http://${os.hostname()}:${port}`);
+  const serviceURL = url.toString();
   const blobBase = 'http://blobs'; // TODO: plumb real url.
   const queue = new InMemoryQueue<PipelineRun>();
   const lab = new SequelizeLaboratory(serviceURL, blobBase, queue);
 
-  const port = process.env.PORT || 3000;
-
   const app = await createApp(lab);
 
-  const server = createServer(app).listen(port, () =>
-    console.info(`Server running on port ${port}`)
-  );
+  const server = createServer(app);
+  server.listen(port);
+  console.info(`Laboratory service listening on port ${port}.`);
 
   return server;
 }

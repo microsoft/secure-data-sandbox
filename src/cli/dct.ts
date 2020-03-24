@@ -97,21 +97,12 @@ function main(argv: string[]) {
     if (e instanceof Error) {
       const message = decodeError(e);
       console.log(`Error: ${message}`);
-      // console.log(`Error: ${e.name}:${e.message}`);
     } else {
       console.log('Unknown error.');
     }
   });
 
   program.parse(argv);
-
-  // try {
-  //   program.parse(argv);
-  // } catch (e) {
-  //   if (e instanceof Error) {
-  //     console.log(`Error: ${e.name}:${e.message}`);
-  //   }
-  // }
 }
 
 function examples(argv: string[]) {

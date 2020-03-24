@@ -1,12 +1,15 @@
 # Laboratory TODO
 
 * Top
+  * Authentication
+  * Reduce sequelize console spew
+  * REVIEW: net.Server vs http.Server
   * Are README.md dependencies correct? Does the user have to install anything else?
   * Service should print out port and hostname (for README.md demo script)
   * TODO: update readme to correct supported version of node. package.json says 10.0.3, README.md says 13.7.0.
   * REVIEW: are suite names globally unique or namespaced to benchmarks? 
   * README.md
-  * Consistent use of config in LaboratoryClient
+  * x Consistent use of config in LaboratoryClient
   * Enforce workflow for status changes (e.g. disallow complete to created)
   * CLI
     * x Connect command shouldn't show connected state error at top.
@@ -22,9 +25,12 @@
         * node build\src\cli\dct.js results benchmark suite
       * node build\src\cli\dct.js show benchmark foo (returns 500)
       * node build\src\cli\dct.js show run 18538ce (TypeError: Invalid uuid 18538ce)
+      * node build\src\cli\dct.js show run foo (TypeError: Invalid uuid foo)
       * node build\src\cli\dct.js create foo bar (TypeError: Invalid entity "foo")
       * node build\src\cli\dct.js create benchmark bar (Error: ENOENT: no such file or directory, open 'bar')
       * node build\src\cli\dct.js show foo
+      * When server is down
+        * Error: connect ECONNREFUSED 127.0.0.1:3000
     * Consider using SQL ids instead of GUIDs for run name
     * Better error messages for errors transported on the wire
     * Error handling strategy for LaboratoryClient
