@@ -1,7 +1,9 @@
 import {
+  EntityNotFoundError,
   IBenchmark,
   ICandidate,
   ILaboratory,
+  IllegalOperationError,
   IResult,
   IRun,
   IRunRequest,
@@ -52,7 +54,7 @@ export class SequelizeLaboratory implements ILaboratory {
 
     if (b === null) {
       const message = `Benchmark "${name}" not found.`;
-      throw new TypeError(message);
+      throw new EntityNotFoundError(message);
     }
 
     return b;
@@ -67,7 +69,7 @@ export class SequelizeLaboratory implements ILaboratory {
       const name = normalizeName(rawName);
       if (name !== benchmark.name) {
         const message = `Benchmark name mismatch: "${benchmark.name}" != "${name}"`;
-        throw new TypeError(message);
+        throw new IllegalOperationError(message);
       }
     }
 
@@ -89,7 +91,7 @@ export class SequelizeLaboratory implements ILaboratory {
 
     if (candidate === null) {
       const message = `Candidate "${name}" not found.`;
-      throw new TypeError(message);
+      throw new EntityNotFoundError(message);
     }
 
     return candidate;
@@ -104,7 +106,7 @@ export class SequelizeLaboratory implements ILaboratory {
       const name = normalizeName(rawName);
       if (name !== candidate.name) {
         const message = `Candidate name mismatch: "${candidate.name}" != "${name}"`;
-        throw new TypeError(message);
+        throw new IllegalOperationError(message);
       }
     }
 
@@ -126,7 +128,7 @@ export class SequelizeLaboratory implements ILaboratory {
 
     if (suite === null) {
       const message = `Suite "${name}" not found.`;
-      throw new TypeError(message);
+      throw new EntityNotFoundError(message);
     }
 
     return suite;
@@ -141,7 +143,7 @@ export class SequelizeLaboratory implements ILaboratory {
       const name = normalizeName(rawName);
       if (name !== suite.name) {
         const message = `Suite name mismatch: "${suite.name}" != "${name}"`;
-        throw new TypeError(message);
+        throw new IllegalOperationError(message);
       }
     }
 
@@ -163,7 +165,7 @@ export class SequelizeLaboratory implements ILaboratory {
 
     if (run === null) {
       const message = `Run "${name}" not found.`;
-      throw new TypeError(message);
+      throw new EntityNotFoundError(message);
     }
 
     return run;

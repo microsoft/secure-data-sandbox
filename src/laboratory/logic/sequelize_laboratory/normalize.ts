@@ -1,3 +1,5 @@
+import { IllegalOperationError } from '../interfaces';
+
 // Goals:
 //   Suitable blob and file paths (eliminate most special characters)
 //   Suitable for Azure table names (start with alpha, all lowercase)
@@ -11,8 +13,8 @@
 export function normalizeName(name: string): string {
   const s = name.toLowerCase();
   if (!s.match(/^[a-z][a-z0-9]{2,62}$/)) {
-    const message = `Invalid name format "${name}".`;
-    throw new TypeError(message);
+    const message = `Invalid name format "${name}". Names must be alpha numeric, starting with an alpha.`;
+    throw new IllegalOperationError(message);
   }
   return s;
 }
@@ -27,8 +29,8 @@ export function normalizeRunName(name: string): string {
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
     )
   ) {
-    const message = `Invalid uuid ${name}`;
-    throw new TypeError(message);
+    const message = `Invalid run id "${name}". Run ids should be guids.`;
+    throw new IllegalOperationError(message);
   }
 
   return n;

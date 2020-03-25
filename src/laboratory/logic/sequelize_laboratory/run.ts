@@ -3,8 +3,10 @@ import { URL } from 'url';
 
 import {
   apiVersion,
+  EntityNotFoundError,
   IBenchmark,
   ICandidate,
+  IllegalOperationError,
   IPipeline,
   IResult,
   IRun,
@@ -38,26 +40,26 @@ export async function processRunRequest(
   });
   if (!candidate) {
     const message = `Run request references unknown candidate ${runRequest.candidate}`;
-    throw new TypeError(message);
+    throw new IllegalOperationError(message);
   }
 
   // Verify that referenced suite exists.
   const suite = await Suite.findOne({ where: { name: runRequest.suite } });
   if (!suite) {
     const message = `Run request references unknown suite ${runRequest.suite}`;
-    throw new TypeError(message);
+    throw new IllegalOperationError(message);
   }
 
   // Verify that candidate and suite reference same benchmark.
   if (candidate.benchmark !== suite.benchmark) {
     const message = `Candidate benchmark "${candidate.benchmark}" doesn't match suite benchmark "${suite.benchmark}"`;
-    throw new TypeError(message);
+    throw new IllegalOperationError(message);
   }
 
   // Verify that candidate and suite reference same mode.
   if (candidate.mode !== suite.mode) {
     const message = `Candidate mode "${candidate.mode}" doesn't match suite mode "${suite.mode}"`;
-    throw new TypeError(message);
+    throw new IllegalOperationError(message);
   }
 
   // Verify that referenced benchmark exists.
@@ -66,7 +68,7 @@ export async function processRunRequest(
   });
   if (!benchmark) {
     const message = `Candidate references unknown benchmark ${candidate.benchmark}`;
-    throw new TypeError(message);
+    throw new IllegalOperationError(message);
   }
 
   // Find the pipeline for the candidate's mode.
@@ -79,7 +81,7 @@ export async function processRunRequest(
   }
   if (!pipeline) {
     const message = `Candidate references unknown mode "${candidate.mode}"`;
-    throw new TypeError(message);
+    throw new IllegalOperationError(message);
   }
 
   //
@@ -132,7 +134,7 @@ export async function processRunStatus(
   });
   if (!run) {
     const message = `Unknown run id ${name}`;
-    throw new TypeError(message);
+    throw new EntityNotFoundError(message);
   }
 
   // Update its status field
@@ -151,7 +153,7 @@ export async function processRunResults(
   });
   if (!run) {
     const message = `Unknown run id ${name}`;
-    throw new TypeError(message);
+    throw new EntityNotFoundError(message);
   }
 
   // Upsert to Results table.

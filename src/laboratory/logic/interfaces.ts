@@ -245,3 +245,20 @@ export interface ILaboratory {
   reportRunResults(name: string, measures: Measures): Promise<void>;
   allRunResults(benchmark: string, suite: string): Promise<IResult[]>;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Errors
+//
+///////////////////////////////////////////////////////////////////////////////
+export class EntityNotFoundError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+export class IllegalOperationError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}

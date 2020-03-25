@@ -1,6 +1,8 @@
 # Laboratory TODO
 
 * Top
+  * REVIEW use of TypeError instead of IllegalOperationError or EntityNotFoundError
+  * Server Error: listen EADDRINUSE: address already in use :::3000
   * Authentication
   * Reduce sequelize console spew
   * REVIEW: net.Server vs http.Server
@@ -18,19 +20,19 @@
     * list run command should have id column instead of name
     * x Top-level try/catch reporter for better error messages
     * Suppress id property in show command
-    * . list runs should show status, suite, candidate
-    * improve error messages
-      * Message when connection refused: UnhandledPromiseRejectionWarning: Error: connect ECONNREFUSED 127.0.0.1:5000
-      * Message when list and show get no results
-        * node build\src\cli\dct.js results benchmark suite
-      * node build\src\cli\dct.js show benchmark foo (returns 500)
-      * node build\src\cli\dct.js show run 18538ce (TypeError: Invalid uuid 18538ce)
-      * node build\src\cli\dct.js show run foo (TypeError: Invalid uuid foo)
-      * node build\src\cli\dct.js create foo bar (TypeError: Invalid entity "foo")
-      * node build\src\cli\dct.js create benchmark bar (Error: ENOENT: no such file or directory, open 'bar')
-      * node build\src\cli\dct.js show foo
-      * When server is down
-        * Error: connect ECONNREFUSED 127.0.0.1:3000
+    * x list runs should show status, suite, candidate
+    * x improve error messages
+      * x Message when connection refused: UnhandledPromiseRejectionWarning: Error: connect ECONNREFUSED 127.0.0.1:5000
+      * x Message when list and show get no results
+        * x node build\src\cli\dct.js results benchmark suite
+      * x node build\src\cli\dct.js show benchmark foo (returns 500)
+      * x node build\src\cli\dct.js show run 18538ce (TypeError: Invalid uuid 18538ce)
+      * x node build\src\cli\dct.js show run foo (TypeError: Invalid uuid foo)
+      * x node build\src\cli\dct.js create foo bar (TypeError: Invalid entity "foo")
+      * x node build\src\cli\dct.js create benchmark bar (Error: ENOENT: no such file or directory, open 'bar')
+      * x node build\src\cli\dct.js show foo
+      * x When server is down
+        * x Error: connect ECONNREFUSED 127.0.0.1:3000
     * Consider using SQL ids instead of GUIDs for run name
     * Better error messages for errors transported on the wire
     * Error handling strategy for LaboratoryClient

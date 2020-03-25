@@ -30,23 +30,19 @@ import {
 import { entityBaseReviver } from '../server';
 
 // tslint:disable-next-line:no-any
-function jsonParser(data: any, headers: any): any {
-  return JSON.parse(data, entityBaseReviver);
-  // try {
-  //   // console.log(`jsonParser: text="${data}"`);
-  //   // console.log(`jsonParser: headers="${JSON.stringify(headers)}"`);
-  //   return JSON.parse(data, entityBaseReviver);
-  // } catch (e) {
-  //   // JSON parsing can fail in when response has an error status.
-  //   // In this case, response.data is not JSON.
-  //   return data;
-  // }
+function jsonParser(data: any): any {
+  try {
+    return JSON.parse(data, entityBaseReviver);
+  } catch (e) {
+    // Not all payloads are JSON. Some POSTs and PUTS return "OK"
+    return data;
+  }
 }
 
 const config: AxiosRequestConfig = {
   // TODO: put credentials here.
-  responseType: 'json',
 };
+
 const configForGet: AxiosRequestConfig = {
   ...config,
   transformResponse: [jsonParser],
@@ -54,6 +50,7 @@ const configForGet: AxiosRequestConfig = {
 
 const configForPatchPostPut: AxiosRequestConfig = {
   ...config,
+  transformResponse: [jsonParser],
 };
 
 export class LaboratoryClient implements ILaboratory {
@@ -80,29 +77,9 @@ export class LaboratoryClient implements ILaboratory {
   async oneBenchmark(rawName: string): Promise<IBenchmark> {
     const name = normalizeName(rawName);
     const url = new URL(`benchmarks/${name}`, this.endpoint);
-
-    const benchmark = await axios
-      .get(url.toString(), configForGet)
-      .then(response => {
-        return validate(BenchmarkType, response.data);
-      });
-    // .catch( e => {
-    //   console.log(`.catch: ${e.message}`);
-    //   throw e;
-    // });
-
+    const response = await axios.get(url.toString(), configForGet);
+    const benchmark = validate(BenchmarkType, response.data);
     return benchmark;
-
-    // console.log('hello');
-    // const response = await axios.get(url.toString(), configForGet);
-    // console.log(`Response status = ${response.status}`);
-    // if (response.status !== 200) {
-    //   const message = `HTTP GET from ${url.toString()} returns ${response.status}`;
-    //   throw new TypeError(message);
-    // }
-
-    // const benchmark = validate(BenchmarkType, response.data);
-    // return benchmark;
   }
 
   async upsertBenchmark(
@@ -115,7 +92,7 @@ export class LaboratoryClient implements ILaboratory {
       throw new TypeError(message);
     }
     const url = new URL(`benchmarks/${name}`, this.endpoint);
-    await axios.put(url.toString(), benchmark, config);
+    await axios.put(url.toString(), benchmark, configForPatchPostPut);
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -148,7 +125,7 @@ export class LaboratoryClient implements ILaboratory {
       throw new TypeError(message);
     }
     const url = new URL(`candidates/${name}`, this.endpoint);
-    await axios.put(url.toString(), candidate, config);
+    await axios.put(url.toString(), candidate, configForPatchPostPut);
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -178,7 +155,7 @@ export class LaboratoryClient implements ILaboratory {
       throw new TypeError(message);
     }
     const url = new URL(`suites/${name}`, this.endpoint);
-    await axios.put(url.toString(), suite, config);
+    await axios.put(url.toString(), suite, configForPatchPostPut);
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -203,7 +180,11 @@ export class LaboratoryClient implements ILaboratory {
 
   async createRunRequest(spec: IRunRequest): Promise<IRun> {
     const url = new URL('runs', this.endpoint);
-    const response = await axios.post(url.toString(), spec, config);
+    const response = await axios.post(
+      url.toString(),
+      spec,
+      configForPatchPostPut
+    );
     const run = validate(RunType, response.data);
     return run;
   }
@@ -212,14 +193,14 @@ export class LaboratoryClient implements ILaboratory {
     const name = normalizeRunName(rawName);
     const url = new URL(`runs/${name}`, this.endpoint);
     const body: IUpdateRunStatus = { status };
-    await axios.patch(url.toString(), body, config);
+    await axios.patch(url.toString(), body, configForPatchPostPut);
   }
 
   async reportRunResults(rawName: string, measures: Measures): Promise<void> {
     const name = normalizeRunName(rawName);
     const url = new URL(`runs/${name}/results`, this.endpoint);
     const body: IReportRunResults = { measures };
-    await axios.patch(url.toString(), body, config);
+    await axios.patch(url.toString(), body, configForPatchPostPut);
   }
 
   async allRunResults(benchmark: string, suite: string): Promise<IResult[]> {

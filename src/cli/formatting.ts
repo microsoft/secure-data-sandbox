@@ -47,3 +47,15 @@ export function rightJustify(text: string, width: number) {
     return padding + text;
   }
 }
+
+export function formatChoices(choices: string[]) {
+  if (choices.length === 0) {
+    throw new TypeError('internal error');
+  } else if (choices.length === 1) {
+    return choices[0];
+  } else {
+    return (
+      choices.slice(0, -1).join(', ') + ', or ' + choices[choices.length - 1]
+    );
+  }
+}

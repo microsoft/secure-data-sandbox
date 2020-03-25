@@ -1,6 +1,6 @@
 import { Benchmark, Suite } from './models';
 import { normalizeName } from './normalize';
-import { ISuite } from '../interfaces';
+import { IllegalOperationError, ISuite } from '../interfaces';
 
 export function normalizeSuite(suite: ISuite): ISuite {
   return {
@@ -18,14 +18,14 @@ export async function processSuite(suite: ISuite): Promise<void> {
   });
   if (!benchmark) {
     const message = `Suite references unknown benchmark ${suite.benchmark}`;
-    throw new TypeError(message);
+    throw new IllegalOperationError(message);
   }
 
   // Verify that referenced model is provided by benchmark.
   const modes = benchmark.pipelines.map(p => p.mode);
   if (!modes.includes(suite.mode)) {
     const message = `Suite references unknown mode "${suite.mode}"`;
-    throw new TypeError(message);
+    throw new IllegalOperationError(message);
   }
 
   await Suite.upsert<Suite>(suite);

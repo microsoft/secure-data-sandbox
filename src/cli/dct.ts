@@ -21,9 +21,9 @@ import {
   validate,
 } from '../laboratory';
 
+import { decodeError } from './decode_error';
 import { configureDemo } from './demo';
-import { decodeError } from './errors';
-import { formatTable, Alignment } from './formatting';
+import { formatChoices, formatTable, Alignment } from './formatting';
 import { URL } from 'url';
 
 const readme =
@@ -210,39 +210,43 @@ async function listHelper<T extends IEntityBase>(
 ) {
   const specs = await ops.all();
 
-  const alignments: Alignment[] = [
-    Alignment.LEFT,
-    Alignment.LEFT,
-    Alignment.LEFT,
-  ];
-  const header = ['name', 'submitter', 'date'];
-  if (type === 'run') {
-    // alignments.push(Alignment.LEFT);
-    alignments.push(Alignment.LEFT);
-    alignments.push(Alignment.LEFT);
-    alignments.push(Alignment.LEFT);
-    // header.push('benchmark');
-    header.push('candidate');
-    header.push('suite');
-    header.push('status');
-  }
-  const rows: string[][] = [header];
-  for (const spec of specs) {
-    const dateTime = DateTime.fromJSDate(spec.createdAt!);
-    const formattedDate = dateTime.toFormat('y-LL-dd TTT');
-
-    const row: string[] = [spec.name, spec.author, formattedDate];
+  if (specs.length === 0) {
+    console.log(`No matching ${ops.name()}`);
+  } else {
+    const alignments: Alignment[] = [
+      Alignment.LEFT,
+      Alignment.LEFT,
+      Alignment.LEFT,
+    ];
+    const header = ['name', 'submitter', 'date'];
     if (type === 'run') {
-      // row.push((spec as IRun).benchmark.name);
-      row.push((spec as IRun).candidate.name);
-      row.push((spec as IRun).suite.name);
-      row.push((spec as IRun).status);
+      // alignments.push(Alignment.LEFT);
+      alignments.push(Alignment.LEFT);
+      alignments.push(Alignment.LEFT);
+      alignments.push(Alignment.LEFT);
+      // header.push('benchmark');
+      header.push('candidate');
+      header.push('suite');
+      header.push('status');
     }
-    rows.push(row);
-  }
+    const rows: string[][] = [header];
+    for (const spec of specs) {
+      const dateTime = DateTime.fromJSDate(spec.createdAt!);
+      const formattedDate = dateTime.toFormat('y-LL-dd TTT');
 
-  for (const row of formatTable(alignments, rows)) {
-    console.log(row);
+      const row: string[] = [spec.name, spec.author, formattedDate];
+      if (type === 'run') {
+        // row.push((spec as IRun).benchmark.name);
+        row.push((spec as IRun).candidate.name);
+        row.push((spec as IRun).suite.name);
+        row.push((spec as IRun).status);
+      }
+      rows.push(row);
+    }
+
+    for (const row of formatTable(alignments, rows)) {
+      console.log(row);
+    }
   }
 }
 
@@ -254,46 +258,50 @@ async function listHelper<T extends IEntityBase>(
 async function results(benchmark: string, suite: string) {
   const results = await getLab().allRunResults(benchmark, suite);
 
-  const columns = new Set<string>();
-  for (const result of results) {
-    for (const key in result.measures) {
-      if (!result.measures.hasOwnProperty(key)) continue;
-      columns.add(key);
-    }
-  }
-
-  const alignments: Alignment[] = [
-    Alignment.LEFT,
-    Alignment.LEFT,
-    Alignment.LEFT,
-  ];
-  const header: string[] = ['run', 'submitter', 'date'];
-  const rows: string[][] = [];
-  for (const c of columns.values()) {
-    alignments.push(Alignment.RIGHT);
-    header.push(c);
-  }
-  rows.push(header);
-
-  for (const result of results) {
-    const row: string[] = [];
-    row.push(result.name);
-    row.push(result.author);
-    const dateTime = DateTime.fromJSDate(result.createdAt!);
-    row.push(dateTime.toFormat('y-LL-dd TTT'));
-    for (const c of columns.values()) {
-      const value = result.measures[c];
-      if (value) {
-        row.push(value + '');
-      } else {
-        row.push('---');
+  if (results.length === 0) {
+    console.log(`No matching results`);
+  } else {
+    const columns = new Set<string>();
+    for (const result of results) {
+      for (const key in result.measures) {
+        if (!result.measures.hasOwnProperty(key)) continue;
+        columns.add(key);
       }
     }
-    rows.push(row);
-  }
 
-  for (const row of formatTable(alignments, rows)) {
-    console.log(row);
+    const alignments: Alignment[] = [
+      Alignment.LEFT,
+      Alignment.LEFT,
+      Alignment.LEFT,
+    ];
+    const header: string[] = ['run', 'submitter', 'date'];
+    const rows: string[][] = [];
+    for (const c of columns.values()) {
+      alignments.push(Alignment.RIGHT);
+      header.push(c);
+    }
+    rows.push(header);
+
+    for (const result of results) {
+      const row: string[] = [];
+      row.push(result.name);
+      row.push(result.author);
+      const dateTime = DateTime.fromJSDate(result.createdAt!);
+      row.push(dateTime.toFormat('y-LL-dd TTT'));
+      for (const c of columns.values()) {
+        const value = result.measures[c];
+        if (value) {
+          row.push(value + '');
+        } else {
+          row.push('---');
+        }
+      }
+      rows.push(row);
+    }
+
+    for (const row of formatTable(alignments, rows)) {
+      console.log(row);
+    }
   }
 }
 
@@ -324,8 +332,12 @@ async function showHelper<T>(ops: ISpecOps<T>, name?: string) {
     console.log(ops.format(spec));
   } else {
     const specs = await ops.all();
-    for (const spec of specs) {
-      console.log(ops.format(spec));
+    if (specs.length > 0) {
+      for (const spec of specs) {
+        console.log(ops.format(spec));
+      }
+    } else {
+      console.log(`No matching ${ops.name()}`);
     }
   }
 }
@@ -338,6 +350,7 @@ async function showHelper<T>(ops: ISpecOps<T>, name?: string) {
 
 // tslint:disable-next-line: interface-name
 interface ISpecOps<T> {
+  name(): string;
   load(specFile: string): T;
   format(spec: T): string;
   all(): Promise<T[]>;
@@ -346,6 +359,7 @@ interface ISpecOps<T> {
 }
 
 const benchmarkOps: ISpecOps<IBenchmark> = {
+  name: () => 'benchmark',
   load: (specFile: string) => load(BenchmarkType, specFile),
   format: (spec: IBenchmark) => formatSpec(spec),
   all: () => getLab().allBenchmarks(),
@@ -355,6 +369,7 @@ const benchmarkOps: ISpecOps<IBenchmark> = {
 };
 
 const candidateOps: ISpecOps<ICandidate> = {
+  name: () => 'candidate',
   load: (specFile: string) => load(CandidateType, specFile),
   format: (spec: ICandidate) => formatSpec(spec),
   all: () => getLab().allCandidates(),
@@ -364,6 +379,7 @@ const candidateOps: ISpecOps<ICandidate> = {
 };
 
 const suiteOps: ISpecOps<ISuite> = {
+  name: () => 'suite',
   load: (specFile: string) => load(SuiteType, specFile),
   format: (spec: ISuite) => formatSpec(spec),
   all: () => getLab().allSuites(),
@@ -372,6 +388,7 @@ const suiteOps: ISpecOps<ISuite> = {
 };
 
 const runOps: ISpecOps<IRun> = {
+  name: () => 'run',
   load: (specFile: string) => {
     throw new TypeError(`Load operation not supported for IRun.`);
   },
@@ -392,7 +409,9 @@ async function dispatch<FUNCTION extends Function, PARAMS extends any[]>(
 ) {
   const type = rawType.toLowerCase();
   if (!legalTypes.includes(type)) {
-    const message = `Invalid entity "${type}"`;
+    const message = `Invalid entity "${type}". Expected ${formatChoices(
+      legalTypes
+    )}.`;
     throw new TypeError(message);
   } else {
     switch (type.toLowerCase()) {
@@ -409,7 +428,9 @@ async function dispatch<FUNCTION extends Function, PARAMS extends any[]>(
         await f.apply(null, [suiteOps, ...p]);
         break;
       default:
-        const message = `Invalid entity "${type}"`;
+        const message = `Invalid entity "${type}". Expected ${formatChoices(
+          legalTypes
+        )}.`;
         throw new TypeError(message);
     }
   }

@@ -4,6 +4,8 @@ import * as errorhandler from 'strong-error-handler';
 
 import { ILaboratory } from '../logic';
 
+import { setErrorStatus } from './errors';
+
 import {
   createBenchmarkRouter,
   createCandidateRouter,
@@ -45,6 +47,10 @@ export async function createApp(lab: ILaboratory): Promise<express.Express> {
   app.use('/candidates', createCandidateRouter(lab));
   app.use('/runs', createRunRouter(lab));
   app.use('/suites', createSuiteRouter(lab));
+
+  // Set the response status code for errors like EntityNotFoundError
+  // and IllegalOperationError.
+  app.use(setErrorStatus);
 
   app.use(
     errorhandler({

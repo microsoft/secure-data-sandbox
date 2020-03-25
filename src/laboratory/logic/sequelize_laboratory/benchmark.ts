@@ -1,6 +1,6 @@
 import { Benchmark } from './models';
 import { normalizeName } from './normalize';
-import { IBenchmark } from '../interfaces';
+import { IBenchmark, IllegalOperationError } from '../interfaces';
 
 export function normalizeBenchmark(benchmark: IBenchmark): IBenchmark {
   // Normalize mode names in pipeline.
@@ -12,7 +12,7 @@ export function normalizeBenchmark(benchmark: IBenchmark): IBenchmark {
     // TODO: can this be done in the json-schema?
     if (modes.has(mode)) {
       const message = `Encountered duplicated mode "${mode}"`;
-      throw new TypeError(message);
+      throw new IllegalOperationError(message);
     }
     modes.add(mode);
 
