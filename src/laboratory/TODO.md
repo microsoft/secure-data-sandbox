@@ -1,19 +1,23 @@
 # Laboratory TODO
 
 * Top
-  * REVIEW use of TypeError instead of IllegalOperationError or EntityNotFoundError
-  * Server Error: listen EADDRINUSE: address already in use :::3000
-  * Authentication
   * Reduce sequelize console spew
-  * REVIEW: net.Server vs http.Server
-  * Are README.md dependencies correct? Does the user have to install anything else?
   * Service should print out port and hostname (for README.md demo script)
+  * Consider using SQL ids instead of GUIDs for run name
+  * Server Error: listen EADDRINUSE: address already in use :::3000
+  * Enforce workflow for status changes (e.g. disallow complete to created)
+  * Authentication
+  * x REVIEW use of TypeError instead of IllegalOperationError or EntityNotFoundError
+  * x REVIEW: net.Server vs http.Server
+  * Are README.md dependencies correct? Does the user have to install anything else?
   * TODO: update readme to correct supported version of node. package.json says 10.0.3, README.md says 13.7.0.
   * REVIEW: are suite names globally unique or namespaced to benchmarks? 
   * README.md
+    * Template
+    * Generator
   * x Consistent use of config in LaboratoryClient
-  * Enforce workflow for status changes (e.g. disallow complete to created)
   * CLI
+    * connect with no arguments shows connection
     * x Connect command shouldn't show connected state error at top.
     * = Convert to class - converted to function instead.
     * Formatting for measures - e.g. fixed, etc.
@@ -22,6 +26,14 @@
     * Suppress id property in show command
     * x list runs should show status, suite, candidate
     * x improve error messages
+      * x Scenario
+        * x connect http:/foobar - Connected to http://http/ - note single /
+        * x results benchmark1 suite1
+        * x Gives schema validation error
+      * x Scenario
+        * xconnect google.com or microsoft.com
+        * x results list benchmark
+        * x Show google html
       * x Message when connection refused: UnhandledPromiseRejectionWarning: Error: connect ECONNREFUSED 127.0.0.1:5000
       * x Message when list and show get no results
         * x node build\src\cli\dct.js results benchmark suite
@@ -33,9 +45,8 @@
       * x node build\src\cli\dct.js show foo
       * x When server is down
         * x Error: connect ECONNREFUSED 127.0.0.1:3000
-    * Consider using SQL ids instead of GUIDs for run name
-    * Better error messages for errors transported on the wire
-    * Error handling strategy for LaboratoryClient
+    * x Better error messages for errors transported on the wire
+    * x Error handling strategy for LaboratoryClient
     * Commands
       * x connect command
         * x .dct file location
@@ -44,8 +55,8 @@
       * x list benchmark|suite|candidate
       * x run
       * x list results w/formatted table output
-      * deploy command
       * x demo command
+      * deploy command
     * Bash completion api
     * = usage configuration in yargs
     * = Consider using luxon in reviver - probably can't since io-ts uses Date

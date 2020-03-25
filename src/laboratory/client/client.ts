@@ -9,6 +9,7 @@ import {
   IBenchmark,
   ICandidate,
   ILaboratory,
+  IllegalOperationError,
   IReportRunResults,
   IResult,
   IRun,
@@ -89,7 +90,7 @@ export class LaboratoryClient implements ILaboratory {
     const name = normalizeName(benchmark.name);
     if (routeName && name !== normalizeName(routeName)) {
       const message = `Route name, if specified, must equal benchmark.name.`;
-      throw new TypeError(message);
+      throw new IllegalOperationError(message);
     }
     const url = new URL(`benchmarks/${name}`, this.endpoint);
     await axios.put(url.toString(), benchmark, configForPatchPostPut);
@@ -122,7 +123,7 @@ export class LaboratoryClient implements ILaboratory {
     const name = normalizeName(candidate.name);
     if (routeName && name !== normalizeName(routeName)) {
       const message = `Route name, if specified, must equal candidate.name.`;
-      throw new TypeError(message);
+      throw new IllegalOperationError(message);
     }
     const url = new URL(`candidates/${name}`, this.endpoint);
     await axios.put(url.toString(), candidate, configForPatchPostPut);
@@ -152,7 +153,7 @@ export class LaboratoryClient implements ILaboratory {
     const name = normalizeName(suite.name);
     if (routeName && name !== normalizeName(routeName)) {
       const message = `Route name, if specified, must equal suite.name.`;
-      throw new TypeError(message);
+      throw new IllegalOperationError(message);
     }
     const url = new URL(`suites/${name}`, this.endpoint);
     await axios.put(url.toString(), suite, configForPatchPostPut);

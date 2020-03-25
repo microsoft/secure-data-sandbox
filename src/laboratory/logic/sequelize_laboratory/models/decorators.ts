@@ -1,5 +1,6 @@
 import { DataType } from 'sequelize-typescript';
 
+import { ValidationError } from '../../interfaces';
 //
 // Helper function provides a column decorator for JSON string columns
 // that are represented as POJOs of type T.
@@ -34,7 +35,7 @@ export function jsonColumn<T>(name: string, length: number) {
       if (buffer.byteLength >= length) {
         const message = `serialized text too long in json column "${name}". ${buffer.byteLength +
           1} exceeds limit of ${length}.`;
-        throw new TypeError(message);
+        throw new ValidationError(message);
       }
 
       // tslint:disable-next-line:no-any

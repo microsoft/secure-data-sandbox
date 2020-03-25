@@ -14,6 +14,7 @@ import {
   IBenchmark,
   ICandidate,
   IEntityBase,
+  IllegalOperationError,
   IRun,
   ISuite,
   LaboratoryClient,
@@ -148,8 +149,15 @@ function examples(argv: string[]) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 async function connect(host: string) {
-  const url = new URL('http://localhost');
-  url.host = host;
+  // Hostname validation according to RFC 1123 and RFC 952.
+  // https://stackoverflow.com/questions/106179/regular-expression-to-match-dns-hostname-or-ip-address
+  const ipRE = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(:\d+)?$/;
+  const hostRE = /^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])(\.([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9]))*(:\d+)?$/;
+  if (!host.match(ipRE) && !host.match(hostRE)) {
+    const message = `Illegal host "${host}"`;
+    throw new IllegalOperationError(message);
+  }
+  const url = new URL('http://' + host);
   const endpoint = url.toString();
   const config = yaml.safeDump({ endpoint });
   fs.writeFileSync(dctFile, config);
@@ -390,13 +398,13 @@ const suiteOps: ISpecOps<ISuite> = {
 const runOps: ISpecOps<IRun> = {
   name: () => 'run',
   load: (specFile: string) => {
-    throw new TypeError(`Load operation not supported for IRun.`);
+    throw new IllegalOperationError(`Load operation not supported for IRun.`);
   },
   format: (spec: IRun) => formatSpec(spec),
   all: () => getLab().allRuns(),
   one: (name: string) => getLab().oneRun(name),
   upsert: (spec: IRun, name?: string) => {
-    throw new TypeError(`Upsert operation not supported for IRun.`);
+    throw new IllegalOperationError(`Upsert operation not supported for IRun.`);
   },
 };
 
@@ -412,7 +420,7 @@ async function dispatch<FUNCTION extends Function, PARAMS extends any[]>(
     const message = `Invalid entity "${type}". Expected ${formatChoices(
       legalTypes
     )}.`;
-    throw new TypeError(message);
+    throw new IllegalOperationError(message);
   } else {
     switch (type.toLowerCase()) {
       case 'benchmark':
@@ -431,7 +439,7 @@ async function dispatch<FUNCTION extends Function, PARAMS extends any[]>(
         const message = `Invalid entity "${type}". Expected ${formatChoices(
           legalTypes
         )}.`;
-        throw new TypeError(message);
+        throw new IllegalOperationError(message);
     }
   }
 }
@@ -469,7 +477,7 @@ function getLab(): LaboratoryClient {
   if (connection === undefined || lab === undefined) {
     const message =
       'No laboratory connection. Use the "connect" command to specify a laboratory.';
-    throw TypeError(message);
+    throw new IllegalOperationError(message);
   }
   return lab;
 }
