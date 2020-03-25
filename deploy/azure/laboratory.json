@@ -1,0 +1,381 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "bootstrapIdentityId": {
+      "type": "string"
+    },
+    "privateDnsId": {
+      "type": "string"
+    },
+    "subnetId": {
+      "type": "string"
+    },
+    "workerIdentityId": {
+      "type": "string"
+    },
+    "baseName": {
+      "type": "string",
+      "defaultValue": "dct"
+    },
+    "sqlAdminUsername": {
+      "type": "string",
+      "defaultValue": "[parameters('baseName')]"
+    },
+    "sqlAdminPassword": {
+      "type": "securestring",
+      "defaultValue": "[newGuid()]"
+    }
+  },
+  "variables": {
+    "acrPullRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
+    "appSvcPlan": "laboratory",
+    "identity": "laboratory",
+    "metadataStorage": "[concat(variables('prefix'), 'laboratory')]",
+    "privateDns": "[last(split(parameters('privateDnsId'), '/'))]",
+    "registry": "[concat(variables('prefix'), 'laboratory')]",
+    "runsContainer": "runs",
+    "runsQueue": "runs",
+    "site": "[concat(variables('prefix'), '-laboratory')]",
+    "sqlDatabase": "laboratory",
+    "sqlServer": "[concat(variables('prefix'), '-laboratory')]",
+    "prefix": "[toLower(concat(parameters('baseName'), take(uniqueString(resourceGroup().id), 6)))]",
+    "storageBlobDataContributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
+    "storageQueueDataMessageProcessorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8a0f0c08-91a1-4084-bc3d-661d67233fed')]",
+    "storageQueueDataMessageSenderRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'c6a89b2d-59bc-44d0-9896-0f6e12d7b80a')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2018-11-30",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('identity')]"
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('metadataStorage')]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "properties": {
+        "accessTier": "Hot",
+        "encryption": {
+          "keySource": "Microsoft.Storage",
+          "services": {
+            "blob": {
+              "enabled": true
+            },
+            "queue": {
+              "enabled": true
+            }
+          }
+        },
+        "isHnsEnabled": false,
+        "networkAcls": {
+          "bypass": "None",
+          "defaultAction": "Deny",
+          "virtualNetworkRules": [
+            {
+              "id": "[parameters('subnetId')]",
+              "action": "Allow"
+            }
+          ]
+        },
+        "supportsHttpsTrafficOnly": true
+      },
+      "resources": [
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identity'))]",
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('metadataStorage'))]"
+          ],
+          "type": "providers/roleAssignments",
+          "apiVersion": "2018-09-01-preview",
+          "name": "[concat('Microsoft.Authorization/', guid(concat(variables('metadataStorage'), variables('identity'), 'StorageQueueDataMessageSender')))]",
+          "properties": {
+            "roleDefinitionId": "[variables('storageQueueDataMessageSenderRoleId')]",
+            "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identity'))).principalId]",
+            "principalType": "ServicePrincipal"
+          }
+        },
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('metadataStorage'))]"
+          ],
+          "type": "providers/roleAssignments",
+          "apiVersion": "2018-09-01-preview",
+          "name": "[concat('Microsoft.Authorization/', guid(concat(variables('metadataStorage'), parameters('workerIdentityId'), 'StorageQueueDataMessageProcessor')))]",
+          "properties": {
+            "roleDefinitionId": "[variables('storageQueueDataMessageProcessorRoleId')]",
+            "principalId": "[reference(parameters('workerIdentityId'), '2018-11-30').principalId]",
+            "principalType": "ServicePrincipal"
+          }
+        },
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('metadataStorage'))]"
+          ],
+          "type": "blobServices/containers",
+          "apiVersion": "2019-06-01",
+          "name": "[concat('default/', variables('runsContainer'))]",
+          "properties": {
+            "publicAccess": "None"
+          },
+          "resources": [
+            {
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', variables('metadataStorage'), 'default', variables('runsContainer'))]"
+              ],
+              "type": "providers/roleAssignments",
+              "apiVersion": "2018-09-01-preview",
+              "name": "[concat('/Microsoft.Authorization/', guid(variables('metadataStorage'), variables('runsContainer'), parameters('workerIdentityId'), 'StorageBlobDataContributor'))]",
+              "properties": {
+                "roleDefinitionId": "[variables('storageBlobDataContributorRoleId')]",
+                "principalId": "[reference(parameters('workerIdentityId'), '2018-11-30').principalId]",
+                "principalType": "ServicePrincipal"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2019-06-01-preview",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('sqlServer')]",
+      "properties": {
+        "administratorLogin": "[parameters('sqlAdminUsername')]",
+        "administratorLoginPassword": "[parameters('sqlAdminPassword')]",
+        "minimalTlsVersion": "1.2",
+        "version": "12.0"
+      },
+      "resources": [
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]"
+          ],
+          "type": "administrators",
+          "apiVersion": "2019-06-01-preview",
+          "location": "[resourceGroup().location]",
+          "name": "ActiveDirectory",
+          "properties": {
+            "administratorType": "ActiveDirectory",
+            "login": "[last(split(parameters('bootstrapIdentityId'), '/'))]",
+            "sid": "[reference(parameters('bootstrapIdentityId'), '2018-11-30').principalId]",
+            "tenantId": "[subscription().tenantId]"
+          }
+        },
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]"
+          ],
+          "type": "databases",
+          "apiVersion": "2019-06-01-preview",
+          "location": "[resourceGroup().location]",
+          "name": "[variables('sqlDatabase')]",
+          "sku": {
+            "name": "GP_S_Gen5",
+            "capacity": 1
+          },
+          "properties": {
+            "autoPauseDelay": 60,
+            "minCapacity": 0.5
+          }
+        },
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]"
+          ],
+          "type": "virtualNetworkRules",
+          "apiVersion": "2015-05-01-preview",
+          "location": "[resourceGroup().location]",
+          "name": "laboratory",
+          "properties": {
+            "virtualNetworkSubnetId": "[parameters('subnetId')]"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2019-12-01-preview",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('registry')]",
+      "sku": {
+        "name": "Premium"
+      },
+      "properties": {
+        "adminUserEnabled": false
+      },
+      "resources": [
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.ContainerRegistry/registries', variables('registry'))]"
+          ],
+          "type": "providers/roleAssignments",
+          "apiVersion": "2018-09-01-preview",
+          "name": "[concat('Microsoft.Authorization/', guid(concat(variables('registry'), parameters('workerIdentityId'), 'AcrPull')))]",
+          "properties": {
+            "roleDefinitionId": "[variables('acrPullRoleId')]",
+            "principalId": "[reference(parameters('workerIdentityId'), '2018-11-30').principalId]",
+            "principalType": "ServicePrincipal"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Web/serverFarms",
+      "apiVersion": "2019-08-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('appSvcPlan')]",
+      "kind": "linux",
+      "sku": {
+        "name": "S1"
+      },
+      "properties": {
+        "reserved": true
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identity'))]",
+        "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('metadataStorage'))]",
+        "[resourceId('Microsoft.Web/serverFarms', variables('appSvcPlan'))]"
+      ],
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2019-08-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('site')]",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identity'))]": {
+          }
+        }
+      },
+      "properties": {
+        "httpsOnly": true,
+        "serverFarmId": "[resourceId('Microsoft.Web/serverFarms', variables('appSvcPlan'))]",
+        "siteConfig": {
+          "alwaysOn": true,
+          "appCommandLine": "npm run laboratory",
+          "appSettings": [
+            {
+              "name": "AZURE_CLIENT_ID",
+              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identity'))).clientId]"
+            },
+            {
+              "name": "BLOB_CONTAINER",
+              "value": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('metadataStorage'))).primaryEndpoints.blob, variables('runsContainer'))]"
+            },
+            {
+              "name": "QUEUE_ENDPOINT",
+              "value": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('metadataStorage'))).primaryEndpoints.queue, variables('runsQueue'))]"
+            },
+            {
+              "name": "SQL_HOST",
+              "value": "[reference(resourceId('Microsoft.Sql/servers', variables('sqlServer'))).fullyQualifiedDomainName]"
+            },
+            {
+              "name": "SQL_DB",
+              "value": "[variables('sqlDatabase')]"
+            },
+            {
+              "name": "WEBSITE_RUN_FROM_PACKAGE",
+              "value": "1"
+            }
+          ],
+          "linuxFxVersion": "NODE|12-lts",
+          "minTlsVersion": "1.2"
+        }
+      },
+      "resources": [
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/sites', variables('site'))]"
+          ],
+          "type": "networkConfig",
+          "apiVersion": "2019-08-01",
+          "location": "[resourceGroup().location]",
+          "name": "virtualNetwork",
+          "properties": {
+            "swiftSupported": true,
+            "subnetResourceId": "[parameters('subnetId')]"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.Network/privateDnsZones/TXT",
+      "apiVersion": "2018-09-01",
+      "name": "[concat(variables('privateDns'), '/laboratory')]",
+      "properties": {
+        "ttl": 30,
+        "txtRecords": [
+          {
+            "value": [
+              "[concat('clientId=', reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identity'))).clientId)]"
+            ]
+          },
+          {
+            "value": [
+              "[concat('identity=', variables('identity'))]"
+            ]
+          },
+          {
+            "value": [
+              "[concat('runsContainer=', variables('runsContainer'))]"
+            ]
+          },
+          {
+            "value": [
+              "[concat('runsQueue=', variables('runsQueue'))]"
+            ]
+          },
+          {
+            "value": [
+              "[concat('sqlDatabase=', variables('sqlDatabase'))]"
+            ]
+          },
+          {
+            "value": [
+              "[concat('sqlServer=', reference(resourceId('Microsoft.Sql/servers', variables('sqlServer'))).fullyQualifiedDomainName)]"
+            ]
+          },
+          {
+            "value": [
+              "[concat('storageAccount=', variables('metadataStorage'))]"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "outputs": {
+    "registryId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.ContainerRegistry/registries', variables('registry'))]"
+    },
+    "siteId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Web/sites', variables('site'))]"
+    },
+    "sqlServerId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]"
+    },
+    "storageAccountId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Storage/storageAccounts', variables('metadataStorage'))]"
+    },
+    "runsContainer": {
+      "type": "string",
+      "value": "[variables('runsContainer')]"
+    }
+  }
+}

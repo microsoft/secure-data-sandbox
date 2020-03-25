@@ -1,7 +1,7 @@
 {
   "variables": {
     "name": "dct-worker",
-    "resource_group": "dct-environment",
+    "resource_group": null,
 
     "tenant_id": "{{env `AZURE_TENANT_ID`}}",
     "subscription_id": "{{env `AZURE_SUBSCRIPTION_ID`}}",
@@ -33,6 +33,11 @@
     }
   ],
   "provisioners": [
+    {
+      "type": "file",
+      "source": "{{template_dir}}/start.sh",
+      "destination": "/tmp/start.sh"
+    },
     {
       "type": "shell",
       "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E bash '{{ .Path }}'",

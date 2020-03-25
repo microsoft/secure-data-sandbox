@@ -18,7 +18,10 @@
     "laboratory:dev": "npm run compile && node -r dotenv/config build/src/laboratory/app.js",
     "laboratory:package:appservice": "npm run compile && mkdir -p dist && cp -r --parents package*.json build/src dist && cd dist && npm install --ignore-scripts --production && zip -r $npm_package_name.zip package.json package-lock.json build/src node_modules",
     "worker": "node build/src/worker/app.js",
-    "worker:dev": "npm run compile && node -r dotenv/config build/src/worker/app.js"
+    "worker:dev": "npm run compile && node -r dotenv/config build/src/worker/app.js",
+    "preazure:dev": "serve -l 8080 deploy >/dev/null &",
+    "azure:dev": "ngrok http 8080",
+    "postazure:dev": "kill $(lsof -t -i:8080)"
   },
   "dependencies": {
     "@azure/identity": "^1.0.2",
@@ -69,10 +72,12 @@
     "chai-exclude": "^2.0.2",
     "chai-http": "^4.3.0",
     "gts": "^1.1.2",
-    "mocha": "^7.0.1",
+    "mocha": "^7.1.1",
     "nock": "^12.0.3",
+    "ngrok": "^3.2.7",
     "rimraf": "^3.0.2",
     "reflect-metadata": "^0.1.13",
+    "serve": "^11.3.0",
     "sinon": "^9.0.0",
     "source-map-support": "^0.5.16",
     "sqlite3": "^4.1.1",

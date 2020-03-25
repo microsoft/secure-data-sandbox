@@ -12,3 +12,7 @@ apt-add-repository "deb [arch=amd64] https://packages.microsoft.com/ubuntu/$(lsb
 # Install dependencies
 apt-get update -y
 apt-get install -y jq docker-ce docker-ce-cli containerd.io blobfuse fuse
+
+# Move startup script
+chmod +x /tmp/start.sh
+mv /tmp/start.sh /var/lib/cloud/scripts/per-boot/start.sh

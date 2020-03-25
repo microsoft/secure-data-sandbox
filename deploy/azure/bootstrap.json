@@ -1,0 +1,141 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "asgId": {
+      "type": "string"
+    },
+    "identityId": {
+      "type": "string"
+    },
+    "subnetId": {
+      "type": "string"
+    },
+    "vmPassword": {
+      "type": "securestring",
+      "defaultValue": "[newGuid()]"
+    }
+  },
+  "variables": {
+    "assetsBaseUrl": "[if(contains(deployment().properties, 'templateLink'), uri(deployment().properties.templateLink.uri, '../'), 'https://raw.githubusercontent.com/microsoft/data-contest-toolkit/master/deploy/')]",
+    "cloudInit": [
+      "[uri(variables('assetsBaseUrl'), './bootstrap/setup.sh')]",
+      "[uri(variables('assetsBaseUrl'), './bootstrap/bootstrap.ps1')]"
+    ],
+    "customData": "[base64(format('#include\n{0}', util.join(variables('cloudInit'), '\n')))]",
+    "name": "bootstrap",
+    "virtualMachineContributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '9980e02c-c2be-4d73-94e8-173b1dc7cf3c')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('name')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "default",
+            "properties": {
+              "applicationSecurityGroups": [
+                {
+                  "id": "[parameters('asgId')]"
+                }
+              ],
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[parameters('subnetId')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('name'))]"
+      ],
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2019-07-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('name')]",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[parameters('identityId')]": {
+          }
+        }
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_B1s"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('name'))]"
+            }
+          ]
+        },
+        "osProfile": {
+          "adminUsername": "azureuser",
+          "adminPassword": "[parameters('vmPassword')]",
+          "computerName": "[variables('name')]",
+          "customData": "[variables('customData')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "18.04-LTS",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "Standard_LRS"
+            }
+          }
+        }
+      },
+      "resources": [
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Compute/virtualMachines', variables('name'))]"
+          ],
+          "type": "providers/roleAssignments",
+          "apiVersion": "2018-09-01-preview",
+          "name": "[concat('Microsoft.Authorization/', guid(concat(variables('name'), parameters('identityId'), 'VirtualMachineContributor')))]",
+          "properties": {
+            "roleDefinitionId": "[variables('virtualMachineContributorRoleId')]",
+            "principalId": "[reference(parameters('identityId'), '2018-11-30').principalId]",
+            "principalType": "ServicePrincipal"
+          }
+        }
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "namespace": "util",
+      "members": {
+        "join": {
+          "parameters": [
+            {
+              "name": "values",
+              "type": "array"
+            },
+            {
+              "name": "separator",
+              "type": "string"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[replace(replace(substring(string(parameters('values')), 1, sub(length(string(parameters('values'))), 2)), '\"', ''), ',', parameters('separator'))]"
+          }
+        }
+      }
+    }
+  ]
+}

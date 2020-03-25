@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "baseName": {
+      "type": "string",
+      "defaultValue": "dct"
+    }
+  },
+  "variables": {
+    "assetsBaseUrl": "[if(contains(deployment().properties, 'templateLink'), uri(deployment().properties.templateLink.uri, '../'), 'https://raw.githubusercontent.com/microsoft/data-contest-toolkit/master/deploy/')]",
+    "environmentDeployment": "environment"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
+      "name": "[variables('environmentDeployment')]",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "baseName": {
+            "value": "[parameters('baseName')]"
+          }
+        },
+        "templateLink": {
+          "uri": "[uri(variables('assetsBaseUrl'), './azure/environment.json')]"
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', variables('environmentDeployment'))]"
+      ],
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
+      "name": "dev.ssh",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[uri(variables('assetsBaseUrl'), './azure/dev.ssh.json')]"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "laboratorySiteId": {
+      "type": "string",
+      "value": "[reference(variables('environmentDeployment')).outputs.laboratorySiteId.value]"
+    }
+  }
+}
