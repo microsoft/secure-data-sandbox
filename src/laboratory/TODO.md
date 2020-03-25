@@ -1,6 +1,9 @@
 # Laboratory TODO
 
 * Top
+  * README.md
+    * Template
+    * Generator
   * Reduce sequelize console spew
   * Service should print out port and hostname (for README.md demo script)
   * Consider using SQL ids instead of GUIDs for run name
@@ -12,12 +15,9 @@
   * Are README.md dependencies correct? Does the user have to install anything else?
   * TODO: update readme to correct supported version of node. package.json says 10.0.3, README.md says 13.7.0.
   * REVIEW: are suite names globally unique or namespaced to benchmarks? 
-  * README.md
-    * Template
-    * Generator
   * x Consistent use of config in LaboratoryClient
   * CLI
-    * connect with no arguments shows connection
+    * x connect with no arguments shows connection
     * x Connect command shouldn't show connected state error at top.
     * = Convert to class - converted to function instead.
     * Formatting for measures - e.g. fixed, etc.

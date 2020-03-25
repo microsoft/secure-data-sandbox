@@ -37,8 +37,8 @@ function main(argv: string[]) {
   program.version(apiVersion);
 
   program
-    .command('connect <server>')
-    .description('PARTIALLY IMPLEMENTED. Connect to a Laboratory service.')
+    .command('connect [server]')
+    .description('Connect to a Laboratory service or print connection info.')
     .action(connect);
 
   program
@@ -101,6 +101,7 @@ function main(argv: string[]) {
     } else {
       console.log('Unknown error.');
     }
+    process.exitCode = 1;
   });
 
   program.parse(argv);
@@ -149,20 +150,30 @@ function examples(argv: string[]) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 async function connect(host: string) {
-  // Hostname validation according to RFC 1123 and RFC 952.
-  // https://stackoverflow.com/questions/106179/regular-expression-to-match-dns-hostname-or-ip-address
-  const ipRE = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(:\d+)?$/;
-  const hostRE = /^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])(\.([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9]))*(:\d+)?$/;
-  if (!host.match(ipRE) && !host.match(hostRE)) {
-    const message = `Illegal host "${host}"`;
-    throw new IllegalOperationError(message);
+  if (host === undefined) {
+    if (connection) {
+      console.log(`Connected to ${connection!.endpoint}.`);
+    } else {
+      console.log(
+        'No laboratory connection. Use the "connect" command to specify a laboratory.'
+      );
+    }
+  } else {
+    // Hostname validation according to RFC 1123 and RFC 952.
+    // https://stackoverflow.com/questions/106179/regular-expression-to-match-dns-hostname-or-ip-address
+    const ipRE = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(:\d+)?$/;
+    const hostRE = /^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])(\.([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9]))*(:\d+)?$/;
+    if (!host.match(ipRE) && !host.match(hostRE)) {
+      const message = `Illegal host "${host}"`;
+      throw new IllegalOperationError(message);
+    }
+    const url = new URL('http://' + host);
+    const endpoint = url.toString();
+    const config = yaml.safeDump({ endpoint });
+    fs.writeFileSync(dctFile, config);
+    tryInitializeConnection();
+    console.log(`Connected to ${endpoint}.`);
   }
-  const url = new URL('http://' + host);
-  const endpoint = url.toString();
-  const config = yaml.safeDump({ endpoint });
-  fs.writeFileSync(dctFile, config);
-  tryInitializeConnection();
-  console.log(`Connected to ${endpoint}`);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
