@@ -24,7 +24,7 @@ import {
 
 import { assertDeepEqual } from '../shared';
 import { PipelineRun } from '../../../../src/messages';
-import { FakeQueue } from '../../queue';
+import { InMemoryQueue } from '../../../../src/queue';
 
 chai.use(chaiExclude);
 chai.use(chaiAsPromised);
@@ -34,7 +34,7 @@ chai.use(chaiAsPromised);
 //
 describe('laboratory/runs', () => {
   it('end-to-end scenario', async () => {
-    const queue = new FakeQueue<PipelineRun>();
+    const queue = new InMemoryQueue<PipelineRun>();
     const lab = new SequelizeLaboratory(serviceURL, blobBase, queue);
 
     // Initially, there should be no runs.

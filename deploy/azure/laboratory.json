@@ -274,8 +274,16 @@
               "value": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('metadataStorage'))).primaryEndpoints.blob, variables('runsContainer'))]"
             },
             {
+              "name": "QUEUE_MODE",
+              "value": "azure"
+            },
+            {
               "name": "QUEUE_ENDPOINT",
               "value": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('metadataStorage'))).primaryEndpoints.queue, variables('runsQueue'))]"
+            },
+            {
+              "name": "SQL_MODE",
+              "value": "azuresql"
             },
             {
               "name": "SQL_HOST",

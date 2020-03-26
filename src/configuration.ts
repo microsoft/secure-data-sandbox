@@ -47,22 +47,32 @@ class AzureCredential {
 export function ParseQueueConfiguration(): QueueConfiguration {
   const mode = env
     .get('QUEUE_MODE')
-    .default(QueueMode.Azure)
+    .default(QueueMode.InMemory)
     .asEnum(Object.values(QueueMode)) as QueueMode;
 
   const endpoint = env
     .get('QUEUE_ENDPOINT')
-    .required()
+    .required(mode !== QueueMode.InMemory)
     .asUrlString();
 
-  const config: AzureStorageQueueConfiguration = {
-    mode,
-    endpoint,
-    credential: AzureCredential.getInstance(),
-    shouldCreateQueue: false,
-  };
+  // tsc ensures exhaustiveness checking, but tslint thinks it's an error
+  // tslint:disable:switch-default
+  switch (mode) {
+    case QueueMode.Azure:
+      const config: AzureStorageQueueConfiguration = {
+        mode,
+        endpoint,
+        credential: AzureCredential.getInstance(),
+        shouldCreateQueue: false,
+      };
 
-  return config;
+      return config;
+    case QueueMode.InMemory:
+      return {
+        mode: QueueMode.InMemory,
+        endpoint: 'http://localhost',
+      };
+  }
 }
 
 /**
@@ -71,12 +81,12 @@ export function ParseQueueConfiguration(): QueueConfiguration {
 export function ParseDatabaseConfiguration(): DatabaseConfiguration {
   const mode = env
     .get('SQL_MODE')
-    .default(DatabaseMode.AzureSql)
+    .default(DatabaseMode.InMemory)
     .asEnum(Object.values(DatabaseMode)) as DatabaseMode;
 
   const host = env
     .get('SQL_HOST')
-    .required()
+    .required(mode !== DatabaseMode.InMemory)
     .asString();
 
   // tsc ensures exhaustiveness checking, but tslint thinks it's an error
@@ -96,6 +106,11 @@ export function ParseDatabaseConfiguration(): DatabaseConfiguration {
       };
 
       return config;
+    case DatabaseMode.InMemory:
+      return {
+        mode,
+        host: 'localhost',
+      };
   }
 }
 
@@ -123,7 +138,8 @@ export function ParseLaboratoryConfiguration() {
     endpointBaseUrl,
     blobContainerUrl: env
       .get('BLOB_CONTAINER')
-      .required()
+      // TODO: review defaults. We probably want Azure by default, and opt-into "dev mode" via `npm run foo:dev`
+      .default('http://blobs')
       .asUrlString(),
     port,
     queue: ParseQueueConfiguration(),

@@ -4,6 +4,7 @@ import { TokenCredential } from '@azure/identity';
 
 export enum DatabaseMode {
   AzureSql = 'azuresql',
+  InMemory = 'inmemory',
 }
 
 export interface DatabaseConfiguration {
@@ -53,5 +54,7 @@ export function GetSequelize(config: DatabaseConfiguration): Sequelize {
           max: 3,
         },
       });
+    case DatabaseMode.InMemory:
+      return new Sequelize('sqlite::memory:');
   }
 }

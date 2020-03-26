@@ -1,11 +1,11 @@
 import { assert } from 'chai';
 import { PipelineWorker } from '../../../src/worker';
-import { FakeQueue } from '../queue';
+import { InMemoryQueue } from '../../../src/queue';
 import { PipelineRun } from '../../../src/messages';
 
 describe('worker', () => {
   it('initializes', () => {
-    const queue = new FakeQueue<PipelineRun>();
+    const queue = new InMemoryQueue<PipelineRun>();
     const worker = new PipelineWorker(queue);
 
     assert.isNotNull(worker);

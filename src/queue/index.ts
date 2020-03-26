@@ -1,4 +1,5 @@
 import { AzureStorageQueue, AzureStorageQueueConfiguration } from './azure';
+import { InMemoryQueue } from './inmemory';
 
 /**
  * Simple interface to send/receive messages from a queue.
@@ -32,6 +33,7 @@ export interface QueueMessage<T> {
  */
 export enum QueueMode {
   Azure = 'azure',
+  InMemory = 'inmemory',
 }
 
 export interface QueueConfiguration {
@@ -49,6 +51,8 @@ export function GetQueue<T>(config: QueueConfiguration): IQueue<T> {
   // The following is safe but tslint doesn't understand, so we suppress the rule: https://github.com/palantir/tslint/issues/2104
   // tslint:disable:switch-default
   switch (config.mode) {
+    case QueueMode.InMemory:
+      return new InMemoryQueue<T>();
     case QueueMode.Azure:
       const azureConfig = config as AzureStorageQueueConfiguration;
       return new AzureStorageQueue<T>(azureConfig);
@@ -57,4 +61,5 @@ export function GetQueue<T>(config: QueueConfiguration): IQueue<T> {
 
 // re-exports so 'queue' is usable at the top-level
 export * from './azure';
+export * from './inmemory';
 export * from './processor';

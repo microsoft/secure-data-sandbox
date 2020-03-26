@@ -16,7 +16,7 @@ import {
 } from '../data';
 
 import { assertDeepEqual } from '../shared';
-import { FakeQueue } from '../../queue';
+import { InMemoryQueue } from '../../../../src/queue';
 import { PipelineRun } from '../../../../src/messages';
 
 chai.use(chaiExclude);
@@ -38,7 +38,7 @@ beforeEach(async () => {
   console.log('beforeEach');
   await sequelize.drop();
   await sequelize.sync();
-  const queue = new FakeQueue<PipelineRun>();
+  const queue = new InMemoryQueue<PipelineRun>();
   lab = new SequelizeLaboratory(serviceURL, blobBase, queue);
 });
 

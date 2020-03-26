@@ -1,6 +1,6 @@
-import { IQueue, QueueMessage } from '../../../src/queue';
+import { IQueue, QueueMessage } from '.';
 
-export class FakeQueue<T> implements IQueue<T> {
+export class InMemoryQueue<T> implements IQueue<T> {
   // Explicitly allowing 'any' for this test helper object
   // tslint:disable:no-any
   readonly data: any[] = [];
