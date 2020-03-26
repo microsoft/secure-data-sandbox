@@ -62,7 +62,7 @@
     "@types/luxon": "^1.22.0",
     "@types/mocha": "^7.0.2",
     "@types/nock": "^11.1.0",
-    "@types/node": "^10.17.17",
+    "@types/node": "^12.12.31",
     "@types/request-promise": "^4.1.46",
     "@types/sinon": "^7.5.2",
     "@types/sinonjs__fake-timers": "^6.0.0",
