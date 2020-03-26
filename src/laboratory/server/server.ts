@@ -22,11 +22,10 @@ export async function startServer(): Promise<Server> {
     config.blobContainerUrl,
     queue
   );
-  const port = process.env.PORT || 3000;
   const app = await createApp(lab);
   const server = createServer(app);
-  server.listen(port);
-  console.info(`Laboratory service listening on port ${port}.`);
+  server.listen(config.port);
+  console.info(`Laboratory service listening on port ${config.port}.`);
 
   return server;
 }

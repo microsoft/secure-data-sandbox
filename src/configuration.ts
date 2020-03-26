@@ -1,3 +1,4 @@
+import * as os from 'os';
 import {
   DefaultAzureCredential,
   ChainedTokenCredential,
@@ -99,6 +100,11 @@ export function ParseDatabaseConfiguration(): DatabaseConfiguration {
 }
 
 export function ParseLaboratoryConfiguration() {
+  const port = env
+    .get('PORT')
+    .default(3000)
+    .asPortNumber();
+
   let endpointBaseUrl = env.get('LABORATORY_ENDPOINT').asUrlString();
 
   // if endpoint is not explicitly specified, check for WEBSITE_HOSTNAME and assume HTTPS over 443
@@ -108,12 +114,18 @@ export function ParseLaboratoryConfiguration() {
     endpointBaseUrl = `https://${hostname}`;
   }
 
+  // fallback to machine hostname
+  if (!endpointBaseUrl) {
+    endpointBaseUrl = `http://${os.hostname()}:${port}`;
+  }
+
   return {
     endpointBaseUrl,
     blobContainerUrl: env
       .get('BLOB_CONTAINER')
       .required()
       .asUrlString(),
+    port,
     queue: ParseQueueConfiguration(),
     database: ParseDatabaseConfiguration(),
   };
