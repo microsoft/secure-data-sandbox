@@ -1,15 +1,27 @@
 # Laboratory TODO
 
 * Top
-  * Service should print out port and hostname (for README.md demo script)
+  * Unit tests for 400/404 message
   * Server Error: listen EADDRINUSE: address already in use :::3000
+  * Unify two queue implementations (Azure, in-proc)
+  * Configuration object
+    * Reads environment variables.
+    * Not all variables are required.
+    * Prints error message.
+    * Make configuration objects available to factories.
+    * queue type & credentials
+    * database type & credentials
+    * blobBase & credentials
+    * logging & credentials
   * Enforce workflow for status changes (e.g. disallow complete to created)
   * README.md
     * Template
     * Generator
+    * Shell
   * Consider using SQL ids instead of GUIDs for run name
   * Authentication
   * Logging
+  * x Service should print out port and hostname (for README.md demo script)
   * x Unit tests: before() and beforeEach() duplication.
   * x Reduce sequelize console spew
   * x Replace entityBaseReviver with io-ts decoder.
@@ -73,8 +85,7 @@
     * x ILaboratory stubs (LaboratoryClient)
     * x Unit testing strategy for LaboratoryClient (need service on http://localhost) - used nock
   * = Recode server.test.ts to use ILaboratory stub - decided not to do this
-  * Shell
-  * sequelize configuration
+  * x sequelize configuration
   * x Express routes for AllResults()
   * x Rename Date2 => DateType
   * x Move validate() out of schemas directory. Remove schemas directory.

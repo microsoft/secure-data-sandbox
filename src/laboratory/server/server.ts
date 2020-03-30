@@ -9,7 +9,6 @@ import { InMemoryQueue } from '../logic/sequelize_laboratory/queue';
 
 import { createApp } from './app';
 import { URL } from 'url';
-import { Sequelize } from 'sequelize/types';
 import { SequelizeOptions } from 'sequelize-typescript';
 
 export async function startServer(): Promise<Server> {
@@ -33,13 +32,9 @@ export async function startServer(): Promise<Server> {
 
   const server = createServer(app);
   server.listen(port);
+  console.log(`Service url is ${serviceURL}.`);
+  console.log(`Blob base is ${blobBase}.`);
   console.info(`Laboratory service listening on port ${port}.`);
 
   return server;
 }
-
-// curl -d '{"name":"benchmark1", "author":"mike", "version":"v1", "image":"image1", "pipelines":[]}' -H "Content-Type: application/json" -X PUT localhost:3000/benchmarks/one
-// curl -d '{"name":"one", "author":"mike", "version":"v1", "image":"image1", "pipelines":[]}' -H "Content-Type: application/json" -X PUT localhost:3000/benchmarks/one
-// curl -d '{"name":"one", "author":"noel", "version":"v1", "image":"image1", "pipelines":[]}' -H "Content-Type: application/json" -X PUT localhost:3000/benchmarks/one
-// curl localhost:3000/benchmarks
-// curl localhost:3000/benchmarks/benchmark1
