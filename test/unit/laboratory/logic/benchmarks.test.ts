@@ -2,50 +2,23 @@ import * as chai from 'chai';
 import { assert } from 'chai';
 import chaiAsPromised = require('chai-as-promised');
 import chaiExclude from 'chai-exclude';
-import { Sequelize } from 'sequelize-typescript';
 
-import { initializeSequelize, SequelizeLaboratory } from '../../../../src';
-
-// TODO: remove these temporary imports after integration.
-import { PipelineRun } from '../../../../src/laboratory/logic/sequelize_laboratory/messages';
-import { InMemoryQueue } from '../../../../src/laboratory/logic/sequelize_laboratory/queue';
+import { benchmark1, benchmark2, benchmark3 } from '../data';
 
 import {
-  benchmark1,
-  benchmark2,
-  benchmark3,
-  blobBase,
-  serviceURL,
-} from '../data';
-
-import { assertDeepEqual } from '../shared';
+  assertDeepEqual,
+  initTestEnvironment,
+  lab,
+  resetTestEnvironment,
+} from '../shared';
 
 chai.use(chaiExclude);
 chai.use(chaiAsPromised);
 
-//
-// Test environment setup
-//
-let sequelize: Sequelize;
-export let lab: SequelizeLaboratory;
-
-before(async () => {
-  console.log('before');
-  sequelize = await initializeSequelize();
-});
-
-beforeEach(async () => {
-  console.log('beforeEach');
-  await sequelize.drop();
-  await sequelize.sync();
-  const queue = new InMemoryQueue<PipelineRun>();
-  lab = new SequelizeLaboratory(serviceURL, blobBase, queue);
-});
-
-//
-// Test declarations
-//
 describe('laboratory/benchmarks', () => {
+  before(initTestEnvironment);
+  beforeEach(resetTestEnvironment);
+
   it('allBenchmarks()', async () => {
     const empty = await lab.allBenchmarks();
     assert.deepEqual(empty, []);

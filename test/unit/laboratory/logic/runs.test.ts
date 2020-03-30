@@ -4,17 +4,7 @@ import chaiAsPromised = require('chai-as-promised');
 import chaiExclude from 'chai-exclude';
 import { URL } from 'url';
 
-import {
-  apiVersion,
-  IResult,
-  IRun,
-  RunStatus,
-  SequelizeLaboratory,
-} from '../../../../src';
-
-// TODO: remove these temporary imports after integration.
-import { PipelineRun } from '../../../../src/laboratory/logic/sequelize_laboratory/messages';
-import { InMemoryQueue } from '../../../../src/laboratory/logic/sequelize_laboratory/queue';
+import { apiVersion, IResult, IRun, RunStatus } from '../../../../src';
 
 import {
   benchmark1,
@@ -26,7 +16,7 @@ import {
   suite1,
 } from '../data';
 
-import { assertDeepEqual } from '../shared';
+import { assertDeepEqual, initTestEnvironment, lab, queue } from '../shared';
 
 chai.use(chaiExclude);
 chai.use(chaiAsPromised);
@@ -35,10 +25,9 @@ chai.use(chaiAsPromised);
 // Test declarations
 //
 describe('laboratory/runs', () => {
-  it('end-to-end scenario', async () => {
-    const queue = new InMemoryQueue<PipelineRun>();
-    const lab = new SequelizeLaboratory(serviceURL, blobBase, queue);
+  before(initTestEnvironment);
 
+  it('end-to-end scenario', async () => {
     // Initially, there should be no runs.
     const empty = await lab.allRuns();
     assert.deepEqual(empty, []);

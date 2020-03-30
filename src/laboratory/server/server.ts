@@ -9,12 +9,19 @@ import { InMemoryQueue } from '../logic/sequelize_laboratory/queue';
 
 import { createApp } from './app';
 import { URL } from 'url';
+import { Sequelize } from 'sequelize/types';
+import { SequelizeOptions } from 'sequelize-typescript';
 
 export async function startServer(): Promise<Server> {
   const port = process.env.PORT || 3000;
 
   // TODO: remove this singleton pattern, parameterize by dialect.
-  await initializeSequelize();
+  const options: SequelizeOptions = {
+    dialect: 'sqlite',
+    storage: ':memory:',
+    logging: false,
+  };
+  await initializeSequelize(options);
 
   const url = new URL(`http://${os.hostname()}:${port}`);
   const serviceURL = url.toString();

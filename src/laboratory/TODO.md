@@ -1,15 +1,17 @@
 # Laboratory TODO
 
 * Top
+  * Service should print out port and hostname (for README.md demo script)
+  * Server Error: listen EADDRINUSE: address already in use :::3000
+  * Enforce workflow for status changes (e.g. disallow complete to created)
   * README.md
     * Template
     * Generator
-  * Reduce sequelize console spew
-  * Service should print out port and hostname (for README.md demo script)
   * Consider using SQL ids instead of GUIDs for run name
-  * Server Error: listen EADDRINUSE: address already in use :::3000
-  * Enforce workflow for status changes (e.g. disallow complete to created)
   * Authentication
+  * Logging
+  * x Unit tests: before() and beforeEach() duplication.
+  * x Reduce sequelize console spew
   * x Replace entityBaseReviver with io-ts decoder.
   * x REVIEW use of TypeError instead of IllegalOperationError or EntityNotFoundError
   * x REVIEW: net.Server vs http.Server

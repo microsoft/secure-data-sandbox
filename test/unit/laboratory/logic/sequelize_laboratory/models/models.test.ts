@@ -12,17 +12,27 @@ import { jsonColumn } from '../../../../../../src/laboratory/logic/sequelize_lab
 
 import { benchmark1, candidate1, suite1, run1 } from '../../../data';
 
-import { assertDeepEqual } from '../../../shared';
+import {
+  assertDeepEqual,
+  initTestEnvironment,
+  sequelize,
+} from '../../../shared';
 
-let sequelize: Sequelize;
-
-before(async () => {
-  sequelize = new Sequelize('sqlite::memory:');
-  sequelize.addModels([Benchmark, Candidate, Run, Suite]);
-  await sequelize.sync();
-});
+// let sequelize: Sequelize;
 
 describe('sequelize', () => {
+  before(initTestEnvironment);
+  // before(async () => {
+  //   sequelize = new Sequelize({
+  //     dialect: 'sqlite',
+  //     storage: ':memory:',
+  //     logging: false,
+  //   });
+
+  //   sequelize.addModels([Benchmark, Candidate, Run, Suite]);
+  //   await sequelize.sync();
+  // });
+
   describe('decorators', () => {
     it('jsonColumn length overflow', async () => {
       @Table
