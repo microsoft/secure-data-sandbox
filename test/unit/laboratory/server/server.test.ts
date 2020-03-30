@@ -23,6 +23,7 @@ import { createApp } from '../../../../src/laboratory/server';
 interface XMLHttpRequest {}
 
 import {
+  BenchmarkType,
   IBenchmark,
   ICandidate,
   IReportRunResults,
@@ -33,6 +34,10 @@ import {
   IUpdateRunStatus,
   Measures,
   RunStatus,
+  validate,
+  CandidateType,
+  SuiteType,
+  RunType,
 } from '../../../../src';
 
 import { benchmark1, candidate1, run1, suite1 } from '../data';
@@ -69,20 +74,20 @@ describe('laboratory/server', () => {
     it('oneBenchmark()', async () => {
       const lab = new MockLaboratory();
 
-      const expected = 'benchmark1';
-      let observed: string | undefined;
+      let observedName: string | undefined;
       lab.oneBenchmark = async (name: string): Promise<IBenchmark> => {
-        observed = name;
+        observedName = name;
         return benchmark1;
       };
 
       chai
         .request(await createApp(lab))
-        .get(`/benchmarks/${expected}`)
+        .get(`/benchmarks/${benchmark1.name}`)
         .end((err, res) => {
           assert.equal(res.status, 200);
-          assertDeepEqual(res.body, benchmark1);
-          assert.equal(observed, expected);
+          const observed = validate(BenchmarkType, res.body);
+          assert.deepEqual(observed, benchmark1);
+          assert.equal(observedName, benchmark1.name);
         });
     });
 
@@ -138,20 +143,20 @@ describe('laboratory/server', () => {
     it('oneCandidate()', async () => {
       const lab = new MockLaboratory();
 
-      const expected = 'candidate1';
-      let observed: string | undefined;
+      let observedName: string | undefined;
       lab.oneCandidate = async (name: string): Promise<ICandidate> => {
-        observed = name;
+        observedName = name;
         return candidate1;
       };
 
       chai
         .request(await createApp(lab))
-        .get(`/candidates/${expected}`)
+        .get(`/candidates/${candidate1.name}`)
         .end((err, res) => {
           assert.equal(res.status, 200);
-          assertDeepEqual(res.body, candidate1);
-          assert.equal(observed, expected);
+          const observed = validate(CandidateType, res.body);
+          assert.deepEqual(observed, candidate1);
+          assert.equal(observedName, candidate1.name);
         });
     });
 
@@ -207,20 +212,20 @@ describe('laboratory/server', () => {
     it('oneSuite()', async () => {
       const lab = new MockLaboratory();
 
-      const expected = 'suite1';
-      let observed: string | undefined;
+      let observedName: string | undefined;
       lab.oneSuite = async (name: string): Promise<ISuite> => {
-        observed = name;
+        observedName = name;
         return suite1;
       };
 
       chai
         .request(await createApp(lab))
-        .get(`/suites/${expected}`)
+        .get(`/suites/${suite1.name}`)
         .end((err, res) => {
           assert.equal(res.status, 200);
-          assertDeepEqual(res.body, suite1);
-          assert.equal(observed, expected);
+          const observed = validate(SuiteType, res.body);
+          assert.deepEqual(observed, suite1);
+          assert.equal(observedName, suite1.name);
         });
     });
 
@@ -273,20 +278,20 @@ describe('laboratory/server', () => {
     it('oneRun()', async () => {
       const lab = new MockLaboratory();
 
-      const expected = 'run1';
-      let observed: string | undefined;
+      let observedName: string | undefined;
       lab.oneRun = async (name: string): Promise<IRun> => {
-        observed = name;
+        observedName = name;
         return run1;
       };
 
       chai
         .request(await createApp(lab))
-        .get(`/runs/${expected}`)
+        .get(`/runs/${run1.name}`)
         .end((err, res) => {
           assert.equal(res.status, 200);
-          assertDeepEqual(res.body, run1);
-          assert.equal(observed, expected);
+          const observed = validate(RunType, res.body);
+          assert.deepEqual(observed, run1);
+          assert.equal(observedName, run1.name);
         });
     });
 
@@ -298,10 +303,10 @@ describe('laboratory/server', () => {
         suite: run1.suite.name,
       };
 
-      let observed: IRun;
+      let observedRequest: IRunRequest;
       lab.createRunRequest = async (spec: IRunRequest): Promise<IRun> => {
-        observed = run1;
-        return observed;
+        observedRequest = spec;
+        return run1;
       };
 
       chai
@@ -310,8 +315,9 @@ describe('laboratory/server', () => {
         .send(runRequest)
         .end((err, res) => {
           assert.equal(res.status, 200);
+          assert.deepEqual(observedRequest, runRequest);
+          const observed = validate(RunType, res.body);
           assert.deepEqual(observed, run1);
-          assertDeepEqual(res.body, run1);
         });
     });
 

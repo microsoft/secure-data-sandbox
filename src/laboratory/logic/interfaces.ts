@@ -1,16 +1,19 @@
+import { either } from 'fp-ts/lib/Either';
 import * as t from 'io-ts';
+import { DateTime } from 'luxon';
 
 export const apiVersion = '0.0.1';
 
 // tslint:disable-next-line:variable-name
-const DateType = new t.Type<Date, Date, unknown>(
-  'Date2',
-  (input: unknown): input is Date => input instanceof Date,
-  // `t.success` and `t.failure` are helpers used to build `Either` instances
-  (input, context) =>
-    input instanceof Date ? t.success(input) : t.failure(input, context),
-  // `A` and `O` are the same, so `encode` is just the identity function
-  t.identity
+const DateType = new t.Type<Date, string, unknown>(
+  'Date',
+  (u): u is Date => u instanceof Date,
+  (u, c) =>
+    either.chain(t.string.validate(u, c), s => {
+      const d = DateTime.fromISO(s);
+      return d.isValid ? t.success(d.toJSDate()) : t.failure(u, c);
+    }),
+  a => a.toISOString()
 );
 
 ///////////////////////////////////////////////////////////////////////////////

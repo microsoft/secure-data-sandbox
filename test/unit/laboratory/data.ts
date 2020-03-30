@@ -19,6 +19,11 @@ import {
 export const serviceURL = 'http://localhost:3000'; // TODO: plumb real url.
 export const blobBase = 'http://blobs';
 
+export const timestamps = {
+  createdAt: new Date('2020-03-19T21:37:31.452Z'),
+  updatedAt: new Date('2020-03-20T22:37:31.452Z'),
+};
+
 export const pipelines: IPipeline[] = [
   {
     mode: 'mode1',
@@ -39,6 +44,7 @@ export const benchmark1: IBenchmark = {
   author: 'author1',
   version: apiVersion,
   pipelines,
+  ...timestamps,
 };
 
 export const benchmark2: IBenchmark = {
@@ -46,12 +52,14 @@ export const benchmark2: IBenchmark = {
   author: 'author2',
   version: apiVersion,
   pipelines,
+  ...timestamps,
 };
 
 export const benchmark3: IBenchmark = {
   name: 'benchmark3',
   author: 'author3',
   version: apiVersion,
+  ...timestamps,
   pipelines,
 };
 
@@ -62,6 +70,7 @@ export const candidate1: ICandidate = {
   benchmark: 'benchmark1',
   mode: 'mode1',
   image: 'candidate1-image',
+  ...timestamps,
 };
 
 export const candidate2: ICandidate = {
@@ -71,6 +80,7 @@ export const candidate2: ICandidate = {
   benchmark: 'benchmark1',
   mode: 'mode1',
   image: 'candidate2-image',
+  ...timestamps,
 };
 
 export const candidate3: ICandidate = {
@@ -80,6 +90,7 @@ export const candidate3: ICandidate = {
   benchmark: 'benchmark1',
   mode: 'mode1',
   image: 'candidate3-image',
+  ...timestamps,
 };
 
 export const suite1: ISuite = {
@@ -88,6 +99,7 @@ export const suite1: ISuite = {
   version: apiVersion,
   benchmark: 'benchmark1',
   mode: 'mode1',
+  ...timestamps,
 };
 
 export const suite2: ISuite = {
@@ -96,6 +108,7 @@ export const suite2: ISuite = {
   version: apiVersion,
   benchmark: 'benchmark1',
   mode: 'mode1',
+  ...timestamps,
 };
 
 export const suite3: ISuite = {
@@ -104,6 +117,7 @@ export const suite3: ISuite = {
   version: apiVersion,
   benchmark: 'benchmark1',
   mode: 'mode1',
+  ...timestamps,
 };
 
 export const runRequest1: IRunRequest = {
@@ -121,4 +135,5 @@ export const run1: IRun = {
   suite: suite1,
   blob: new URL(runid, blobBase).toString(),
   status: RunStatus.CREATED,
+  ...timestamps,
 };

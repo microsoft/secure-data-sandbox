@@ -27,8 +27,8 @@ export async function createApp(lab: ILaboratory): Promise<express.Express> {
   app.use(
     // tslint:disable-next-line: deprecation
     bodyParser.json({
+      // TODO: REVIEW: magic number 100kb
       limit: '100kb',
-      reviver: entityBaseReviver,
     })
   );
 
@@ -60,13 +60,4 @@ export async function createApp(lab: ILaboratory): Promise<express.Express> {
   );
 
   return app;
-}
-
-// tslint:disable-next-line:no-any
-export function entityBaseReviver(key: string, value: any) {
-  if (key === 'updatedAt' || key === 'createdAt') {
-    return new Date(value);
-  } else {
-    return value;
-  }
 }

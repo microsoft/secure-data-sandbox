@@ -37,8 +37,8 @@ function main(argv: string[]) {
   program.version(apiVersion);
 
   program
-    .command('connect [server]')
-    .description('Connect to a Laboratory service or print connection info.')
+    .command('connect [service]')
+    .description('Connect to a Laboratory [service] or print connection info.')
     .action(connect);
 
   program

@@ -7,10 +7,14 @@ import { LaboratoryClient } from '../../../../src/laboratory/client';
 import { benchmark1, candidate1, run1, suite1, runRequest1 } from '../data';
 
 import {
-  RunStatus,
-  IUpdateRunStatus,
+  BenchmarkType,
+  CandidateType,
   IReportRunResults,
+  IUpdateRunStatus,
   Measures,
+  RunStatus,
+  SuiteType,
+  validate,
 } from '../../../../src';
 
 chai.use(chaiAsPromised);
@@ -54,7 +58,8 @@ describe('laboratory/client', () => {
 
       const client = new LaboratoryClient(endpoint);
       await client.upsertBenchmark(benchmark1);
-      assert.deepEqual(request!, benchmark1);
+      const observed = validate(BenchmarkType, request!);
+      assert.deepEqual(observed, benchmark1);
     });
 
     it('upsertBenchmark() - name mismatch', async () => {
@@ -107,7 +112,8 @@ describe('laboratory/client', () => {
 
       const client = new LaboratoryClient(endpoint);
       await client.upsertCandidate(candidate1);
-      assert.deepEqual(request!, candidate1);
+      const observed = validate(CandidateType, request!);
+      assert.deepEqual(observed, candidate1);
     });
 
     it('upsertCandidate() - name mismatch', async () => {
@@ -160,7 +166,8 @@ describe('laboratory/client', () => {
 
       const client = new LaboratoryClient(endpoint);
       await client.upsertSuite(suite1);
-      assert.deepEqual(request!, suite1);
+      const observed = validate(SuiteType, request!);
+      assert.deepEqual(observed, suite1);
     });
 
     it('upsertSuite() - name mismatch', async () => {

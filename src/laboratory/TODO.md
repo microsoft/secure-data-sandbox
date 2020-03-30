@@ -10,6 +10,7 @@
   * Server Error: listen EADDRINUSE: address already in use :::3000
   * Enforce workflow for status changes (e.g. disallow complete to created)
   * Authentication
+  * x Replace entityBaseReviver with io-ts decoder.
   * x REVIEW use of TypeError instead of IllegalOperationError or EntityNotFoundError
   * x REVIEW: net.Server vs http.Server
   * Are README.md dependencies correct? Does the user have to install anything else?
@@ -59,7 +60,7 @@
       * deploy command
     * Bash completion api
     * = usage configuration in yargs
-    * = Consider using luxon in reviver - probably can't since io-ts uses Date
+    * x Consider using luxon in reviver - probably can't since io-ts uses Date
     * x Set version
     * x examples in usage()
     * x Spike commander as replacement for yargs
@@ -183,10 +184,11 @@
   * check sqlite error behavior on string value (varchar(256)) too long.
   * dateColumn decorator does not seem the apply to createdAt and updatedAt
   * Investigate schema verification in jsonColumn decorator.
-  * Consider removing luxon
+  * x Consider removing luxon - may be using for custom io-ts codec.
 * Duplicate code
   * toPOJO()
   * assertDeepEqual()
 * Accidentally PUT benchmark to candidates seems error-prone. Also PUT suite/candidate to candidate/suite.
+* Investigate BSON. https://www.npmjs.com/package/bson
 * 
   

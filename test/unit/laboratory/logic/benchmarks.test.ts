@@ -74,8 +74,6 @@ describe('laboratory/benchmarks', () => {
   });
 
   it('upsertBenchmark()', async () => {
-    console.log('benchmark');
-
     await lab.upsertBenchmark(benchmark1);
     const results1 = await lab.allBenchmarks();
     assertDeepEqual(results1, [benchmark1]);
