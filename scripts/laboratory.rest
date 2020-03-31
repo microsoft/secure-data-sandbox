@@ -1,0 +1,101 @@
+# List benchmarks
+GET {{laboratoryHost}}/benchmarks
+
+###
+
+# Create a benchmark
+PUT {{laboratoryHost}}/benchmarks/benchmark1
+Content-Type: application/json
+
+{
+  "version": "v1",
+  "name": "benchmark1",
+  "author": "admin",
+  "pipelines": [
+    {
+      "mode": "default",
+      "stages": [
+        {
+          "image": "alpine"
+        },
+        {}
+      ]
+    }
+  ]
+}
+
+###
+
+# Get one benchmark
+GET {{laboratoryHost}}/benchmarks/benchmark1
+
+###
+
+# Get all suites
+GET {{laboratoryHost}}/suites
+
+###
+
+# Create a suite
+PUT {{laboratoryHost}}/suites/suite1
+Content-Type: application/json
+
+{
+  "version": "v1",
+  "name": "suite1",
+  "author": "admin",
+  "benchmark": "benchmark1",
+  "mode": "default"
+}
+
+###
+
+# Get one suite
+GET {{laboratoryHost}}/suites/suite1
+
+### 
+
+# Get all candidates
+GET {{laboratoryHost}}/candidates
+
+###
+
+# Create a candidate
+PUT {{laboratoryHost}}/candidates/candidate1
+Content-Type: application/json
+
+{
+  "version": "v1",
+  "name": "candidate1",
+  "author": "admin",
+  "benchmark": "benchmark1",
+  "mode": "default",
+  "image": "alpine"
+}
+
+###
+
+# Get one candidate
+GET {{laboratoryHost}}/candidates/candidate1
+
+###
+
+# Get all runs
+GET {{laboratoryHost}}/runs
+
+###
+
+# Create a run
+POST {{laboratoryHost}}/runs
+Content-Type: application/json
+
+{
+  "candidate": "candidate1",
+  "suite": "suite1"
+}
+
+###
+
+# Get one run
+
+GET {{laboratoryHost}}/runs/00000000-0000-0000-0000-000000000000

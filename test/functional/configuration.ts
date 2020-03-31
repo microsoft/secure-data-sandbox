@@ -2,7 +2,11 @@ import { DefaultAzureCredential } from '@azure/identity';
 import { QueueClient } from '@azure/storage-queue';
 import * as env from 'env-var';
 import { v1 } from 'uuid';
-import { GetQueue, QueueMode } from '../../src/queue';
+import {
+  AzureStorageQueueConfiguration,
+  GetQueue,
+  QueueMode,
+} from '../../src/queue';
 
 export function getQueueConfiguration<T>() {
   const serviceUrl = env
@@ -11,13 +15,16 @@ export function getQueueConfiguration<T>() {
     .asUrlString();
   const credential = new DefaultAzureCredential();
   const queueEndpoint = `${serviceUrl}${v1()}`;
+  const config: AzureStorageQueueConfiguration = {
+    mode: QueueMode.Azure,
+    endpoint: queueEndpoint,
+    credential,
+    shouldCreateQueue: true,
+  };
 
   return {
     client: new QueueClient(queueEndpoint, credential),
-    queue: GetQueue<T>({
-      mode: QueueMode.Azure,
-      endpoint: queueEndpoint,
-    }),
+    queue: GetQueue<T>(config),
   };
 }
 

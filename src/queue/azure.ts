@@ -1,6 +1,12 @@
-import { DefaultAzureCredential, TokenCredential } from '@azure/identity';
+import { TokenCredential } from '@azure/identity';
 import { DequeuedMessageItem, QueueClient } from '@azure/storage-queue';
-import { IQueue, QueueMessage } from '.';
+import { IQueue, QueueMessage, QueueConfiguration, QueueMode } from '.';
+
+export interface AzureStorageQueueConfiguration extends QueueConfiguration {
+  mode: QueueMode.Azure;
+  credential: TokenCredential;
+  shouldCreateQueue: boolean;
+}
 
 /**
  * Simple client to send/receive messages via Azure Storage Queue
@@ -9,17 +15,16 @@ export class AzureStorageQueue<T> implements IQueue<T> {
   private queueCreated = false;
 
   private readonly client: QueueClient;
+  private readonly shouldCreateQueue: boolean;
 
   /**
    * Creates an instance of AzureStorageQueue.
    * @param url A URL string pointing to Azure Storage queue, such as "https://mystorage.queue.core.windows.net/myqueue".
    * @param credential A TokenCredential from the @azure/identity package to authenticate via Azure Active Directory.
    */
-  constructor(
-    url: string,
-    credential: TokenCredential = new DefaultAzureCredential()
-  ) {
-    this.client = new QueueClient(url, credential);
+  constructor(config: AzureStorageQueueConfiguration) {
+    this.client = new QueueClient(config.endpoint, config.credential);
+    this.shouldCreateQueue = config.shouldCreateQueue;
   }
 
   async enqueue(message: T): Promise<void> {
@@ -49,7 +54,7 @@ export class AzureStorageQueue<T> implements IQueue<T> {
   }
 
   private async ensureQueue(): Promise<void> {
-    if (!this.queueCreated) {
+    if (this.shouldCreateQueue && !this.queueCreated) {
       await this.client.create();
       this.queueCreated = true;
     }
