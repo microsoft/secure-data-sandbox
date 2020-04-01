@@ -1,2 +1,3 @@
+spec: build/test/functional
 recursive: true
 require: 'dotenv/config'

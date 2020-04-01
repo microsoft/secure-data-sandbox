@@ -21,9 +21,8 @@ import {
   SequelizeLaboratory,
 } from '../../../src';
 
-// TODO: remove these temporary imports after integration.
-import { PipelineRun } from '../../../src/laboratory/logic/sequelize_laboratory/messages';
-import { InMemoryQueue } from '../../../src/laboratory/logic/sequelize_laboratory/queue';
+import { PipelineRun } from '../../../src/messages';
+import { InMemoryQueue } from '../../../src/queue';
 
 import { blobBase, serviceURL } from './data';
 

@@ -1,6 +1,7 @@
 {
   "recommendations": [
     "hbenl.vscode-mocha-test-adapter",
+    "humao.rest-client",
     "visualstudioexptteam.vscodeintellicode"
   ]
 }

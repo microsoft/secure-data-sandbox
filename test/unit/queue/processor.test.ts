@@ -1,7 +1,6 @@
 import { assert } from 'chai';
 import * as FakeTimers from '@sinonjs/fake-timers';
-import { FakeQueue } from '../queue';
-import { QueueProcessor } from '../../../src/queue';
+import { QueueProcessor, InMemoryQueue } from '../../../src/queue';
 
 describe('processor', () => {
   let clock: FakeTimers.InstalledClock;
@@ -15,14 +14,14 @@ describe('processor', () => {
   });
 
   it('initializesWithDefaults', () => {
-    const queue = new FakeQueue<string>();
+    const queue = new InMemoryQueue<string>();
     const processor = new QueueProcessor(queue);
 
     assert.isNotNull(processor);
   });
 
   it('starts', async () => {
-    const queue = new FakeQueue<string>();
+    const queue = new InMemoryQueue<string>();
     const processor = new QueueProcessor(queue);
 
     await Promise.all([
@@ -43,7 +42,7 @@ describe('processor', () => {
   });
 
   it('stops', async () => {
-    const queue = new FakeQueue<string>();
+    const queue = new InMemoryQueue<string>();
     const processor = new QueueProcessor(queue, {
       receiveBatchSize: 1,
       receiveIntervalMs: 5000,
@@ -69,7 +68,7 @@ describe('processor', () => {
   });
 
   it('usesMaxAttemptsPerMessage', async () => {
-    const queue = new FakeQueue<string>(1000);
+    const queue = new InMemoryQueue<string>(1000);
     const processor = new QueueProcessor(queue, {
       maxAttemptsPerMessage: 3,
       receiveBatchSize: 1,
@@ -93,7 +92,7 @@ describe('processor', () => {
   });
 
   it('usesReceiveBatchSize', async () => {
-    const queue = new FakeQueue<string>();
+    const queue = new InMemoryQueue<string>();
     const processor = new QueueProcessor(queue, {
       receiveBatchSize: 5,
       receiveIntervalMs: 5000,
@@ -121,7 +120,7 @@ describe('processor', () => {
   });
 
   it('usesReceiveIntervalMs', async () => {
-    const queue = new FakeQueue<string>();
+    const queue = new InMemoryQueue<string>();
     const processor = new QueueProcessor(queue, {
       receiveIntervalMs: 10000,
     });
