@@ -36,6 +36,8 @@
     "io-ts": "^2.1.2",
     "js-yaml": "^3.13.1",
     "luxon": "^1.22.2",
+    "minimist": "^1.2.5",
+    "mkdirp": "^1.0.3",
     "reflect-metadata": "^0.1.13",
     "sequelize": "^5.21.5",
     "sequelize-typescript": "^1.1.0",
