@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "resources": [
+  ],
+  "outputs": {
+    "templateLinkUri": {
+      "type": "string",
+      "value": "[if(contains(deployment().properties, 'templateLink'), deployment().properties.templateLink.uri, 'ERROR: templateLink does not exist!')]"
+    }
+  }
+}

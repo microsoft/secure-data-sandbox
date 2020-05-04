@@ -1,0 +1,220 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "laboratoryRegistryId": {
+      "type": "string"
+    },
+    "laboratorySqlServerId": {
+      "type": "string"
+    },
+    "laboratoryStorageAccountId": {
+      "type": "string"
+    },
+    "subnetId": {
+      "type": "string"
+    },
+    "vnetId": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "laboratoryRegistry": "[last(split(parameters('laboratoryRegistryId'), '/'))]",
+    "laboratorySqlServer": "[last(split(parameters('laboratorySqlServerId'), '/'))]",
+    "laboratoryStorageAccount": "[last(split(parameters('laboratoryStorageAccountId'), '/'))]",
+    "privateDnsZones": [
+      "privatelink.blob.core.windows.net",
+      "privatelink.queue.core.windows.net",
+      "privatelink.database.windows.net",
+      "privatelink.azurecr.io"
+    ],
+    "privateEndpoints": [
+      {
+        "name": "laboratory-blob",
+        "dnsZone": "privatelink.blob.core.windows.net",
+        "dnsNames": [
+          "[variables('laboratoryStorageAccount')]"
+        ],
+        "groupIds": [
+          "blob"
+        ],
+        "resourceId": "[parameters('laboratoryStorageAccountId')]"
+      },
+      {
+        "name": "laboratory-queue",
+        "dnsZone": "privatelink.queue.core.windows.net",
+        "dnsNames": [
+          "[variables('laboratoryStorageAccount')]"
+        ],
+        "groupIds": [
+          "queue"
+        ],
+        "resourceId": "[parameters('laboratoryStorageAccountId')]"
+      },
+      {
+        "name": "laboratory-sql",
+        "dnsZone": "privatelink.database.windows.net",
+        "dnsNames": [
+          "[variables('laboratorySqlServer')]"
+        ],
+        "groupIds": [
+          "sqlServer"
+        ],
+        "resourceId": "[parameters('laboratorySqlServerId')]"
+      },
+      {
+        "name": "laboratory-acr",
+        "dnsZone": "privatelink.azurecr.io",
+        "dnsNames": [
+          "[format('{0}.{1}.data', variables('laboratoryRegistry'), tolower(resourceGroup().location))]",
+          "[variables('laboratoryRegistry')]"
+        ],
+        "groupIds": [
+          "registry"
+        ],
+        "resourceId": "[parameters('laboratoryRegistryId')]"
+      }
+    ]
+  },
+  "resources": [
+    {
+      "copy": {
+        "name": "privateEndpoints",
+        "count": "[length(variables('privateEndpoints'))]"
+      },
+      "type": "Microsoft.Network/privateEndpoints",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('privateEndpoints')[copyIndex()].name]",
+      "properties": {
+        "privateLinkServiceConnections": [
+          {
+            "name": "[variables('privateEndpoints')[copyIndex()].name]",
+            "properties": {
+              "groupIds": "[variables('privateEndpoints')[copyIndex()].groupIds]",
+              "privateLinkServiceId": "[variables('privateEndpoints')[copyIndex()].resourceId]"
+            }
+          }
+        ],
+        "subnet": {
+          "id": "[parameters('subnetId')]"
+        }
+      }
+    },
+    {
+      "copy": {
+        "name": "privateDnsZones",
+        "count": "[length(variables('privateDnsZones'))]"
+      },
+      "type": "Microsoft.Network/privateDnsZones",
+      "apiVersion": "2018-09-01",
+      "location": "global",
+      "name": "[variables('privateDnsZones')[copyIndex()]]",
+      "properties": {
+      },
+      "resources": [
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones')[copyIndex()])]"
+          ],
+          "type": "SOA",
+          "apiVersion": "2018-09-01",
+          "name": "@",
+          "properties": {
+            "ttl": 3600,
+            "soaRecord": {
+              "email": "azureprivatedns-host.microsoft.com",
+              "expireTime": 2419200,
+              "host": "azureprivatedns.net",
+              "refreshTime": 3600,
+              "retryTime": 300,
+              "serialNumber": 1,
+              "minimumTtl": 300
+            }
+          }
+        },
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones')[copyIndex()])]"
+          ],
+          "type": "virtualNetworkLinks",
+          "apiVersion": "2018-09-01",
+          "location": "global",
+          "name": "privatedns",
+          "properties": {
+            "registrationEnabled": false,
+            "virtualNetwork": {
+              "id": "[parameters('vnetId')]",
+              "resourceGroup": "[resourceGroup().name]"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "copy": {
+        "name": "privateDnsRecords",
+        "count": "[length(variables('privateEndpoints'))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateDnsZones', variables('privateEndpoints')[copyIndex()].dnsZone)]",
+        "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpoints')[copyIndex()].name)]"
+      ],
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
+      "name": "[concat('private-dns-', variables('privateEndpoints')[copyIndex()].name)]",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "parameters": {
+          "privateDnsZoneName": {
+            "value": "[variables('privateEndpoints')[copyIndex()].dnsZone]"
+          },
+          "endpointNicId": {
+            "value": "[reference(resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpoints')[copyIndex()].name)).networkInterfaces[0].id]"
+          },
+          "endpointDnsNames": {
+            "value": "[variables('privateEndpoints')[copyIndex()].dnsNames]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "privateDnsZoneName": {
+              "type": "string"
+            },
+            "endpointNicId": {
+              "type": "string"
+            },
+            "endpointDnsNames": {
+              "type": "array"
+            }
+          },
+          "resources": [
+            {
+              "copy": {
+                "name": "endpointDnsName",
+                "count": "[length(parameters('endpointDnsNames'))]"
+              },
+              "type": "Microsoft.Network/privateDnsZones/A",
+              "apiVersion": "2018-09-01",
+              "name": "[concat(parameters('privateDnsZoneName'), '/', parameters('endpointDnsNames')[copyIndex()])]",
+              "properties": {
+                "ttl": 3600,
+                "aRecords": [
+                  {
+                    "ipv4Address": "[reference(parameters('endpointNicId'), '2019-11-01').ipConfigurations[copyIndex()].properties.privateIPAddress]"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

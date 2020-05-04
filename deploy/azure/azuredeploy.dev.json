@@ -1,0 +1,73 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "assetsBaseUrl": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "baseName": {
+      "type": "string",
+      "defaultValue": "dct"
+    },
+    "sshPublicKey": {
+      "type": "securestring",
+      "defaultValue": ""
+    }
+  },
+  "variables": {
+    "assetsBaseUrl": "[if(empty(parameters('assetsBaseUrl')), if(contains(deployment().properties, 'templateLink'), uri(deployment().properties.templateLink.uri, '../'), 'https://raw.githubusercontent.com/microsoft/data-contest-toolkit/master/deploy/'), parameters('assetsBaseUrl'))]",
+    "environmentDeployment": "azuredeploy"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
+      "name": "[variables('environmentDeployment')]",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "assetsBaseUrl": {
+            "value": "[parameters('assetsBaseUrl')]"
+          },
+          "baseName": {
+            "value": "[parameters('baseName')]"
+          },
+          "workerVmSize": {
+            "value": "Standard_B2s"
+          }
+        },
+        "templateLink": {
+          "uri": "[uri(variables('assetsBaseUrl'), './azure/azuredeploy.json')]"
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', variables('environmentDeployment'))]"
+      ],
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
+      "name": "dev",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "sshPublicKey": {
+            "value": "[parameters('sshPublicKey')]"
+          }
+        },
+        "templateLink": {
+          "uri": "[uri(variables('assetsBaseUrl'), './azure/dev.json')]"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "laboratorySiteId": {
+      "type": "string",
+      "value": "[reference(variables('environmentDeployment')).outputs.laboratorySiteId.value]"
+    }
+  }
+}

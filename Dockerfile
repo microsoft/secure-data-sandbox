@@ -18,7 +18,7 @@ RUN chown node:node .
 USER node
 
 COPY --from=build /app/package*.json ./
-RUN npm install --ignore-scripts
+RUN npm install
 
 COPY --from=build /app/build/src /app/build/src
 

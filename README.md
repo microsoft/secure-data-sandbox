@@ -217,9 +217,22 @@ f4156ae0-6bad-11ea-bd94-8fa64eaf2878   unknown     2020-03-21 12:55:45 PDT      
 ~~~
 
 ## Deploying SDS to the cloud
-TODO: instructions for Azure deployment and client configuration.
 
+Requirements
 
+* [azure-cli](https://aka.ms/azure-cli)
+* [jq](https://stedolan.github.io/jq/)
+* [Packer](https://www.packer.io/)
+
+Run the following commands in a bash terminal
+
+~~~
+# Create a resource group to hold all the sandbox resources
+az group create -n sandbox -l southcentralus
+
+# Deploy an instance of the sandbox
+./deploy/deploy.sh -g sandbox
+~~~
 
 
 ## Contributing

@@ -1,0 +1,102 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "asgId": {
+      "type": "string"
+    },
+    "identityId": {
+      "type": "string"
+    },
+    "subnetId": {
+      "type": "string"
+    },
+    "imageId": {
+      "type": "string",
+      "defaultValue": "[resourceId('Microsoft.Compute/images', 'dct-worker')]"
+    },
+    "vmPassword": {
+      "type": "securestring",
+      "defaultValue": "[newGuid()]"
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_DS2_v2"
+    }
+  },
+  "variables": {
+    "name": "worker"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2019-11-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('name')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "default",
+            "properties": {
+              "applicationSecurityGroups": [
+                {
+                  "id": "[parameters('asgId')]"
+                }
+              ],
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[parameters('subnetId')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('name'))]"
+      ],
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2019-07-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('name')]",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[parameters('identityId')]": {
+          }
+        }
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('name'))]"
+            }
+          ]
+        },
+        "osProfile": {
+          "adminUsername": "azureuser",
+          "adminPassword": "[parameters('vmPassword')]",
+          "computerName": "[variables('name')]",
+          "linuxConfiguration": {
+          }
+        },
+        "storageProfile": {
+          "imageReference": {
+            "id": "[parameters('imageId')]"
+          },
+          "osDisk": {
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "Premium_LRS"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

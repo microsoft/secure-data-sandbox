@@ -1,0 +1,217 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "assetsBaseUrl": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "baseName": {
+      "type": "string",
+      "defaultValue": "dct"
+    },
+    "workerVmSize": {
+      "type": "string",
+      "defaultValue": "Standard_DS2_v2"
+    }
+  },
+  "variables": {
+    "assetsBaseUrl": "[if(empty(parameters('assetsBaseUrl')), if(contains(deployment().properties, 'templateLink'), uri(deployment().properties.templateLink.uri, '../'), 'https://raw.githubusercontent.com/microsoft/data-contest-toolkit/master/deploy/'), parameters('assetsBaseUrl'))]",
+    "bootstrapIdentity": "bootstrap",
+    "bootstrapDeployment": "bootstrap",
+    "laboratoryDeployment": "laboratory",
+    "monitoringDeployment": "monitoring",
+    "networkDeployment": "network",
+    "privatelinkDeployment": "privatelink",
+    "workerDeployment": "worker",
+    "workerIdentity": "worker"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2018-11-30",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('bootstrapIdentity')]"
+    },
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2018-11-30",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('workerIdentity')]"
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
+      "name": "[variables('networkDeployment')]",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[uri(variables('assetsBaseUrl'), './azure/network.json')]"
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrapIdentity'))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))]",
+        "[resourceId('Microsoft.Resources/deployments', variables('networkDeployment'))]"
+      ],
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
+      "name": "[variables('laboratoryDeployment')]",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "baseName": {
+            "value": "[parameters('baseName')]"
+          },
+          "bootstrapIdentityId": {
+            "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrapIdentity'))]"
+          },
+          "privateDnsId": {
+            "value": "[reference(variables('networkDeployment')).outputs.privateDnsId.value]"
+          },
+          "subnetId": {
+            "value": "[reference(variables('networkDeployment')).outputs.laboratorySubnetId.value]"
+          },
+          "workerIdentityId": {
+            "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))]"
+          }
+        },
+        "templateLink": {
+          "uri": "[uri(variables('assetsBaseUrl'), './azure/laboratory.json')]"
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', variables('laboratoryDeployment'))]",
+        "[resourceId('Microsoft.Resources/deployments', variables('networkDeployment'))]"
+      ],
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
+      "name": "[variables('privatelinkDeployment')]",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "laboratoryRegistryId": {
+            "value": "[reference(variables('laboratoryDeployment')).outputs.registryId.value]"
+          },
+          "laboratorySqlServerId": {
+            "value": "[reference(variables('laboratoryDeployment')).outputs.sqlServerId.value]"
+          },
+          "laboratoryStorageAccountId": {
+            "value": "[reference(variables('laboratoryDeployment')).outputs.storageAccountId.value]"
+          },
+          "subnetId": {
+            "value": "[reference(variables('networkDeployment')).outputs.paasSubnetId.value]"
+          },
+          "vnetId": {
+            "value": "[reference(variables('networkDeployment')).outputs.vnetId.value]"
+          }
+        },
+        "templateLink": {
+          "uri": "[uri(variables('assetsBaseUrl'), './azure/privatelink.json')]"
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))]",
+        "[resourceId('Microsoft.Resources/deployments', variables('bootstrapDeployment'))]",
+        "[resourceId('Microsoft.Resources/deployments', variables('laboratoryDeployment'))]",
+        "[resourceId('Microsoft.Resources/deployments', variables('networkDeployment'))]"
+      ],
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
+      "name": "[variables('workerDeployment')]",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "asgId": {
+            "value": "[reference(variables('networkDeployment')).outputs.workerAsgId.value]"
+          },
+          "identityId": {
+            "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))]"
+          },
+          "subnetId": {
+            "value": "[reference(variables('networkDeployment')).outputs.lockdownSubnetId.value]"
+          },
+          "vmSize": {
+            "value": "[parameters('workerVmSize')]"
+          }
+        },
+        "templateLink": {
+          "uri": "[uri(variables('assetsBaseUrl'), './azure/worker.vm.json')]"
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', variables('laboratoryDeployment'))]"
+      ],
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
+      "name": "[variables('monitoringDeployment')]",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "baseName": {
+            "value": "[parameters('baseName')]"
+          },
+          "laboratorySiteId": {
+            "value": "[reference(variables('laboratoryDeployment')).outputs.siteId.value]"
+          }
+        },
+        "templateLink": {
+          "uri": "[uri(variables('assetsBaseUrl'), './azure/monitoring.json')]"
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrapIdentity'))]",
+        "[resourceId('Microsoft.Resources/deployments', variables('laboratoryDeployment'))]",
+        "[resourceId('Microsoft.Resources/deployments', variables('monitoringDeployment'))]",
+        "[resourceId('Microsoft.Resources/deployments', variables('networkDeployment'))]",
+        "[resourceId('Microsoft.Resources/deployments', variables('privatelinkDeployment'))]"
+      ],
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
+      "name": "[variables('bootstrapDeployment')]",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "asgId": {
+            "value": "[reference(variables('networkDeployment')).outputs.bootstrapAsgId.value]"
+          },
+          "identityId": {
+            "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrapIdentity'))]"
+          },
+          "subnetId": {
+            "value": "[reference(variables('networkDeployment')).outputs.bootstrapSubnetId.value]"
+          }
+        },
+        "templateLink": {
+          "uri": "[uri(variables('assetsBaseUrl'), './azure/bootstrap.json')]"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "laboratoryRegistryName": {
+      "type": "string",
+      "value": "[last(split(reference(variables('laboratoryDeployment')).outputs.registryId.value, '/'))]"
+    },
+    "laboratorySiteId": {
+      "type": "string",
+      "value": "[reference(variables('laboratoryDeployment')).outputs.siteId.value]"
+    }
+  }
+}

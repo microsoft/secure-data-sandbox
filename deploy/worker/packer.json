@@ -1,0 +1,55 @@
+{
+  "variables": {
+    "name": "dct-worker",
+    "resource_group": null,
+
+    "tenant_id": "{{env `AZURE_TENANT_ID`}}",
+    "subscription_id": "{{env `AZURE_SUBSCRIPTION_ID`}}",
+    "client_id": "{{env `AZURE_CLIENT_ID`}}",
+    "client_secret": "{{env `AZURE_CLIENT_SECRET`}}",
+    "location": "southcentralus"
+  },
+  "sensitive-variables": [
+    "client_secret"
+  ],
+  "builders": [
+    {
+      "type": "azure-arm",
+      "async_resourcegroup_delete": true,
+
+      "tenant_id": "{{user `tenant_id`}}",
+      "subscription_id": "{{user `subscription_id`}}",
+      "client_id": "{{user `client_id`}}",
+      "client_secret": "{{user `client_secret`}}",
+      "location": "{{user `location`}}",
+
+      "os_type": "Linux",
+      "image_publisher": "Canonical",
+      "image_offer": "UbuntuServer",
+      "image_sku": "18.04-LTS",
+
+      "managed_image_name": "{{user `name`}}",
+      "managed_image_resource_group_name": "{{user `resource_group`}}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "{{template_dir}}/start.sh",
+      "destination": "/tmp/start.sh"
+    },
+    {
+      "type": "shell",
+      "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E bash '{{ .Path }}'",
+      "script": "{{template_dir}}/setup.sh"
+    },
+    {
+      "type": "shell",
+      "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'",
+      "inline_shebang": "/bin/sh -x",
+      "inline": [
+        "/usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync"
+      ]
+    }
+  ]
+}
