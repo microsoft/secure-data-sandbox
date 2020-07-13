@@ -80,7 +80,7 @@
     "ngrok": "^3.2.7",
     "nock": "^12.0.3",
     "rimraf": "^3.0.2",
-    "serve": "^11.3.0",
+    "serve": "^11.3.2",
     "sinon": "^9.0.2",
     "source-map-support": "^0.5.19",
     "typescript": "^3.8.3",
