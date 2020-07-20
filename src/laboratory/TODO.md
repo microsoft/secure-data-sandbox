@@ -51,20 +51,20 @@
         * x Show google html
       * x Message when connection refused: UnhandledPromiseRejectionWarning: Error: connect ECONNREFUSED 127.0.0.1:5000
       * x Message when list and show get no results
-        * x node build\src\cli\dct.js results benchmark suite
-      * x node build\src\cli\dct.js show benchmark foo (returns 500)
-      * x node build\src\cli\dct.js show run 18538ce (TypeError: Invalid uuid 18538ce)
-      * x node build\src\cli\dct.js show run foo (TypeError: Invalid uuid foo)
-      * x node build\src\cli\dct.js create foo bar (TypeError: Invalid entity "foo")
-      * x node build\src\cli\dct.js create benchmark bar (Error: ENOENT: no such file or directory, open 'bar')
-      * x node build\src\cli\dct.js show foo
+        * x node build\src\cli\sds.js results benchmark suite
+      * x node build\src\cli\sds.js show benchmark foo (returns 500)
+      * x node build\src\cli\sds.js show run 18538ce (TypeError: Invalid uuid 18538ce)
+      * x node build\src\cli\sds.js show run foo (TypeError: Invalid uuid foo)
+      * x node build\src\cli\sds.js create foo bar (TypeError: Invalid entity "foo")
+      * x node build\src\cli\sds.js create benchmark bar (Error: ENOENT: no such file or directory, open 'bar')
+      * x node build\src\cli\sds.js show foo
       * x When server is down
         * x Error: connect ECONNREFUSED 127.0.0.1:3000
     * x Better error messages for errors transported on the wire
     * x Error handling strategy for LaboratoryClient
     * Commands
       * x connect command
-        * x .dct file location
+        * x .sds file location
         * x report connection status on startup
       * x create benchmark|suite|candidate
       * x list benchmark|suite|candidate
@@ -79,9 +79,9 @@
     * x examples in usage()
     * x Spike commander as replacement for yargs
     * x ReferenceError: Cannot access 'benchmarkOps' before initialization
-      * x node build\src\cli\dct.js list benchmark
+      * x node build\src\cli\sds.js list benchmark
     * x No error for bad command-line arguments
-      * x node build\src\cli\dct.js r benchmark1 suite2
+      * x node build\src\cli\sds.js r benchmark1 suite2
     * x ILaboratory stubs (LaboratoryClient)
     * x Unit testing strategy for LaboratoryClient (need service on http://localhost) - used nock
   * = Recode server.test.ts to use ILaboratory stub - decided not to do this

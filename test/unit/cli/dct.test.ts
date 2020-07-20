@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 import 'mocha';
 
-describe('dct', () => {
+describe('sds', () => {
   it('placeholder', () => {
     assert.isTrue(true);
   });

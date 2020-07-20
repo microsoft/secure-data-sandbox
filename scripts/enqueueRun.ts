@@ -3,7 +3,7 @@ import { ParseQueueConfiguration } from '../src/configuration';
 import { PipelineRun } from '../src/messages';
 import { IQueue, GetQueue } from '../src/queue';
 
-const basePath = '/mnt/c/temp/dct';
+const basePath = '/mnt/c/temp/sds';
 
 async function createRun(queue: IQueue<PipelineRun>) {
   const runId = v1();

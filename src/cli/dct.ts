@@ -33,7 +33,7 @@ const readme =
 function main(argv: string[]) {
   const program = new Command();
 
-  program.description('Data Contest Toolkit CLI');
+  program.description('Secure Data Sandbox CLI');
   program.version(apiVersion);
 
   program
@@ -170,7 +170,7 @@ async function connect(host: string) {
     const url = new URL('http://' + host);
     const endpoint = url.toString();
     const config = yaml.safeDump({ endpoint });
-    fs.writeFileSync(dctFile, config);
+    fs.writeFileSync(sdsFile, config);
     tryInitializeConnection();
     console.log(`Connected to ${endpoint}.`);
   }
@@ -477,7 +477,7 @@ const ConnectConfigurationType = t.type({
 });
 export type IConnectConfiguration = t.TypeOf<typeof ConnectConfigurationType>;
 
-const dctFile = path.join(os.homedir(), '.dct');
+const sdsFile = path.join(os.homedir(), '.sds');
 let connection: IConnectConfiguration | undefined;
 let lab: LaboratoryClient | undefined;
 
@@ -495,14 +495,14 @@ function getLab(): LaboratoryClient {
 
 function tryInitializeConnection() {
   try {
-    const yamlText = fs.readFileSync(dctFile, 'utf8');
+    const yamlText = fs.readFileSync(sdsFile, 'utf8');
     const root = yaml.safeLoad(yamlText);
     connection = validate(ConnectConfigurationType, root);
     lab = new LaboratoryClient(connection.endpoint);
   } catch (e) {
     const err = e as NodeJS.ErrnoException;
     if (err.code !== 'ENOENT') {
-      const message = `Invalid ~/.dct file: "${err.message}"`;
+      const message = `Invalid ~/.sds file: "${err.message}"`;
       console.log(message);
     }
   }

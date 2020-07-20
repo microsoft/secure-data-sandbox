@@ -1,36 +1,36 @@
-# Secure Data Sandbox ![.github/workflows/dct-ci.yml](.github/workflows/dct-ci.yml/badge.svg)
+# Secure Data Sandbox ![.github/workflows/ci.yml](.github/workflows/ci.yml/badge.svg)
 
-**`DCT` IS UNDER CONSTRUCTION AND NOT USABLE AT THIS POINT.
+**`SDS` IS UNDER CONSTRUCTION AND NOT USABLE AT THIS POINT.
 THIS PAGE WILL BE UPDATED AS FUNCTIONALITY BECOMES AVAILABLE.**
 
-`DCT` is a secure execution environment for conducting machine learning trials against confidential data.
+`SDS` is a secure execution environment for conducting machine learning trials against confidential data.
 
-The goal of `DCT` is to enable collaboration between data scientists and organizations with interesting problems.
+The goal of `SDS` is to enable collaboration between data scientists and organizations with interesting problems.
 The challenge is that interesting problems come with interesting data sets that are almost always proprietary. These data sets are rich with trade secrets and personably identifiable information, and are usually encumbered by contracts, regulated by statute, and subject to corporate data stewardship policies.
 
 In-house data science departments know how to work with this data, but the compliance issues make it is hard for them to collaborate with third parties and experts from industry and academia.
 
-`DCT` aims to solve this problem by creating a sandbox for machine learning experiments inside the environment that hosts sensitive data.
-With `DCT`, an organization can host machine learning challenges and invite third parties to submit solutions for evaluation against sensitive data that would otherwise be unavailable.
+`SDS` aims to solve this problem by creating a sandbox for machine learning experiments inside the environment that hosts sensitive data.
+With `SDS`, an organization can host machine learning challenges and invite third parties to submit solutions for evaluation against sensitive data that would otherwise be unavailable.
 
-## Try DCT
+## Try SDS
 
-### Building DCT
-`DCT` is a [Node.js](https://nodejs.org/en/) project,
+### Building SDS
+`SDS` is a [Node.js](https://nodejs.org/en/) project,
 written in [TypeScript](https://www.typescriptlang.org/).
-In order to use `DCT` you must have
+In order to use `SDS` you must have
 [Node](https://nodejs.org/en/download/) installed on your machine.
-`DCT` has been tested with Node version [13.7.0](https://nodejs.org/download/release/v13.7.0/).
+`SDS` has been tested with Node version [13.7.0](https://nodejs.org/download/release/v13.7.0/).
 
-Here are the steps for cloning and building `DCT`:
+Here are the steps for cloning and building `SDS`:
 ~~~
 % git clone https://github.com/microsoft/secure-data-sandbox.git
 % npm install
 % npm run compile
 ~~~
 
-### Running DCT Locally
-Now that we've built `DCT`, let's run a local instance of the Laboratory service.
+### Running SDS Locally
+Now that we've built `SDS`, let's run a local instance of the Laboratory service.
 This local instance does not have a worker pool, so it won't be able to actually run tests, but it allows you to get a feel for the CLI commands. Note that the local instance does not run in a secure environment.
 
 Open two shell windows. In the first window, start the laboratory service:
@@ -40,11 +40,11 @@ Open two shell windows. In the first window, start the laboratory service:
 
 We can run the CLI run the second shell window. Let's start with the `--help` command:
 ~~~
-% node build/src/cli/dct.js --help
+% node build/src/cli/sds.js --help
 
-Usage: dct [options] [command]
+Usage: sds [options] [command]
 
-Data Contest Toolkit CLI
+Secure Data Sandbox CLI
 
 Options:
   -V, --version                output the version number
@@ -69,13 +69,13 @@ For more information and examples, see https://github.com/microsoft/secure-data-
 
 The first thing we need to do is connect the CLI to the laboratory service that we just started. Currently the `build/src/laboratory/server/main.js` listens on port 3000 of localhost.
 ~~~
-% node build/src/cli/dct.js connect localhost:3000
+% node build/src/cli/sds.js connect localhost:3000
 
 Connected to http://localhost:3000/
 ~~~
-This writes the connection information to `~/.dct`, which is consulted every time the CLI is run. If you don't connect to a Laboratory, you will get the following error:
+This writes the connection information to `~/.sds`, which is consulted every time the CLI is run. If you don't connect to a Laboratory, you will get the following error:
 ~~~
-% node build/src/cli/dct.js list benchmark
+% node build/src/cli/sds.js list benchmark
 
 Error: No laboratory connection. Use the "connect" command to specify a laboratory.
 ~~~
@@ -88,7 +88,7 @@ we can use the `demo` command to populate the server with sample data, including
 * Two `runs` with results.
 
 ~~~
-% node build/src/cli/dct.js demo
+% node build/src/cli/sds.js demo
 
 === Sample benchmark ===
 name: benchmark1
@@ -124,19 +124,19 @@ Initiated run f4156ae0-6bad-11ea-bd94-8fa64eaf2878
 
 If we didn't want to use the built-in `demo` command, we could have created the benchmark, candidate, suite, and runs manually as follows:
 ~~~
-% node build/src/cli/dct.js create benchmark sample-data/benchmark1.yaml
+% node build/src/cli/sds.js create benchmark sample-data/benchmark1.yaml
 benchmark created
 
-% node build/src/cli/dct.js create candidate sample-data/candidate1.yaml
+% node build/src/cli/sds.js create candidate sample-data/candidate1.yaml
 candidate created
 
-% node build/src/cli/dct.js create suite sample-data/suite1.yaml
+% node build/src/cli/sds.js create suite sample-data/suite1.yaml
 suite created
 
-% node build/src/cli/dct.js run candidate1 suite1
+% node build/src/cli/sds.js run candidate1 suite1
 Scheduling run dfc8c5e0-6bae-11ea-bd94-8fa64eaf2878
 
-% node build/src/cli/dct.js run candidate1 suite1
+% node build/src/cli/sds.js run candidate1 suite1
 Scheduling run e152c140-6bae-11ea-bd94-8fa64eaf2878
 ~~~
 
@@ -145,22 +145,22 @@ The `demo` command does one thing we can't do through the CLI, and that is to pr
 **List benchmarks, candidates, suites**
 
 ~~~
-% node build/src/cli/dct.js list benchmark
+% node build/src/cli/sds.js list benchmark
 name         submitter   date
 benchmark1   author1     2020-03-19 14:37:31 PDT
 
-% node build/src/cli/dct.js  list candidate
+% node build/src/cli/sds.js  list candidate
 name         submitter   date
 candidate1   author1     2020-03-19 14:37:31 PDT
 
-% node build/src/cli/dct.js list suite
+% node build/src/cli/sds.js list suite
 name     submitter   date
 suite1   author1     2020-03-19 14:39:15 PDT
 ~~~
 
 **Show benchmarks, candidates, suites**
 ~~~
-% node build/src/cli/dct.js show benchmark benchmark1
+% node build/src/cli/sds.js show benchmark benchmark1
 pipelines:
   - mode: mode1
     stages:
@@ -174,7 +174,7 @@ createdAt: 2020-03-19T21:37:31.437Z
 updatedAt: 2020-03-21T20:00:04.907Z
 
 
-% node build/src/cli/dct.js show candidate candidate1
+% node build/src/cli/sds.js show candidate candidate1
 id: 1
 name: candidate1
 author: author1
@@ -186,7 +186,7 @@ createdAt: 2020-03-19T21:37:31.452Z
 updatedAt: 2020-03-21T20:00:37.772Z
 
 
-% node build/src/cli/dct.js show suite suite1
+% node build/src/cli/sds.js show suite suite1
 id: 1
 name: suite1
 author: author1
@@ -199,7 +199,7 @@ updatedAt: 2020-03-21T20:00:48.302Z
 
 **List runs**
 ~~~
-% node build/src/cli/dct.js list run
+% node build/src/cli/sds.js list run
 name                                   submitter   date                     candidate    suite    status
 f411c160-6bad-11ea-bd94-8fa64eaf2878   unknown     2020-03-21 12:55:45 PDT  candidate1   suite1   completed
 f4156ae0-6bad-11ea-bd94-8fa64eaf2878   unknown     2020-03-21 12:55:45 PDT  candidate1   suite1   completed
@@ -209,14 +209,14 @@ e152c140-6bae-11ea-bd94-8fa64eaf2878   unknown     2020-03-21 13:02:23 PDT  cand
 
 **Displaying Run Results**
 ~~~
-% node build/src/cli/dct.js results benchmark1 suite1
+% node build/src/cli/sds.js results benchmark1 suite1
 
 run                                    submitter   date                      passed   failed   skipped
 f411c160-6bad-11ea-bd94-8fa64eaf2878   unknown     2020-03-21 12:55:45 PDT        5        6       ---
 f4156ae0-6bad-11ea-bd94-8fa64eaf2878   unknown     2020-03-21 12:55:45 PDT        3      ---         7
 ~~~
 
-## Deploying DCT to the cloud
+## Deploying SDS to the cloud
 TODO: instructions for Azure deployment and client configuration.
 
 

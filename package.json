@@ -10,8 +10,6 @@
     "check": "gts check",
     "clean": "gts clean && rimraf ./dist",
     "compile": "tsc -p .",
-    "dct": "node build/src/cli/dct.js",
-    "dct:dev": "npm run compile && node -r dotenv/config build/src/cli/dct.js",
     "fix": "gts fix",
     "prepare": "npm run compile",
     "pretest": "npm run compile",
@@ -19,6 +17,8 @@
     "laboratory": "node build/src/laboratory/server/main.js",
     "laboratory:dev": "npm run compile && node -r dotenv/config build/src/laboratory/server/main.js",
     "laboratory:package:appservice": "npm run compile && mkdir -p dist && cp -r --parents package*.json build/src dist && cd dist && npm install --ignore-scripts --production && zip -r $npm_package_name.zip package.json package-lock.json build/src node_modules",
+    "sds": "node build/src/cli/sds.js",
+    "sds:dev": "npm run compile && node -r dotenv/config build/src/cli/sds.js",
     "worker": "node build/src/worker/app.js",
     "worker:dev": "npm run compile && node -r dotenv/config build/src/worker/app.js"
   },

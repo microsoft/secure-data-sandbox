@@ -1,13 +1,13 @@
 openapi: 3.0.2
 info:
-  title: data-contest-toolkit
+  title: secure-data-sandbox
   version: 0.0.1
   license:
     name: MIT
-    url: https://github.com/microsoft/data-contest-toolkit/blob/master/LICENSE
+    url: https://github.com/microsoft/secure-data-sandbox/blob/main/LICENSE
   contact:
-    name: microsoft/data-contest-toolkit
-    url: https://github.com/microsoft/data-contest-toolkit
+    name: microsoft/secure-data-sandbox
+    url: https://github.com/microsoft/secure-data-sandbox
   description: A toolkit for conducting machine learning trials against confidential data
 tags:
   - name: Benchmarks
