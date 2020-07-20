@@ -1,4 +1,4 @@
-# Secure Data Sandbox ![.github/workflows/ci.yml](.github/workflows/ci.yml/badge.svg)
+# Secure Data Sandbox ![.github/workflows/ci.yml](https://github.com/microsoft/secure-data-sandbox/workflows/.github/workflows/ci.yml/badge.svg)
 
 **`SDS` IS UNDER CONSTRUCTION AND NOT USABLE AT THIS POINT.
 THIS PAGE WILL BE UPDATED AS FUNCTIONALITY BECOMES AVAILABLE.**
