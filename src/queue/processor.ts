@@ -56,7 +56,7 @@ export class QueueProcessor<T> {
       try {
         if (message.dequeueCount > this.options.maxAttemptsPerMessage) {
           //TODO: dead letter
-          console.log(`could not process ${JSON.stringify(message)}`);
+          console.warn(`could not process ${JSON.stringify(message)}`);
           await message.complete();
           continue;
         }
