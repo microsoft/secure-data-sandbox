@@ -28,7 +28,7 @@ import { formatChoices, formatTable, Alignment } from './formatting';
 import { URL } from 'url';
 
 const readme =
-  'https://github.com/microsoft/data-contest-toolkit/blob/mhop/laboratory/README.md';
+  'https://github.com/microsoft/secure-data-sandbox/blob/main/laboratory/README.md';
 
 function main(argv: string[]) {
   const program = new Command();

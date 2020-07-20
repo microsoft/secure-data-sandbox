@@ -1,6 +1,6 @@
 # scripts
 
-Scripts used for the development of data-contest-toolkit. These aren't used or deployed at runtime.
+Scripts used for the development of secure-data-sandbox. These aren't used or deployed at runtime.
 
 ## Usage
 

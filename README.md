@@ -1,4 +1,4 @@
-# Data Contest Toolkit ![.github/workflows/dct-ci.yml](https://github.com/microsoft/data-contest-toolkit/workflows/.github/workflows/dct-ci.yml/badge.svg)
+# Secure Data Sandbox ![.github/workflows/dct-ci.yml](.github/workflows/dct-ci.yml/badge.svg)
 
 **`DCT` IS UNDER CONSTRUCTION AND NOT USABLE AT THIS POINT.
 THIS PAGE WILL BE UPDATED AS FUNCTIONALITY BECOMES AVAILABLE.**
@@ -24,7 +24,7 @@ In order to use `DCT` you must have
 
 Here are the steps for cloning and building `DCT`:
 ~~~
-% git clone https://github.com/microsoft/data-contest-toolkit.git
+% git clone https://github.com/microsoft/secure-data-sandbox.git
 % npm install
 % npm run compile
 ~~~
@@ -64,7 +64,7 @@ Commands:
                                matching items.
   help [command]               display help for command
 
-For more information and examples, see https://github.com/microsoft/data-contest-toolkit/README.md
+For more information and examples, see https://github.com/microsoft/secure-data-sandbox/README.md
 ~~~
 
 The first thing we need to do is connect the CLI to the laboratory service that we just started. Currently the `build/src/laboratory/server/main.js` listens on port 3000 of localhost.

@@ -1,5 +1,5 @@
 {
-  "name": "data-contest-toolkit",
+  "name": "secure-data-sandbox",
   "version": "0.0.1",
   "description": "A toolkit for conducting machine learning trials against confidential data",
   "license": "MIT",
