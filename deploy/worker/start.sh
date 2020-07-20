@@ -8,13 +8,13 @@ SETTINGS=$(dig @168.63.129.16 +short laboratory.environment.private txt)
 mkdir -p /mnt/blobfusetmp
 
 # blobfuse: mount runs container
-mkdir -p /var/dct/runs
+mkdir -p /var/sds/runs
 
 export AZURE_STORAGE_ACCOUNT=$(grep -Po 'storageAccount=\K[^"]*' <<< $SETTINGS)
 export AZURE_STORAGE_AUTH_TYPE=MSI
 CONTAINER=$(grep -Po 'runsContainer=\K[^"]*' <<< $SETTINGS)
 
-blobfuse /var/dct/runs --container-name=$CONTAINER --tmp-path=/mnt/blobfusetmp
+blobfuse /var/sds/runs --container-name=$CONTAINER --tmp-path=/mnt/blobfusetmp
 
 # pull latest worker
 AAD_ACCESS_TOKEN=$(curl -s -H 'Metadata: true' 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://management.azure.com/' | jq -r '.access_token')
@@ -33,4 +33,4 @@ done
 # run worker app
 QUEUE_ENDPOINT=$(grep -Po 'runsQueueEndpoint=\K[^"]*' <<< $SETTINGS)
 docker container rm worker --force || true
-docker container run -d --name worker --restart always -v /var/run/docker.sock:/var/run/docker.sock -e QUEUE_MODE=azure -e QUEUE_ENDPOINT=$QUEUE_ENDPOINT $REGISTRY/worker
+docker container run -d --name worker --restart always -v /var/run/docker.sock:/var/run/docker.sock -v /root/.docker/config.json:/home/node/.docker/config.json -e QUEUE_MODE=azure -e QUEUE_ENDPOINT=$QUEUE_ENDPOINT $REGISTRY/worker

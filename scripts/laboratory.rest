@@ -16,7 +16,7 @@ Content-Type: application/json
       "mode": "default",
       "stages": [
         {
-          "image": "alpine"
+          "image": "{{laboratoryRegistry}}/alpine"
         },
         {}
       ]
@@ -70,7 +70,7 @@ Content-Type: application/json
   "author": "admin",
   "benchmark": "benchmark1",
   "mode": "default",
-  "image": "alpine"
+  "image": "{{laboratoryRegistry}}/alpine"
 }
 
 ###
@@ -85,6 +85,7 @@ GET {{laboratoryHost}}/runs
 
 ###
 
+# @name createRun
 # Create a run
 POST {{laboratoryHost}}/runs
 Content-Type: application/json
@@ -96,6 +97,35 @@ Content-Type: application/json
 
 ###
 
-# Get one run
+@runName = {{createRun.response.body.$.name}}
 
-GET {{laboratoryHost}}/runs/00000000-0000-0000-0000-000000000000
+# Get one run
+GET {{laboratoryHost}}/runs/{{runName}}
+
+###
+
+# Update run status
+PATCH {{laboratoryHost}}/runs/{{runName}}
+Content-Type: application/json
+
+{
+  "status": "created"
+}
+
+###
+
+# Report run results
+PATCH {{laboratoryHost}}/runs/{{runName}}/results
+Content-Type: application/json
+
+{
+  "measures": {
+    "passed": 5,
+    "failed": 6
+  }
+}
+
+###
+
+# Get run results
+GET {{laboratoryHost}}/runs/benchmark1/suite1

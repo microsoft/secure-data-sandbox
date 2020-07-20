@@ -126,12 +126,11 @@ export function ParseLaboratoryConfiguration() {
   // this variable gets autowired by Azure App Service
   if (!endpointBaseUrl) {
     const hostname = env.get('WEBSITE_HOSTNAME').asString();
-    endpointBaseUrl = `https://${hostname}`;
-  }
-
-  // fallback to machine hostname
-  if (!endpointBaseUrl) {
-    endpointBaseUrl = `http://${os.hostname()}:${port}`;
+    
+    // if not found, fallback to machine hostname
+    endpointBaseUrl = hostname
+      ? `https://${hostname}`
+      : `http://${os.hostname()}:${port}`;
   }
 
   return {

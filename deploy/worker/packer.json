@@ -1,6 +1,6 @@
 {
   "variables": {
-    "name": "dct-worker",
+    "name": "sds-worker",
     "resource_group": null,
 
     "tenant_id": "{{env `AZURE_TENANT_ID`}}",

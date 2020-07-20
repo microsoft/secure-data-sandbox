@@ -42,6 +42,8 @@ export class PipelineWorker {
   private async runContainer(
     stage: PipelineStage
   ): Promise<Dockerode.Container> {
+    await this.docker.pull(stage.image, {});
+
     const container = await this.docker.createContainer({
       Image: stage.image,
       Env: Object.entries(stage.env ?? {}).map(([k, v]) => `${k}=${v}`),

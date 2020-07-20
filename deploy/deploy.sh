@@ -60,7 +60,7 @@ validate_arguments() {
 }
 
 deploy_environment() {
-  if ! az image show -g $RESOURCE_GROUP -n dct-worker &>/dev/null || [ "$FORCE" = true ]; then
+  if ! az image show -g $RESOURCE_GROUP -n sds-worker &>/dev/null || [ "$FORCE" = true ]; then
     TMP_DIR=$(mktemp -d)
     (
       pushd $TMP_DIR
@@ -85,7 +85,7 @@ deploy_laboratory() {
 deploy_worker() {
   REGISTRY=$(az deployment group show -g $RESOURCE_GROUP -n azuredeploy --query properties.outputs.laboratoryRegistryName.value -o tsv)
 
-  az acr import -n $REGISTRY --source docker.io/acanthamoeba/dct-worker:latest -t worker:latest --force
+  az acr import -n $REGISTRY --source docker.io/acanthamoeba/sds-worker:latest -t worker:latest --force
 }
 
 deploy_dev() {

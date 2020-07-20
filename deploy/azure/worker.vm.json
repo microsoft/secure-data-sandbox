@@ -13,7 +13,7 @@
     },
     "imageId": {
       "type": "string",
-      "defaultValue": "[resourceId('Microsoft.Compute/images', 'dct-worker')]"
+      "defaultValue": "[resourceId('Microsoft.Compute/images', 'sds-worker')]"
     },
     "vmPassword": {
       "type": "securestring",

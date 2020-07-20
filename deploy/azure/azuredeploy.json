@@ -8,7 +8,7 @@
     },
     "baseName": {
       "type": "string",
-      "defaultValue": "dct"
+      "defaultValue": "sds"
     },
     "workerVmSize": {
       "type": "string",

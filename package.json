@@ -9,6 +9,8 @@
     "test:functional": "mocha --config test/functional/.mocharc.yml",
     "check": "gts check",
     "clean": "gts clean && rimraf ./dist",
+    "cli": "node build/src/cli/sds.js",
+    "cli:dev": "npm run compile && node -r dotenv/config build/src/cli/sds.js",
     "compile": "tsc -p .",
     "fix": "gts fix",
     "prepare": "npm run compile",

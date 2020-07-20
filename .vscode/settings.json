@@ -12,7 +12,8 @@
 
   "rest-client.environmentVariables": {
     "$shared": {
-      "laboratoryHost": "http://localhost:3000"
+      "laboratoryHost": "http://localhost:3000",
+      "laboratoryRegistry": "sdslaboratory.azurecr.io"
     }
   }
 }

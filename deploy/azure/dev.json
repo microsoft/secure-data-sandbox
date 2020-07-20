@@ -12,7 +12,7 @@
     "autoShutdownTimeZone": "UTC",
     "bootstrapIp": "bootstrap-dev",
     "tags": {
-      "dct-mode": "development"
+      "sds-mode": "development"
     },
     "workerIp": "worker-dev"
   },

@@ -167,7 +167,7 @@ async function connect(host: string) {
       const message = `Illegal host "${host}"`;
       throw new IllegalOperationError(message);
     }
-    const url = new URL('http://' + host);
+    const url = new URL('https://' + host);
     const endpoint = url.toString();
     const config = yaml.safeDump({ endpoint });
     fs.writeFileSync(sdsFile, config);
