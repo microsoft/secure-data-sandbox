@@ -16,7 +16,7 @@
     }
   },
   "variables": {
-    "assetsBaseUrl": "[if(empty(parameters('assetsBaseUrl')), if(contains(deployment().properties, 'templateLink'), uri(deployment().properties.templateLink.uri, '../'), 'https://raw.githubusercontent.com/microsoft/data-contest-toolkit/master/deploy/'), parameters('assetsBaseUrl'))]",
+    "assetsBaseUrl": "[if(empty(parameters('assetsBaseUrl')), if(contains(deployment().properties, 'templateLink'), uri(deployment().properties.templateLink.uri, '../'), 'https://raw.githubusercontent.com/microsoft/secure-data-sandbox/main/deploy/'), parameters('assetsBaseUrl'))]",
     "environmentDeployment": "azuredeploy"
   },
   "resources": [

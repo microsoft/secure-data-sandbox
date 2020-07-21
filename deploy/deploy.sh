@@ -55,7 +55,7 @@ validate_arguments() {
     ASSETS_BASE=$(curl -s http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[] | select(.name == "deploy").public_url')
   fi
 
-  ASSETS_BASE=${ASSETS_BASE:-'https://raw.githubusercontent.com/microsoft/data-contest-toolkit/master/deploy'}
+  ASSETS_BASE=${ASSETS_BASE:-'https://raw.githubusercontent.com/microsoft/secure-data-sandbox/main/deploy'}
   FORCE=${FORCE:-false}
 }
 
@@ -78,7 +78,7 @@ deploy_laboratory() {
   SITE_ID=$(az deployment group show -g $RESOURCE_GROUP -n azuredeploy --query properties.outputs.laboratorySiteId.value -o tsv)
 
   npm run laboratory:package:appservice
-  az webapp deployment source config-zip --ids $SITE_ID --src dist/data-contest-toolkit.zip
+  az webapp deployment source config-zip --ids $SITE_ID --src dist/secure-data-sandbox.zip
   az webapp restart --ids $SITE_ID
 }
 
