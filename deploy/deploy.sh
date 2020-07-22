@@ -5,6 +5,8 @@ show_usage() {
   echo 'Usage: deploy.sh -g <resource_group> [--assets <assets_base_uri>] [--dev] [--force]'
 }
 
+DEV=false
+
 parse_arguments() {
   PARAMS=""
   while (( $# )); do
@@ -55,7 +57,7 @@ validate_arguments() {
     ASSETS_BASE=$(curl -s http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[] | select(.name == "deploy").public_url')
   fi
 
-  ASSETS_BASE=${ASSETS_BASE:-'https://raw.githubusercontent.com/microsoft/secure-data-sandbox/main/deploy'}
+  ASSETS_BASE=${ASSETS_BASE:-'https://raw.githubusercontent.com/microsoft/secure-data-sandbox/main/deploy/'}
   FORCE=${FORCE:-false}
 }
 
