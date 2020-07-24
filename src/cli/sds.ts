@@ -8,7 +8,6 @@ import * as os from 'os';
 import * as path from 'path';
 
 import {
-  apiVersion,
   BenchmarkType,
   CandidateType,
   IBenchmark,
@@ -34,7 +33,6 @@ function main(argv: string[]) {
   const program = new Command();
 
   program.description('Secure Data Sandbox CLI');
-  program.version(apiVersion);
 
   program
     .command('connect [service]')

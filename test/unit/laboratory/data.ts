@@ -6,7 +6,6 @@
 import { URL } from 'url';
 
 import {
-  apiVersion,
   IBenchmark,
   ICandidate,
   IPipeline,
@@ -42,7 +41,6 @@ export const pipelines: IPipeline[] = [
 export const benchmark1: IBenchmark = {
   name: 'benchmark1',
   author: 'author1',
-  version: apiVersion,
   pipelines,
   ...timestamps,
 };
@@ -50,7 +48,6 @@ export const benchmark1: IBenchmark = {
 export const benchmark2: IBenchmark = {
   name: 'benchmark2',
   author: 'author2',
-  version: apiVersion,
   pipelines,
   ...timestamps,
 };
@@ -58,7 +55,6 @@ export const benchmark2: IBenchmark = {
 export const benchmark3: IBenchmark = {
   name: 'benchmark3',
   author: 'author3',
-  version: apiVersion,
   ...timestamps,
   pipelines,
 };
@@ -66,7 +62,6 @@ export const benchmark3: IBenchmark = {
 export const candidate1: ICandidate = {
   name: 'candidate1',
   author: 'author1',
-  version: apiVersion,
   benchmark: 'benchmark1',
   mode: 'mode1',
   image: 'candidate1-image',
@@ -76,7 +71,6 @@ export const candidate1: ICandidate = {
 export const candidate2: ICandidate = {
   name: 'candidate2',
   author: 'author2',
-  version: apiVersion,
   benchmark: 'benchmark1',
   mode: 'mode1',
   image: 'candidate2-image',
@@ -86,7 +80,6 @@ export const candidate2: ICandidate = {
 export const candidate3: ICandidate = {
   name: 'candidate3',
   author: 'author3',
-  version: apiVersion,
   benchmark: 'benchmark1',
   mode: 'mode1',
   image: 'candidate3-image',
@@ -96,7 +89,6 @@ export const candidate3: ICandidate = {
 export const suite1: ISuite = {
   name: 'suite1',
   author: 'author1',
-  version: apiVersion,
   benchmark: 'benchmark1',
   mode: 'mode1',
   ...timestamps,
@@ -105,7 +97,6 @@ export const suite1: ISuite = {
 export const suite2: ISuite = {
   name: 'suite2',
   author: 'author2',
-  version: apiVersion,
   benchmark: 'benchmark1',
   mode: 'mode1',
   ...timestamps,
@@ -114,7 +105,6 @@ export const suite2: ISuite = {
 export const suite3: ISuite = {
   name: 'suite3',
   author: 'author3',
-  version: apiVersion,
   benchmark: 'benchmark1',
   mode: 'mode1',
   ...timestamps,
@@ -129,7 +119,6 @@ const runid = '69bd5df9-48a2-4fd0-81c5-0a7d6932eef2';
 export const run1: IRun = {
   name: runid,
   author: 'author1',
-  version: apiVersion,
   benchmark: benchmark1,
   candidate: candidate1,
   suite: suite1,

@@ -57,7 +57,6 @@ describe('laboratory/benchmarks', () => {
 
     const benchmark3 = {
       ...benchmark1,
-      version: benchmark1.version + 'x',
     };
     await lab.upsertBenchmark(benchmark3);
     const results3 = await lab.allBenchmarks();

@@ -93,7 +93,6 @@ we can use the `demo` command to populate the server with sample data, including
 === Sample benchmark ===
 name: benchmark1
 author: author1
-version: 0.0.1
 pipelines:
   - mode: mode1
     stages:
@@ -104,7 +103,6 @@ pipelines:
 === Sample candidate ===
 name: candidate1
 author: author1
-version: 0.0.1
 benchmark: benchmark1
 mode: mode1
 image: candidate1-image
@@ -113,7 +111,6 @@ image: candidate1-image
 === Sample suite ===
 name: suite1
 author: author1
-version: 0.0.1
 benchmark: benchmark1
 mode: mode1
 
@@ -169,7 +166,6 @@ pipelines:
 id: 1
 name: benchmark1
 author: author1
-version: 0.0.1
 createdAt: 2020-03-19T21:37:31.437Z
 updatedAt: 2020-03-21T20:00:04.907Z
 
@@ -178,7 +174,6 @@ updatedAt: 2020-03-21T20:00:04.907Z
 id: 1
 name: candidate1
 author: author1
-version: 0.0.1
 benchmark: benchmark1
 mode: mode1
 image: candidate1-image
@@ -190,7 +185,6 @@ updatedAt: 2020-03-21T20:00:37.772Z
 id: 1
 name: suite1
 author: author1
-version: 0.0.1
 benchmark: benchmark1
 mode: mode1
 createdAt: 2020-03-19T21:39:15.634Z

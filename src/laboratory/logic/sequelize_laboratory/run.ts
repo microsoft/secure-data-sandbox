@@ -2,7 +2,6 @@ import { v1 } from 'uuid';
 import { URL } from 'url';
 
 import {
-  apiVersion,
   EntityNotFoundError,
   IBenchmark,
   ICandidate,
@@ -102,7 +101,6 @@ export async function processRunRequest(
   const run: IRun = {
     name,
     author: 'unknown', // TODO: fill in name
-    version: apiVersion,
     status: RunStatus.CREATED,
     blob: blobURI.toString(),
     benchmark,
@@ -171,7 +169,6 @@ export async function processRunResults(
   const results: IResult = {
     name: run.name,
     author: run.author,
-    version: run.version,
     benchmark: run.benchmark.name,
     mode: run.suite.mode,
     suite: run.suite.name,

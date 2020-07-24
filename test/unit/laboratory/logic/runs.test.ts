@@ -4,7 +4,7 @@ import chaiAsPromised = require('chai-as-promised');
 import chaiExclude from 'chai-exclude';
 import { URL } from 'url';
 
-import { apiVersion, IResult, IRun, RunStatus } from '../../../../src';
+import { IResult, IRun, RunStatus } from '../../../../src';
 
 import {
   benchmark1,
@@ -48,7 +48,6 @@ describe('laboratory/runs', () => {
     const expectedRun1: IRun = {
       name: run1.name,
       author: 'unknown',
-      version: apiVersion,
       benchmark: benchmark1,
       candidate: candidate1,
       suite: suite1,
@@ -117,7 +116,6 @@ describe('laboratory/runs', () => {
       mode: suite1.mode,
       name: run1.name,
       suite: suite1.name,
-      version: apiVersion,
     };
     assertDeepEqual(results[0], expectedResults);
 
@@ -134,7 +132,6 @@ describe('laboratory/runs', () => {
     const expected2: IRun = {
       name: r2.name,
       author: 'unknown',
-      version: apiVersion,
       benchmark: benchmark1,
       candidate: candidate2,
       suite: suite1,

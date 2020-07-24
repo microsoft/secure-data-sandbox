@@ -1,7 +1,6 @@
 import * as yaml from 'js-yaml';
 
 import {
-  apiVersion,
   IBenchmark,
   ICandidate,
   IPipeline,
@@ -28,14 +27,12 @@ const pipelines: IPipeline[] = [
 const benchmark1: IBenchmark = {
   name: 'benchmark1',
   author: 'author1',
-  version: apiVersion,
   pipelines,
 };
 
 const candidate1: ICandidate = {
   name: 'candidate1',
   author: 'author1',
-  version: apiVersion,
   benchmark: 'benchmark1',
   mode: 'mode1',
   image: 'candidate1-image',
@@ -44,7 +41,6 @@ const candidate1: ICandidate = {
 const suite1: ISuite = {
   name: 'suite1',
   author: 'author1',
-  version: apiVersion,
   benchmark: 'benchmark1',
   mode: 'mode1',
 };

@@ -68,7 +68,6 @@ describe('laboratory/candidates', () => {
 
     const candidate3 = {
       ...candidate1,
-      version: candidate1.version + 'x',
     };
     await lab.upsertCandidate(candidate3);
     const results3 = await lab.allCandidates();

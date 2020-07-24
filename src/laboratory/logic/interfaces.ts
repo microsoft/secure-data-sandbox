@@ -2,8 +2,6 @@ import { either } from 'fp-ts/lib/Either';
 import * as t from 'io-ts';
 import { DateTime } from 'luxon';
 
-export const apiVersion = '0.0.1';
-
 // tslint:disable-next-line:variable-name
 const DateType = new t.Type<Date, string, unknown>(
   'Date',
@@ -27,7 +25,6 @@ export const EntityBaseType = t.intersection([
   t.type({
     name: t.string,
     author: t.string,
-    version: t.string,
   }),
   t.partial({
     createdAt: DateType,

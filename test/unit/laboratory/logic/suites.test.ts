@@ -66,7 +66,6 @@ describe('laboratory/suites', () => {
 
     const suite3 = {
       ...suite1,
-      version: suite1.version + 'x',
     };
     await lab.upsertSuite(suite3);
     const results3 = await lab.allSuites();
