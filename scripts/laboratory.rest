@@ -106,7 +106,7 @@ Content-Type: application/json
 ###
 
 # Report run results
-PATCH {{laboratoryHost}}/runs/{{runName}}/results
+POST {{laboratoryHost}}/runs/{{runName}}/results
 Content-Type: application/json
 
 {

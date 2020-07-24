@@ -370,7 +370,7 @@ describe('laboratory/server', () => {
 
       chai
         .request(await createApp(lab))
-        .patch(`/runs/${name}/results`)
+        .post(`/runs/${name}/results`)
         .send(body)
         .end((err, res) => {
           assert.equal(res.status, 200);

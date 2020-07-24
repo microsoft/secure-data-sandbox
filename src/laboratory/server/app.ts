@@ -32,17 +32,6 @@ export async function createApp(lab: ILaboratory): Promise<express.Express> {
     })
   );
 
-  // enable corse for all origins
-  // TODO: review these declarations
-  app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Expose-Headers', 'x-total-count');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH');
-    res.header('Access-Control-Allow-Headers', 'Content-Type,authorization');
-
-    next();
-  });
-
   app.use('/benchmarks', createBenchmarkRouter(lab));
   app.use('/candidates', createCandidateRouter(lab));
   app.use('/runs', createRunRouter(lab));
