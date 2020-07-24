@@ -22,9 +22,6 @@ export class Run extends Model<Run> implements IRun {
   author!: string;
 
   @Column(DataType.STRING)
-  version!: string;
-
-  @Column(DataType.STRING)
   blob!: string;
 
   @Column(DataType.STRING)

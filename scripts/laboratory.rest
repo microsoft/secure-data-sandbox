@@ -8,7 +8,6 @@ PUT {{laboratoryHost}}/benchmarks/benchmark1
 Content-Type: application/json
 
 {
-  "version": "v1",
   "name": "benchmark1",
   "author": "admin",
   "pipelines": [
@@ -41,7 +40,6 @@ PUT {{laboratoryHost}}/suites/suite1
 Content-Type: application/json
 
 {
-  "version": "v1",
   "name": "suite1",
   "author": "admin",
   "benchmark": "benchmark1",
@@ -65,7 +63,6 @@ PUT {{laboratoryHost}}/candidates/candidate1
 Content-Type: application/json
 
 {
-  "version": "v1",
   "name": "candidate1",
   "author": "admin",
   "benchmark": "benchmark1",

@@ -16,9 +16,6 @@ export class Result extends Model<Result> implements IResult {
   author!: string;
 
   @Column(DataType.STRING)
-  version!: string;
-
-  @Column(DataType.STRING)
   benchmark!: string;
 
   @Column(DataType.STRING)

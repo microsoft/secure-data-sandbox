@@ -14,9 +14,6 @@ export class Suite extends Model<Suite> implements ISuite {
   author!: string;
 
   @Column(DataType.STRING)
-  version!: string;
-
-  @Column(DataType.STRING)
   benchmark!: string;
 
   @Column(DataType.STRING)

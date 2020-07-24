@@ -15,9 +15,6 @@ export class Benchmark extends Model<Benchmark> implements IBenchmark {
   @Column(DataType.STRING)
   author!: string;
 
-  @Column(DataType.STRING)
-  version!: string;
-
   // TODO: REVIEW: magic number 1024
   @Column(jsonColumn<IPipeline[]>('pipelines', 1024))
   pipelines!: IPipeline[];
