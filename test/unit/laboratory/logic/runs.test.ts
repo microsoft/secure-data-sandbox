@@ -11,7 +11,6 @@ import {
   blobBase,
   candidate1,
   candidate2,
-  pipelines,
   serviceURL,
   suite1,
 } from '../data';
@@ -83,7 +82,7 @@ describe('laboratory/runs', () => {
           name: 'candidate',
         },
         {
-          image: pipelines[0].stages[1].image!,
+          image: benchmark1.stages[1].image!,
           name: 'benchmark',
         },
       ],
@@ -113,7 +112,6 @@ describe('laboratory/runs', () => {
       benchmark: benchmark1.name,
       candidate: candidate1.name,
       measures,
-      mode: suite1.mode,
       name: run1.name,
       suite: suite1.name,
     };

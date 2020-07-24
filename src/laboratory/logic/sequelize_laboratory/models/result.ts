@@ -19,9 +19,6 @@ export class Result extends Model<Result> implements IResult {
   benchmark!: string;
 
   @Column(DataType.STRING)
-  mode!: string;
-
-  @Column(DataType.STRING)
   suite!: string;
 
   @Column(DataType.STRING)

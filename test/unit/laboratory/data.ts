@@ -8,7 +8,6 @@ import { URL } from 'url';
 import {
   IBenchmark,
   ICandidate,
-  IPipeline,
   IRun,
   IRunRequest,
   ISuite,
@@ -23,47 +22,58 @@ export const timestamps = {
   updatedAt: new Date('2020-03-20T22:37:31.452Z'),
 };
 
-export const pipelines: IPipeline[] = [
-  {
-    mode: 'mode1',
-    stages: [
-      {
-        // Candidate
-      },
-      {
-        // Benchmark
-        image: 'benchmark-image-mode1',
-      },
-    ],
-  },
-];
-
 export const benchmark1: IBenchmark = {
   name: 'benchmark1',
   author: 'author1',
-  pipelines,
+  mode: 'mode1',
+  stages: [
+    {
+      // Candidate
+    },
+    {
+      // Benchmark
+      image: 'benchmark-image',
+    },
+  ],
   ...timestamps,
 };
 
 export const benchmark2: IBenchmark = {
   name: 'benchmark2',
   author: 'author2',
-  pipelines,
+  mode: 'mode1',
+  stages: [
+    {
+      // Candidate
+    },
+    {
+      // Benchmark
+      image: 'benchmark-image',
+    },
+  ],
   ...timestamps,
 };
 
 export const benchmark3: IBenchmark = {
   name: 'benchmark3',
   author: 'author3',
+  mode: 'mode1',
+  stages: [
+    {
+      // Candidate
+    },
+    {
+      // Benchmark
+      image: 'benchmark-image',
+    },
+  ],
   ...timestamps,
-  pipelines,
 };
 
 export const candidate1: ICandidate = {
   name: 'candidate1',
   author: 'author1',
   benchmark: 'benchmark1',
-  mode: 'mode1',
   image: 'candidate1-image',
   ...timestamps,
 };
@@ -72,7 +82,6 @@ export const candidate2: ICandidate = {
   name: 'candidate2',
   author: 'author2',
   benchmark: 'benchmark1',
-  mode: 'mode1',
   image: 'candidate2-image',
   ...timestamps,
 };
@@ -81,7 +90,6 @@ export const candidate3: ICandidate = {
   name: 'candidate3',
   author: 'author3',
   benchmark: 'benchmark1',
-  mode: 'mode1',
   image: 'candidate3-image',
   ...timestamps,
 };
@@ -90,7 +98,6 @@ export const suite1: ISuite = {
   name: 'suite1',
   author: 'author1',
   benchmark: 'benchmark1',
-  mode: 'mode1',
   ...timestamps,
 };
 
@@ -98,7 +105,6 @@ export const suite2: ISuite = {
   name: 'suite2',
   author: 'author2',
   benchmark: 'benchmark1',
-  mode: 'mode1',
   ...timestamps,
 };
 
@@ -106,7 +112,6 @@ export const suite3: ISuite = {
   name: 'suite3',
   author: 'author3',
   benchmark: 'benchmark1',
-  mode: 'mode1',
   ...timestamps,
 };
 

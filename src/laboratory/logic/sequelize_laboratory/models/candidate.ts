@@ -17,8 +17,5 @@ export class Candidate extends Model<Candidate> implements ICandidate {
   benchmark!: string;
 
   @Column(DataType.STRING)
-  mode!: string;
-
-  @Column(DataType.STRING)
   image!: string;
 }

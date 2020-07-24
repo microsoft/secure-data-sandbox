@@ -1,28 +1,11 @@
 import { Benchmark } from './models';
 import { normalizeName } from './normalize';
-import { IBenchmark, IllegalOperationError } from '../interfaces';
+import { IBenchmark } from '../interfaces';
 
 export function normalizeBenchmark(benchmark: IBenchmark): IBenchmark {
-  // Normalize mode names in pipeline.
-  const modes = new Set<string>();
-  const pipelines = benchmark.pipelines.map(p => {
-    const mode = normalizeName(p.mode);
-
-    // Modes must be unique within a benchmark.
-    // TODO: can this be done in the json-schema?
-    if (modes.has(mode)) {
-      const message = `Encountered duplicated mode "${mode}"`;
-      throw new IllegalOperationError(message);
-    }
-    modes.add(mode);
-
-    return { ...p, mode };
-  });
-
   return {
     ...benchmark,
     name: normalizeName(benchmark.name),
-    pipelines,
   };
 }
 

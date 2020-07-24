@@ -93,18 +93,16 @@ we can use the `demo` command to populate the server with sample data, including
 === Sample benchmark ===
 name: benchmark1
 author: author1
-pipelines:
-  - mode: mode1
-    stages:
-      - {}
-      - image: benchmark-image-mode1
+mode: mode1
+stages:
+  - {}
+  - image: benchmark-image
 
 
 === Sample candidate ===
 name: candidate1
 author: author1
 benchmark: benchmark1
-mode: mode1
 image: candidate1-image
 
 
@@ -112,7 +110,6 @@ image: candidate1-image
 name: suite1
 author: author1
 benchmark: benchmark1
-mode: mode1
 
 
 Initiated run f411c160-6bad-11ea-bd94-8fa64eaf2878
@@ -158,11 +155,10 @@ suite1   author1     2020-03-19 14:39:15 PDT
 **Show benchmarks, candidates, suites**
 ~~~
 % node build/src/cli/sds.js show benchmark benchmark1
-pipelines:
-  - mode: mode1
-    stages:
-      - {}
-      - image: benchmark-image-mode1
+mode: mode1
+stages:
+  - {}
+  - image: benchmark-image
 id: 1
 name: benchmark1
 author: author1
@@ -175,7 +171,6 @@ id: 1
 name: candidate1
 author: author1
 benchmark: benchmark1
-mode: mode1
 image: candidate1-image
 createdAt: 2020-03-19T21:37:31.452Z
 updatedAt: 2020-03-21T20:00:37.772Z
@@ -186,7 +181,6 @@ id: 1
 name: suite1
 author: author1
 benchmark: benchmark1
-mode: mode1
 createdAt: 2020-03-19T21:39:15.634Z
 updatedAt: 2020-03-21T20:00:48.302Z
 ~~~

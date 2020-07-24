@@ -97,19 +97,11 @@ describe('laboratory/suites', () => {
     };
     await assert.isRejected(lab.upsertSuite(c2));
 
-    // Throws for invalid mode name
-    const c3 = {
-      ...suite3,
-      mode: '123_invalid_name',
-    };
-    await assert.isRejected(lab.upsertSuite(c3));
-
-    // Lowercases name, benchmark, mode
+    // Lowercases name, benchmark
     const c4 = {
       ...suite3,
       name: suite3.name.toUpperCase(),
       benchmark: suite3.benchmark.toUpperCase(),
-      mode: suite3.mode.toUpperCase(),
     };
     await lab.upsertSuite(c4);
 
@@ -121,16 +113,7 @@ describe('laboratory/suites', () => {
       ...suite3,
       name: suite3.name.toUpperCase(),
       benchmark: 'unknown',
-      mode: suite3.mode.toUpperCase(),
     };
     await assert.isRejected(lab.upsertSuite(c5));
-
-    // Throws on non-existant mode
-    const c6 = {
-      ...suite3,
-      name: suite3.name.toUpperCase(),
-      mode: 'unknown',
-    };
-    await assert.isRejected(lab.upsertSuite(c6));
   });
 });

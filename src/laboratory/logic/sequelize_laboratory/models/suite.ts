@@ -15,7 +15,4 @@ export class Suite extends Model<Suite> implements ISuite {
 
   @Column(DataType.STRING)
   benchmark!: string;
-
-  @Column(DataType.STRING)
-  mode!: string;
 }

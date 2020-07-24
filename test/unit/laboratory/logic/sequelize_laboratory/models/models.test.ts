@@ -18,20 +18,8 @@ import {
   sequelize,
 } from '../../../shared';
 
-// let sequelize: Sequelize;
-
 describe('sequelize', () => {
   before(initTestEnvironment);
-  // before(async () => {
-  //   sequelize = new Sequelize({
-  //     dialect: 'sqlite',
-  //     storage: ':memory:',
-  //     logging: false,
-  //   });
-
-  //   sequelize.addModels([Benchmark, Candidate, Run, Suite]);
-  //   await sequelize.sync();
-  // });
 
   describe('decorators', () => {
     it('jsonColumn length overflow', async () => {

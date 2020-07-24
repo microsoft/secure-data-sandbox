@@ -10,16 +10,12 @@ Content-Type: application/json
 {
   "name": "benchmark1",
   "author": "admin",
-  "pipelines": [
+  "mode": "default",
+  "stages": [
     {
-      "mode": "default",
-      "stages": [
-        {
-          "image": "{{laboratoryRegistry}}/alpine"
-        },
-        {}
-      ]
-    }
+      "image": "{{laboratoryRegistry}}/alpine"
+    },
+    {}
   ]
 }
 
@@ -42,8 +38,7 @@ Content-Type: application/json
 {
   "name": "suite1",
   "author": "admin",
-  "benchmark": "benchmark1",
-  "mode": "default"
+  "benchmark": "benchmark1"
 }
 
 ###
@@ -66,7 +61,6 @@ Content-Type: application/json
   "name": "candidate1",
   "author": "admin",
   "benchmark": "benchmark1",
-  "mode": "default",
   "image": "{{laboratoryRegistry}}/alpine"
 }
 

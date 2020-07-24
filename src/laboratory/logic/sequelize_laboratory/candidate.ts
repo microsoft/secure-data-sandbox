@@ -7,7 +7,6 @@ export function normalizeCandidate(candidate: ICandidate): ICandidate {
     ...candidate,
     name: normalizeName(candidate.name),
     benchmark: normalizeName(candidate.benchmark),
-    mode: normalizeName(candidate.mode),
   };
 }
 
@@ -18,13 +17,6 @@ export async function processCandidate(candidate: ICandidate): Promise<void> {
   });
   if (!benchmark) {
     const message = `Candidate references unknown benchmark ${candidate.benchmark}`;
-    throw new IllegalOperationError(message);
-  }
-
-  // Verify that referenced model is provided by benchmark.
-  const modes = benchmark.pipelines.map(p => p.mode);
-  if (!modes.includes(candidate.mode)) {
-    const message = `Candidate references unknown mode "${candidate.mode}"`;
     throw new IllegalOperationError(message);
   }
 

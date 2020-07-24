@@ -1,6 +1,6 @@
 import { DataType, Column, Model, Table } from 'sequelize-typescript';
 
-import { IBenchmark, IPipeline } from '../../interfaces';
+import { IBenchmark, PipelineStage } from '../../interfaces';
 
 import { jsonColumn } from './decorators';
 
@@ -15,7 +15,10 @@ export class Benchmark extends Model<Benchmark> implements IBenchmark {
   @Column(DataType.STRING)
   author!: string;
 
+  @Column(DataType.STRING)
+  mode!: string;
+
   // TODO: REVIEW: magic number 1024
-  @Column(jsonColumn<IPipeline[]>('pipelines', 1024))
-  pipelines!: IPipeline[];
+  @Column(jsonColumn<PipelineStage[]>('stages', 1024))
+  stages!: PipelineStage[];
 }

@@ -6,7 +6,6 @@ import {
   IBenchmark,
   ICandidate,
   IllegalOperationError,
-  IPipeline,
   IResult,
   IRun,
   IRunRequest,
@@ -55,31 +54,12 @@ export async function processRunRequest(
     throw new IllegalOperationError(message);
   }
 
-  // Verify that candidate and suite reference same mode.
-  if (candidate.mode !== suite.mode) {
-    const message = `Candidate mode "${candidate.mode}" doesn't match suite mode "${suite.mode}"`;
-    throw new IllegalOperationError(message);
-  }
-
   // Verify that referenced benchmark exists.
   const benchmark = await Benchmark.findOne({
     where: { name: candidate.benchmark },
   });
   if (!benchmark) {
     const message = `Candidate references unknown benchmark ${candidate.benchmark}`;
-    throw new IllegalOperationError(message);
-  }
-
-  // Find the pipeline for the candidate's mode.
-  let pipeline: IPipeline | undefined;
-  for (const p of benchmark.pipelines) {
-    if (p.mode === candidate.mode) {
-      pipeline = p;
-      break;
-    }
-  }
-  if (!pipeline) {
-    const message = `Candidate references unknown mode "${candidate.mode}"`;
     throw new IllegalOperationError(message);
   }
 
@@ -117,8 +97,7 @@ export async function processRunRequest(
     blobURI.toString(),
     name,
     benchmark,
-    candidate,
-    pipeline
+    candidate
   );
   await queue.enqueue(message);
 
@@ -170,7 +149,6 @@ export async function processRunResults(
     name: run.name,
     author: run.author,
     benchmark: run.benchmark.name,
-    mode: run.suite.mode,
     suite: run.suite.name,
     candidate: run.candidate.name,
     measures,
@@ -184,10 +162,10 @@ function createMessage(
   blobPrefix: string,
   name: string,
   b: IBenchmark,
-  c: ICandidate,
-  pipeline: IPipeline
+  c: ICandidate
 ): PipelineRun {
-  const stages = pipeline.stages.map(s => {
+  const stages = b.stages.map(s => {
+    // TODO: make this explicit vs "lack of image means candidate"
     const name = s.image ? 'benchmark' : 'candidate';
     const image = s.image || c.image;
 
@@ -197,7 +175,6 @@ function createMessage(
     return stage;
   });
 
-  // const blobPrefix = `runs/${name}`;
   const statusEndpoint = new URL(`runs/${name}`, server);
   const resultsEndpoint = new URL(`runs/${name}/results`, server);
 

@@ -3,38 +3,30 @@ import * as yaml from 'js-yaml';
 import {
   IBenchmark,
   ICandidate,
-  IPipeline,
   ISuite,
   LaboratoryClient,
   RunStatus,
 } from '../laboratory';
 
-const pipelines: IPipeline[] = [
-  {
-    mode: 'mode1',
-    stages: [
-      {
-        // Candidate
-      },
-      {
-        // Benchmark
-        image: 'benchmark-image-mode1',
-      },
-    ],
-  },
-];
-
 const benchmark1: IBenchmark = {
   name: 'benchmark1',
   author: 'author1',
-  pipelines,
+  mode: 'mode1',
+  stages: [
+    {
+      // Candidate
+    },
+    {
+      // Benchmark
+      image: 'benchmark-image',
+    },
+  ],
 };
 
 const candidate1: ICandidate = {
   name: 'candidate1',
   author: 'author1',
   benchmark: 'benchmark1',
-  mode: 'mode1',
   image: 'candidate1-image',
 };
 
@@ -42,7 +34,6 @@ const suite1: ISuite = {
   name: 'suite1',
   author: 'author1',
   benchmark: 'benchmark1',
-  mode: 'mode1',
 };
 
 export async function configureDemo(lab: LaboratoryClient) {

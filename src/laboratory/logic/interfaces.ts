@@ -43,20 +43,14 @@ export type IEntityBase = t.TypeOf<typeof EntityBaseType>;
 const PipelineStageType = t.partial({
   image: t.string,
 });
-type PipelineStage = t.TypeOf<typeof PipelineStageType>;
-
-// tslint:disable-next-line:variable-name
-export const PipelineType = t.type({
-  mode: t.string,
-  stages: t.array(PipelineStageType),
-});
-export type IPipeline = t.TypeOf<typeof PipelineType>;
+export type PipelineStage = t.TypeOf<typeof PipelineStageType>;
 
 // tslint:disable-next-line:variable-name
 export const BenchmarkType = t.intersection([
   EntityBaseType,
   t.interface({
-    pipelines: t.array(PipelineType),
+    mode: t.string,
+    stages: t.array(PipelineStageType),
   }),
 ]);
 export type IBenchmark = t.TypeOf<typeof BenchmarkType>;
@@ -75,7 +69,6 @@ export const CandidateType = t.intersection([
   EntityBaseType,
   t.interface({
     benchmark: t.string,
-    mode: t.string,
     image: t.string,
   }),
 ]);
@@ -95,7 +88,6 @@ export const SuiteType = t.intersection([
   EntityBaseType,
   t.interface({
     benchmark: t.string,
-    mode: t.string,
   }),
 ]);
 export type ISuite = t.TypeOf<typeof SuiteType>;
@@ -206,7 +198,6 @@ export const ResultType = t.intersection([
   EntityBaseType,
   t.type({
     benchmark: t.string,
-    mode: t.string,
     suite: t.string,
     candidate: t.string,
     measures: MeasuresType,

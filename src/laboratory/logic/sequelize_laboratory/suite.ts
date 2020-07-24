@@ -7,7 +7,6 @@ export function normalizeSuite(suite: ISuite): ISuite {
     ...suite,
     name: normalizeName(suite.name),
     benchmark: normalizeName(suite.benchmark),
-    mode: normalizeName(suite.mode),
   };
 }
 
@@ -18,13 +17,6 @@ export async function processSuite(suite: ISuite): Promise<void> {
   });
   if (!benchmark) {
     const message = `Suite references unknown benchmark ${suite.benchmark}`;
-    throw new IllegalOperationError(message);
-  }
-
-  // Verify that referenced model is provided by benchmark.
-  const modes = benchmark.pipelines.map(p => p.mode);
-  if (!modes.includes(suite.mode)) {
-    const message = `Suite references unknown mode "${suite.mode}"`;
     throw new IllegalOperationError(message);
   }
 

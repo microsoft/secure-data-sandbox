@@ -1,7 +1,6 @@
 name: benchmark1
 author: author1
-pipelines:
-  - mode: mode1
-    stages:
-      - {}
-      - image: benchmark-image-mode1
+mode: mode1
+stages:
+  - {}
+  - image: benchmark-image
