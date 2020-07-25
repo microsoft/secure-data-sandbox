@@ -11,12 +11,8 @@ import {
 export function createRunRouter(lab: ILaboratory): Router {
   const router = Router();
 
-  router.get('', async (req, res, next) => {
-    try {
-      res.json(await lab.allRuns());
-    } catch (e) {
-      next(e);
-    }
+  router.get('', async (req, res) => {
+    res.json(await lab.allRuns());
   });
 
   router.get('/:name', async (req, res) => {
