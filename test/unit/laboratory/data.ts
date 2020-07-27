@@ -98,6 +98,18 @@ export const suite1: ISuite = {
   name: 'suite1',
   author: 'author1',
   benchmark: 'benchmark1',
+  volumes: [
+    {
+      name: 'training',
+      type: 'AzureBlob',
+      target: 'https://sample.blob.core.windows.net/training',
+    },
+    {
+      name: 'reference',
+      type: 'AzureBlob',
+      target: 'https://sample.blob.core.windows.net/reference',
+    },
+  ],
   ...timestamps,
 };
 
@@ -105,6 +117,18 @@ export const suite2: ISuite = {
   name: 'suite2',
   author: 'author2',
   benchmark: 'benchmark1',
+  volumes: [
+    {
+      name: 'training',
+      type: 'AzureBlob',
+      target: 'https://sample.blob.core.windows.net/training',
+    },
+    {
+      name: 'reference',
+      type: 'AzureBlob',
+      target: 'https://sample.blob.core.windows.net/reference',
+    },
+  ],
   ...timestamps,
 };
 
@@ -112,6 +136,18 @@ export const suite3: ISuite = {
   name: 'suite3',
   author: 'author3',
   benchmark: 'benchmark1',
+  volumes: [
+    {
+      name: 'training',
+      type: 'AzureBlob',
+      target: 'https://sample.blob.core.windows.net/training',
+    },
+    {
+      name: 'reference',
+      type: 'AzureBlob',
+      target: 'https://sample.blob.core.windows.net/reference',
+    },
+  ],
   ...timestamps,
 };
 

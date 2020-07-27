@@ -84,10 +84,19 @@ export const CandidateArrayType = t.array(CandidateType);
 ///////////////////////////////////////////////////////////////////////////////
 
 // tslint:disable-next-line:variable-name
+const SuiteVolumeType = t.partial({
+  name: t.string,
+  type: t.string,
+  target: t.string,
+});
+export type SuiteVolume = t.TypeOf<typeof SuiteVolumeType>;
+
+// tslint:disable-next-line:variable-name
 export const SuiteType = t.intersection([
   EntityBaseType,
   t.interface({
     benchmark: t.string,
+    volumes: t.array(SuiteVolumeType),
   }),
 ]);
 export type ISuite = t.TypeOf<typeof SuiteType>;

@@ -41,7 +41,7 @@ import {
 } from '../../../../src';
 
 import { benchmark1, candidate1, run1, suite1 } from '../data';
-import { assertDeepEqual, MockLaboratory } from '../shared';
+import { lab } from '../shared';
 
 describe('laboratory/server', () => {
   ///////////////////////////////////////////////////////////////////////////
@@ -51,8 +51,6 @@ describe('laboratory/server', () => {
   ///////////////////////////////////////////////////////////////////////////
   describe('benchmarks', () => {
     it('allBenchmarks()', async () => {
-      const lab = new MockLaboratory();
-
       const expected: IBenchmark[] = [];
 
       let called = false;
@@ -72,8 +70,6 @@ describe('laboratory/server', () => {
     });
 
     it('oneBenchmark()', async () => {
-      const lab = new MockLaboratory();
-
       let observedName: string | undefined;
       lab.oneBenchmark = async (name: string): Promise<IBenchmark> => {
         observedName = name;
@@ -92,8 +88,6 @@ describe('laboratory/server', () => {
     });
 
     it('upsertBenchmark()', async () => {
-      const lab = new MockLaboratory();
-
       let observed: IBenchmark;
       lab.upsertBenchmark = async (
         benchmark: IBenchmark,
@@ -120,8 +114,6 @@ describe('laboratory/server', () => {
   ///////////////////////////////////////////////////////////////////////////
   describe('candidates', () => {
     it('allCandidates()', async () => {
-      const lab = new MockLaboratory();
-
       const expected: ICandidate[] = [];
 
       let called = false;
@@ -141,8 +133,6 @@ describe('laboratory/server', () => {
     });
 
     it('oneCandidate()', async () => {
-      const lab = new MockLaboratory();
-
       let observedName: string | undefined;
       lab.oneCandidate = async (name: string): Promise<ICandidate> => {
         observedName = name;
@@ -161,8 +151,6 @@ describe('laboratory/server', () => {
     });
 
     it('upsertCandidate()', async () => {
-      const lab = new MockLaboratory();
-
       let observed: ICandidate;
       lab.upsertCandidate = async (
         candidate: ICandidate,
@@ -189,8 +177,6 @@ describe('laboratory/server', () => {
   ///////////////////////////////////////////////////////////////////////////
   describe('suites', () => {
     it('allSuites()', async () => {
-      const lab = new MockLaboratory();
-
       const expected: ISuite[] = [];
 
       let called = false;
@@ -210,8 +196,6 @@ describe('laboratory/server', () => {
     });
 
     it('oneSuite()', async () => {
-      const lab = new MockLaboratory();
-
       let observedName: string | undefined;
       lab.oneSuite = async (name: string): Promise<ISuite> => {
         observedName = name;
@@ -230,8 +214,6 @@ describe('laboratory/server', () => {
     });
 
     it('upsertSuite()', async () => {
-      const lab = new MockLaboratory();
-
       let observed: ISuite;
       lab.upsertSuite = async (suite: ISuite, name?: string): Promise<void> => {
         observed = suite;
@@ -255,8 +237,6 @@ describe('laboratory/server', () => {
   ///////////////////////////////////////////////////////////////////////////
   describe('runs', () => {
     it('allRuns()', async () => {
-      const lab = new MockLaboratory();
-
       const expected: IRun[] = [];
 
       let called = false;
@@ -276,8 +256,6 @@ describe('laboratory/server', () => {
     });
 
     it('oneRun()', async () => {
-      const lab = new MockLaboratory();
-
       let observedName: string | undefined;
       lab.oneRun = async (name: string): Promise<IRun> => {
         observedName = name;
@@ -296,8 +274,6 @@ describe('laboratory/server', () => {
     });
 
     it('createRunRequest()', async () => {
-      const lab = new MockLaboratory();
-
       const runRequest: IRunRequest = {
         candidate: run1.candidate.name,
         suite: run1.suite.name,
@@ -324,8 +300,6 @@ describe('laboratory/server', () => {
     // This test fails because RunStatus.COMPLETED is serialized and transported as
     // Object {completed: ""}
     it('updateRunStatus()', async () => {
-      const lab = new MockLaboratory();
-
       const name = 'foobar';
       const status = RunStatus.COMPLETED;
       const body: IUpdateRunStatus = { status };
@@ -352,8 +326,6 @@ describe('laboratory/server', () => {
     });
 
     it('reportRunResults()', async () => {
-      const lab = new MockLaboratory();
-
       const name = 'foobar';
       const measures = { passed: 1, failed: 2 };
       const body: IReportRunResults = { measures };
@@ -380,8 +352,6 @@ describe('laboratory/server', () => {
     });
 
     it('allRunResults()', async () => {
-      const lab = new MockLaboratory();
-
       const benchmark = 'benchmark1';
       const suite = 'suite1';
       const expected: IResult[] = [];

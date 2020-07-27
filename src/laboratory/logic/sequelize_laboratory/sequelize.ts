@@ -5,7 +5,6 @@ import { Benchmark, Candidate, Result, Run, Suite } from './models';
 export async function initializeSequelize(
   options: SequelizeOptions
 ): Promise<Sequelize> {
-  // const sequelize = new Sequelize('sqlite::memory:');
   const sequelize = new Sequelize(options);
   sequelize.addModels([Benchmark, Candidate, Result, Run, Suite]);
 

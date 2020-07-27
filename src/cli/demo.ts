@@ -34,6 +34,18 @@ const suite1: ISuite = {
   name: 'suite1',
   author: 'author1',
   benchmark: 'benchmark1',
+  volumes: [
+    {
+      name: 'training',
+      type: 'AzureBlob',
+      target: 'https://sample.blob.core.windows.net/training',
+    },
+    {
+      name: 'reference',
+      type: 'AzureBlob',
+      target: 'https://sample.blob.core.windows.net/reference',
+    },
+  ],
 };
 
 export async function configureDemo(lab: LaboratoryClient) {

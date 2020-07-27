@@ -38,7 +38,19 @@ Content-Type: application/json
 {
   "name": "suite1",
   "author": "admin",
-  "benchmark": "benchmark1"
+  "benchmark": "benchmark1",
+  "volumes": [
+    {
+      "name": "training",
+      "type": "AzureBlob",
+      "target": "https://sample.blob.core.windows.net/training"
+    },
+    {
+      "name": "reference",
+      "type": "AzureBlob",
+      "target": "https://sample.blob.core.windows.net/training"
+    }
+  ]
 }
 
 ###
