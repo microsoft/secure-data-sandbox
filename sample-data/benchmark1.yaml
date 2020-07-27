@@ -2,5 +2,14 @@ name: benchmark1
 author: author1
 mode: mode1
 stages:
-  - {}
-  - image: benchmark-image
+  - name: candidate
+    kind: candidate
+    volumes:
+      - volume: training
+        path: /input
+  - name: scoring
+    kind: container
+    image: benchmark-image
+    volumes:
+      - volume: reference
+        path: /reference

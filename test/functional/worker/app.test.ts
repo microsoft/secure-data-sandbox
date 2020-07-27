@@ -103,11 +103,13 @@ describe('functional.worker', () => {
           cmd: ['/bin/sh', '-c', '--', `ls /input > /results/${runId}.txt`],
           volumes: [
             {
+              type: 'LocalFile',
               target: '/input',
               source: `${basePath}/input`,
               readonly: true,
             },
             {
+              type: 'LocalFile',
               target: '/results',
               source: `${basePath}/candidateOutput`,
               readonly: false,
@@ -126,11 +128,13 @@ describe('functional.worker', () => {
           ],
           volumes: [
             {
+              type: 'LocalFile',
               target: '/input',
               source: `${basePath}/candidateOutput`,
               readonly: true,
             },
             {
+              type: 'LocalFile',
               target: '/results',
               source: `${basePath}/scoredResults`,
               readonly: false,

@@ -11,6 +11,8 @@ import {
   IRunRequest,
   Measures,
   RunStatus,
+  BenchmarkStageKind,
+  ISuite,
 } from '../interfaces';
 
 import { PipelineRun, PipelineStage } from '../../../messages';
@@ -97,6 +99,7 @@ export async function processRunRequest(
     blobURI.toString(),
     name,
     benchmark,
+    suite,
     candidate
   );
   await queue.enqueue(message);
@@ -161,18 +164,36 @@ function createMessage(
   server: string,
   blobPrefix: string,
   name: string,
-  b: IBenchmark,
-  c: ICandidate
+  benchmark: IBenchmark,
+  suite: ISuite,
+  candidate: ICandidate
 ): PipelineRun {
-  const stages = b.stages.map(s => {
-    // TODO: make this explicit vs "lack of image means candidate"
-    const name = s.image ? 'benchmark' : 'candidate';
-    const image = s.image || c.image;
+  const stages = benchmark.stages.map(stage => {
+    const image =
+      stage.kind === BenchmarkStageKind.CANDIDATE
+        ? candidate.image
+        : stage.image!;
+    const volumes = stage.volumes?.map(v => {
+      const target = v.path;
 
-    // TODO implement cmd, env, volumes.
+      const sourceVolume = suite.volumes?.filter(sv => sv.name === v.volume)[0];
 
-    const stage: PipelineStage = { name, image };
-    return stage;
+      return {
+        type: sourceVolume.type,
+        target: v.path,
+        source: sourceVolume.target,
+        readonly: true,
+      };
+    });
+
+    // TODO implement cmd, env.
+
+    const pipelineStage: PipelineStage = {
+      name: stage.name,
+      image,
+      volumes,
+    };
+    return pipelineStage;
   });
 
   const statusEndpoint = new URL(`runs/${name}`, server);

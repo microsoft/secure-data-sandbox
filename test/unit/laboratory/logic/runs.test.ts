@@ -80,10 +80,26 @@ describe('laboratory/runs', () => {
         {
           image: candidate1.image,
           name: 'candidate',
+          volumes: [
+            {
+              type: 'AzureBlob',
+              target: '/input',
+              source: 'https://sample.blob.core.windows.net/training',
+              readonly: true,
+            },
+          ],
         },
         {
           image: benchmark1.stages[1].image!,
-          name: 'benchmark',
+          name: 'scoring',
+          volumes: [
+            {
+              type: 'AzureBlob',
+              target: '/reference',
+              source: 'https://sample.blob.core.windows.net/reference',
+              readonly: true,
+            },
+          ],
         },
       ],
       statusEndpoint: new URL(`runs/${run1.name}`, serviceURL).toString(),

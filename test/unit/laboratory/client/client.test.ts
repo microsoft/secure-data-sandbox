@@ -245,7 +245,7 @@ describe('laboratory/client', () => {
     it('reportRunResults()', async () => {
       let request: nock.Body;
       nock(endpoint)
-        .patch(`/runs/${run1.name}/results`)
+        .post(`/runs/${run1.name}/results`)
         .reply(200, (uri: string, body: nock.Body) => {
           request = body;
         });

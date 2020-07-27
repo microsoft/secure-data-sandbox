@@ -173,7 +173,7 @@ export class LaboratoryClient implements ILaboratory {
     const name = normalizeRunName(rawName);
     const url = new URL(`runs/${name}/results`, this.endpoint);
     const body: IReportRunResults = { measures };
-    await axios.patch(url.toString(), body, config);
+    await axios.post(url.toString(), body, config);
   }
 
   async allRunResults(benchmark: string, suite: string): Promise<IResult[]> {

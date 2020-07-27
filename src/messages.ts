@@ -17,6 +17,7 @@ export interface PipelineStage {
     [key: string]: string;
   }>;
   volumes?: ReadonlyArray<{
+    type: string;
     target: string;
     source: string;
     readonly: boolean;

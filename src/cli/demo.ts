@@ -6,6 +6,7 @@ import {
   ISuite,
   LaboratoryClient,
   RunStatus,
+  BenchmarkStageKind,
 } from '../laboratory';
 
 const benchmark1: IBenchmark = {
@@ -15,10 +16,26 @@ const benchmark1: IBenchmark = {
   stages: [
     {
       // Candidate
+      name: 'candidate',
+      kind: BenchmarkStageKind.CANDIDATE,
+      volumes: [
+        {
+          volume: 'training',
+          path: '/input',
+        },
+      ],
     },
     {
       // Benchmark
+      name: 'scoring',
       image: 'benchmark-image',
+      kind: BenchmarkStageKind.CONTAINER,
+      volumes: [
+        {
+          volume: 'reference',
+          path: '/reference',
+        },
+      ],
     },
   ],
 };

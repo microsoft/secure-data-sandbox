@@ -12,6 +12,7 @@ import {
   IRunRequest,
   ISuite,
   RunStatus,
+  BenchmarkStageKind,
 } from '../../../src';
 
 export const serviceURL = 'http://localhost:3000'; // TODO: plumb real url.
@@ -29,10 +30,26 @@ export const benchmark1: IBenchmark = {
   stages: [
     {
       // Candidate
+      name: 'candidate',
+      kind: BenchmarkStageKind.CANDIDATE,
+      volumes: [
+        {
+          volume: 'training',
+          path: '/input',
+        },
+      ],
     },
     {
       // Benchmark
+      name: 'scoring',
       image: 'benchmark-image',
+      kind: BenchmarkStageKind.CONTAINER,
+      volumes: [
+        {
+          volume: 'reference',
+          path: '/reference',
+        },
+      ],
     },
   ],
   ...timestamps,
@@ -45,10 +62,26 @@ export const benchmark2: IBenchmark = {
   stages: [
     {
       // Candidate
+      name: 'candidate',
+      kind: BenchmarkStageKind.CANDIDATE,
+      volumes: [
+        {
+          volume: 'training',
+          path: '/input',
+        },
+      ],
     },
     {
       // Benchmark
+      name: 'scoring',
       image: 'benchmark-image',
+      kind: BenchmarkStageKind.CONTAINER,
+      volumes: [
+        {
+          volume: 'reference',
+          path: '/reference',
+        },
+      ],
     },
   ],
   ...timestamps,
@@ -61,10 +94,26 @@ export const benchmark3: IBenchmark = {
   stages: [
     {
       // Candidate
+      name: 'candidate',
+      kind: BenchmarkStageKind.CANDIDATE,
+      volumes: [
+        {
+          volume: 'training',
+          path: '/input',
+        },
+      ],
     },
     {
       // Benchmark
+      name: 'scoring',
       image: 'benchmark-image',
+      kind: BenchmarkStageKind.CONTAINER,
+      volumes: [
+        {
+          volume: 'reference',
+          path: '/reference',
+        },
+      ],
     },
   ],
   ...timestamps,

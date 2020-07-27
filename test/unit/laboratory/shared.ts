@@ -8,10 +8,7 @@ import { assert } from 'chai';
 import chaiExclude from 'chai-exclude';
 import { Sequelize } from 'sequelize-typescript';
 
-import {
-  initializeSequelize,
-  SequelizeLaboratory,
-} from '../../../src';
+import { initializeSequelize, SequelizeLaboratory } from '../../../src';
 
 import { PipelineRun } from '../../../src/messages';
 import { InMemoryQueue } from '../../../src/queue';

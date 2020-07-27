@@ -35,7 +35,7 @@ This local instance does not have a worker pool, so it won't be able to actually
 
 Open two shell windows. In the first window, start the laboratory service:
 ~~~
-% node build/src/laboratory/server/main.js
+% npm run laboratory
 ~~~
 
 We can run the CLI run the second shell window. Let's start with the `--help` command:
@@ -47,31 +47,29 @@ Usage: sds [options] [command]
 Secure Data Sandbox CLI
 
 Options:
-  -V, --version                output the version number
   -h, --help                   display help for command
 
 Commands:
-  connect <server>             PARTIALLY IMPLEMENTED. Connect to a Laboratory service.
-  create <type> <spec>         Create a benchmark, candidate, or suite from a specification where <type> is either "benchmark",
-                               "candidate", or "suite".
+  connect [service]            Connect to a Laboratory [service] or print connection info.
+  create <type> <spec>         Create a benchmark, candidate, or suite from a specification where <type> is either "benchmark", "candidate", or
+                               "suite".
   demo                         Configures Laboratory service with demo data.
   deploy <server>              NOT YET IMPLEMENTED. Deploy a Laboratory service.
   examples                     Show usage examples.
   list <type>                  Display summary information about benchmarks, candidates, runs, and suites.
   results <benchmark> <suite>  Display the results of all runs against a named benchmark and suite.
   run <candidate> <suite>      Run a named <candidate> against a named <suite>.
-  show <type> [name]           Display all benchmarks, candidates, suites, or runs. If optional [name] is specified, only show
-                               matching items.
+  show <type> [name]           Display all benchmarks, candidates, suites, or runs. If optional [name] is specified, only show matching items.
   help [command]               display help for command
 
-For more information and examples, see https://github.com/microsoft/secure-data-sandbox/README.md
+For more information and examples, see https://github.com/microsoft/secure-data-sandbox/blob/main/laboratory/README.md
 ~~~
 
 The first thing we need to do is connect the CLI to the laboratory service that we just started. Currently the `build/src/laboratory/server/main.js` listens on port 3000 of localhost.
 ~~~
-% node build/src/cli/sds.js connect localhost:3000
+% node build/src/cli/sds.js connect http://localhost:3000
 
-Connected to http://localhost:3000/
+Connected to http://localhost:3000/.
 ~~~
 This writes the connection information to `~/.sds`, which is consulted every time the CLI is run. If you don't connect to a Laboratory, you will get the following error:
 ~~~
@@ -95,8 +93,17 @@ name: benchmark1
 author: author1
 mode: mode1
 stages:
-  - {}
-  - image: benchmark-image
+  - name: candidate
+    kind: candidate
+    volumes:
+      - volume: training
+        path: /input
+  - name: scoring
+    image: benchmark-image
+    kind: container
+    volumes:
+      - volume: reference
+        path: /reference
 
 
 === Sample candidate ===
@@ -111,16 +118,16 @@ name: suite1
 author: author1
 benchmark: benchmark1
 volumes:
-- name: training
-  type: AzureBlob
-  target: https://sample.blob.core.windows.net/training
-- name: reference
-  type: AzureBlob
-  target: https://sample.blob.core.windows.net/reference
+  - name: training
+    type: AzureBlob
+    target: 'https://sample.blob.core.windows.net/training'
+  - name: reference
+    type: AzureBlob
+    target: 'https://sample.blob.core.windows.net/reference'
 
 
-Initiated run f411c160-6bad-11ea-bd94-8fa64eaf2878
-Initiated run f4156ae0-6bad-11ea-bd94-8fa64eaf2878
+Initiated run 0db6c510-d059-11ea-ab64-31e44163fc86
+Initiated run 0dba4780-d059-11ea-ab64-31e44163fc86
 ~~~
 
 If we didn't want to use the built-in `demo` command, we could have created the benchmark, candidate, suite, and runs manually as follows:
@@ -135,10 +142,10 @@ candidate created
 suite created
 
 % node build/src/cli/sds.js run candidate1 suite1
-Scheduling run dfc8c5e0-6bae-11ea-bd94-8fa64eaf2878
+Scheduling run 1dae9970-d059-11ea-ab64-31e44163fc86
 
 % node build/src/cli/sds.js run candidate1 suite1
-Scheduling run e152c140-6bae-11ea-bd94-8fa64eaf2878
+Scheduling run 1fbe1880-d059-11ea-ab64-31e44163fc86
 ~~~
 
 The `demo` command does one thing we can't do through the CLI, and that is to pretend to be a worker and report status for the runs.
@@ -148,29 +155,38 @@ The `demo` command does one thing we can't do through the CLI, and that is to pr
 ~~~
 % node build/src/cli/sds.js list benchmark
 name         submitter   date
-benchmark1   author1     2020-03-19 14:37:31 PDT
+benchmark1   author1     2020-07-27 22:32:28 UTC
 
 % node build/src/cli/sds.js  list candidate
-name         submitter   date
-candidate1   author1     2020-03-19 14:37:31 PDT
+name         submitter   date  
+candidate1   author1     2020-07-27 22:32:28 UTC
 
 % node build/src/cli/sds.js list suite
 name     submitter   date
-suite1   author1     2020-03-19 14:39:15 PDT
+suite1   author1     2020-07-27 22:32:28 UTC
 ~~~
 
 **Show benchmarks, candidates, suites**
 ~~~
 % node build/src/cli/sds.js show benchmark benchmark1
-mode: mode1
 stages:
-  - {}
-  - image: benchmark-image
+  - name: candidate
+    kind: candidate
+    volumes:
+      - volume: training
+        path: /input
+  - name: scoring
+    kind: container
+    image: benchmark-image
+    volumes:
+      - volume: reference
+        path: /reference
 id: 1
 name: benchmark1
 author: author1
-createdAt: 2020-03-19T21:37:31.437Z
-updatedAt: 2020-03-21T20:00:04.907Z
+mode: mode1
+createdAt: 2020-07-27T22:32:28.865Z
+updatedAt: 2020-07-27T22:32:43.284Z
 
 
 % node build/src/cli/sds.js show candidate candidate1
@@ -179,27 +195,34 @@ name: candidate1
 author: author1
 benchmark: benchmark1
 image: candidate1-image
-createdAt: 2020-03-19T21:37:31.452Z
-updatedAt: 2020-03-21T20:00:37.772Z
+createdAt: 2020-07-27T22:32:28.883Z
+updatedAt: 2020-07-27T22:32:47.384Z
 
 
 % node build/src/cli/sds.js show suite suite1
+volumes:
+  - name: training
+    type: AzureBlob
+    target: 'https://sample.blob.core.windows.net/training'
+  - name: reference
+    type: AzureBlob
+    target: 'https://sample.blob.core.windows.net/reference'
 id: 1
 name: suite1
 author: author1
 benchmark: benchmark1
-createdAt: 2020-03-19T21:39:15.634Z
-updatedAt: 2020-03-21T20:00:48.302Z
+createdAt: 2020-07-27T22:32:28.889Z
+updatedAt: 2020-07-27T22:32:50.623Z
 ~~~
 
 **List runs**
 ~~~
 % node build/src/cli/sds.js list run
-name                                   submitter   date                     candidate    suite    status
-f411c160-6bad-11ea-bd94-8fa64eaf2878   unknown     2020-03-21 12:55:45 PDT  candidate1   suite1   completed
-f4156ae0-6bad-11ea-bd94-8fa64eaf2878   unknown     2020-03-21 12:55:45 PDT  candidate1   suite1   completed
-dfc8c5e0-6bae-11ea-bd94-8fa64eaf2878   unknown     2020-03-21 13:02:21 PDT  candidate1   suite1   created
-e152c140-6bae-11ea-bd94-8fa64eaf2878   unknown     2020-03-21 13:02:23 PDT  candidate1   suite1   created
+name                                   submitter   date                      candidate    suite    status   
+0db6c510-d059-11ea-ab64-31e44163fc86   unknown     2020-07-27 22:32:28 UTC   candidate1   suite1   completed
+0dba4780-d059-11ea-ab64-31e44163fc86   unknown     2020-07-27 22:32:28 UTC   candidate1   suite1   completed
+1dae9970-d059-11ea-ab64-31e44163fc86   unknown     2020-07-27 22:32:55 UTC   candidate1   suite1   created  
+1fbe1880-d059-11ea-ab64-31e44163fc86   unknown     2020-07-27 22:32:59 UTC   candidate1   suite1   created  
 ~~~
 
 **Displaying Run Results**
@@ -207,8 +230,8 @@ e152c140-6bae-11ea-bd94-8fa64eaf2878   unknown     2020-03-21 13:02:23 PDT  cand
 % node build/src/cli/sds.js results benchmark1 suite1
 
 run                                    submitter   date                      passed   failed   skipped
-f411c160-6bad-11ea-bd94-8fa64eaf2878   unknown     2020-03-21 12:55:45 PDT        5        6       ---
-f4156ae0-6bad-11ea-bd94-8fa64eaf2878   unknown     2020-03-21 12:55:45 PDT        3      ---         7
+0db6c510-d059-11ea-ab64-31e44163fc86   unknown     2020-07-27 22:32:28 UTC        5        6       ---
+0dba4780-d059-11ea-ab64-31e44163fc86   unknown     2020-07-27 22:32:28 UTC        3      ---         7
 ~~~
 
 ## Deploying SDS to the cloud

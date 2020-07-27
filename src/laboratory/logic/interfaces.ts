@@ -14,6 +14,19 @@ const DateType = new t.Type<Date, string, unknown>(
   a => a.toISOString()
 );
 
+// createEnum() from https://github.com/gcanti/io-ts/issues/67
+
+// tslint:disable-next-line:no-any
+const createEnum = <E>(e: any, name: string): t.Type<E> => {
+  // tslint:disable-next-line:no-any
+  const keys: any = {};
+  Object.keys(e).forEach(k => {
+    keys[e[k]] = null;
+  });
+  // tslint:disable-next-line:no-any
+  return t.keyof(keys, name) as any;
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // EntityBase
@@ -39,10 +52,36 @@ export type IEntityBase = t.TypeOf<typeof EntityBaseType>;
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+export enum BenchmarkStageKind {
+  CANDIDATE = 'candidate',
+  CONTAINER = 'container',
+}
+
 // tslint:disable-next-line:variable-name
-const PipelineStageType = t.partial({
-  image: t.string,
+const BenchmarkStageKindType = createEnum<BenchmarkStageKind>(
+  BenchmarkStageKind,
+  'BenchmarkStageKind'
+);
+
+// tslint:disable-next-line:variable-name
+const PipelineStageVolumeMountType = t.type({
+  volume: t.string,
+  path: t.string,
 });
+type PipelineStageVolumeMount = t.TypeOf<typeof PipelineStageVolumeMountType>;
+
+// TODO: make 'image' required when kind == 'container'
+// tslint:disable-next-line:variable-name
+const PipelineStageType = t.intersection([
+  t.type({
+    name: t.string,
+    kind: BenchmarkStageKindType,
+  }),
+  t.partial({
+    image: t.string,
+    volumes: t.array(PipelineStageVolumeMountType),
+  }),
+]);
 export type PipelineStage = t.TypeOf<typeof PipelineStageType>;
 
 // tslint:disable-next-line:variable-name
@@ -84,7 +123,7 @@ export const CandidateArrayType = t.array(CandidateType);
 ///////////////////////////////////////////////////////////////////////////////
 
 // tslint:disable-next-line:variable-name
-const SuiteVolumeType = t.partial({
+const SuiteVolumeType = t.type({
   name: t.string,
   type: t.string,
   target: t.string,
@@ -109,19 +148,6 @@ export const SuiteArrayType = t.array(SuiteType);
 // IRun
 //
 ///////////////////////////////////////////////////////////////////////////////
-
-// createEnum() from https://github.com/gcanti/io-ts/issues/67
-
-// tslint:disable-next-line:no-any
-const createEnum = <E>(e: any, name: string): t.Type<E> => {
-  // tslint:disable-next-line:no-any
-  const keys: any = {};
-  Object.keys(e).forEach(k => {
-    keys[e[k]] = null;
-  });
-  // tslint:disable-next-line:no-any
-  return t.keyof(keys, name) as any;
-};
 
 export enum RunStatus {
   CREATED = 'created',

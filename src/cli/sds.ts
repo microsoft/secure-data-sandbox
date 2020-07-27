@@ -6,6 +6,7 @@ import * as yaml from 'js-yaml';
 import { DateTime } from 'luxon';
 import * as os from 'os';
 import * as path from 'path';
+import * as url from 'url';
 
 import {
   BenchmarkType,
@@ -157,16 +158,8 @@ async function connect(host: string) {
       );
     }
   } else {
-    // Hostname validation according to RFC 1123 and RFC 952.
-    // https://stackoverflow.com/questions/106179/regular-expression-to-match-dns-hostname-or-ip-address
-    const ipRE = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(:\d+)?$/;
-    const hostRE = /^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])(\.([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9]))*(:\d+)?$/;
-    if (!host.match(ipRE) && !host.match(hostRE)) {
-      const message = `Illegal host "${host}"`;
-      throw new IllegalOperationError(message);
-    }
-    const url = new URL('https://' + host);
-    const endpoint = url.toString();
+    const labUrl = url.parse(host);
+    const endpoint = labUrl.href;
     const config = yaml.safeDump({ endpoint });
     fs.writeFileSync(sdsFile, config);
     tryInitializeConnection();
