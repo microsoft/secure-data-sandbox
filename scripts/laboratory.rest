@@ -13,9 +13,26 @@ Content-Type: application/json
   "mode": "default",
   "stages": [
     {
-      "image": "{{laboratoryRegistry}}/alpine"
+      "name": "candidate",
+      "kind": "candidate",
+      "volumes": [
+        {
+          "volume": "training",
+          "path": "/input"
+        }
+      ]
     },
-    {}
+    {
+      "name": "scoring",
+      "kind": "container",
+      "image": "{{laboratoryRegistry}}/alpine",
+      "volumes": [
+        {
+          "volume": "reference",
+          "path": "/reference"
+        }
+      ]
+    }
   ]
 }
 

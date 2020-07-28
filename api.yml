@@ -260,8 +260,30 @@ components:
     PipelineStage:
       type: object
       properties:
+        name:
+          type: string
+        kind:
+          type: string
+          enum:
+          - candidate
+          - container
         image:
           type: string
+        volumes:
+          type: array
+          items:
+            type: object
+            properties:
+              volume:
+                type: string
+              path:
+                type: string
+            required:
+            - volume
+            - path
+      required:
+      - name
+      - kind
     IBenchmark:
       type: object
       allOf:
@@ -283,8 +305,24 @@ components:
       properties:
         benchmark:
           type: string
+        volumes:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              type:
+                type: string
+              target:
+                type: string
+            required:
+            - name
+            - type
+            - target
       required: 
       - benchmark
+      - volumes
     ICandidate:
       type: object
       allOf:
