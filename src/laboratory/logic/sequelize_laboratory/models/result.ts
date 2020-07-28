@@ -8,7 +8,7 @@ import { jsonColumn } from './decorators';
 export class Result extends Model<Result> implements IResult {
   @Column({
     type: DataType.STRING,
-    unique: true,
+    primaryKey: true,
   })
   name!: string;
 

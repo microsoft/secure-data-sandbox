@@ -14,7 +14,7 @@ import { jsonColumn } from './decorators';
 export class Run extends Model<Run> implements IRun {
   @Column({
     type: DataType.STRING,
-    unique: true,
+    primaryKey: true,
   })
   name!: string;
 

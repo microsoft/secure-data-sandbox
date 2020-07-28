@@ -8,7 +8,7 @@ import { jsonColumn } from './decorators';
 export class Suite extends Model<Suite> implements ISuite {
   @Column({
     type: DataType.STRING,
-    unique: true,
+    primaryKey: true,
   })
   name!: string;
 

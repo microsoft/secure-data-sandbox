@@ -181,7 +181,6 @@ stages:
     volumes:
       - volume: reference
         path: /reference
-id: 1
 name: benchmark1
 author: author1
 mode: mode1
@@ -190,7 +189,6 @@ updatedAt: 2020-07-27T22:32:43.284Z
 
 
 % node build/src/cli/sds.js show candidate candidate1
-id: 1
 name: candidate1
 author: author1
 benchmark: benchmark1
@@ -207,7 +205,6 @@ volumes:
   - name: reference
     type: AzureBlob
     target: 'https://sample.blob.core.windows.net/reference'
-id: 1
 name: suite1
 author: author1
 benchmark: benchmark1

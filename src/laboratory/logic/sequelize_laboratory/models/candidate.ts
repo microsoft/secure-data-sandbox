@@ -6,7 +6,7 @@ import { ICandidate } from '../../interfaces';
 export class Candidate extends Model<Candidate> implements ICandidate {
   @Column({
     type: DataType.STRING,
-    unique: true,
+    primaryKey: true,
   })
   name!: string;
 

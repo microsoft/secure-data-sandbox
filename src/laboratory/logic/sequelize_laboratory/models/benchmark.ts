@@ -8,7 +8,7 @@ import { jsonColumn } from './decorators';
 export class Benchmark extends Model<Benchmark> implements IBenchmark {
   @Column({
     type: DataType.STRING,
-    unique: true,
+    primaryKey: true,
   })
   name!: string;
 
