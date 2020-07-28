@@ -3,7 +3,7 @@ import { ParseQueueConfiguration } from '../configuration';
 import { PipelineWorker } from '.';
 import { PipelineRun } from '../messages';
 
-async function main() {
+async function main(argv: string[]) {
   const queueConfig = ParseQueueConfiguration();
   const queue = GetQueue<PipelineRun>(queueConfig);
 
@@ -12,4 +12,4 @@ async function main() {
   worker.start();
 }
 
-main().catch(e => console.error(e));
+main(process.argv).catch(e => console.error(e));

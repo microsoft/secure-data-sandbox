@@ -25,7 +25,6 @@ import {
 import { decodeError } from './decode_error';
 import { configureDemo } from './demo';
 import { formatChoices, formatTable, Alignment } from './formatting';
-import { URL } from 'url';
 
 const readme =
   'https://github.com/microsoft/secure-data-sandbox/blob/main/laboratory/README.md';
