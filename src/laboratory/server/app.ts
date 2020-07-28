@@ -17,10 +17,10 @@ export async function createApp(lab: ILaboratory): Promise<express.Express> {
     .use(express.json())
 
     // Set up application routes
-    .use('/benchmarks', createBenchmarkRouter(lab))
-    .use('/candidates', createCandidateRouter(lab))
-    .use('/runs', createRunRouter(lab))
-    .use('/suites', createSuiteRouter(lab))
+    .use(createBenchmarkRouter(lab))
+    .use(createCandidateRouter(lab))
+    .use(createRunRouter(lab))
+    .use(createSuiteRouter(lab))
 
     // Handle known errors
     .use(setErrorStatus)

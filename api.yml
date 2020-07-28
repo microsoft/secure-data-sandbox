@@ -147,9 +147,18 @@ paths:
   /runs:
     get:
       tags: [Runs]
+      parameters:
+      - name: benchmark
+        in: query
+        schema:
+          type: string
+      - name: suite
+        in: query
+        schema:
+          type: string
       responses:
         200:
-          description: Get all runs
+          description: Get runs
           content:
             application/json:
               schema:
@@ -216,29 +225,6 @@ paths:
       responses:
         200:
           description: Add results to a run
-  /runs/{benchmark}/{suite}:
-    parameters:
-    - name: benchmark
-      in: path
-      required: true
-      schema:
-        type: string
-    - name: suite
-      in: path
-      required: true
-      schema:
-        type: string
-    get:
-      tags: [Runs]
-      responses:
-        200:
-          description: Get results
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/IResult"
 components:
   schemas:
     IEntityBase:

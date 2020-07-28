@@ -179,7 +179,7 @@ export class LaboratoryClient implements ILaboratory {
   async allRunResults(benchmark: string, suite: string): Promise<IResult[]> {
     const b = normalizeName(benchmark);
     const s = normalizeName(suite);
-    const url = new URL(`runs/${b}/${s}`, this.endpoint);
+    const url = new URL(`runs?benchmark=${b}&suite=${s}`, this.endpoint);
     const response = await axios.get(url.toString(), config);
     const results = validate(ResultArrayType, response.data);
     return results;

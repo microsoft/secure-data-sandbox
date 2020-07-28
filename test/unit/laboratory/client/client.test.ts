@@ -266,7 +266,7 @@ describe('laboratory/client', () => {
       const suite = 'suite1';
 
       nock(endpoint)
-        .get(`/runs/${benchmark}/${suite}`)
+        .get(`/runs?benchmark=${benchmark}&suite=${suite}`)
         .reply(200, []);
 
       const client = new LaboratoryClient(endpoint);

@@ -148,4 +148,4 @@ Content-Type: application/json
 ###
 
 # Get run results
-GET {{laboratoryHost}}/runs/benchmark1/suite1
+GET {{laboratoryHost}}/runs?benchmark=benchmark1&suite=suite1
