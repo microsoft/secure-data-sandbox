@@ -129,7 +129,7 @@ PATCH {{laboratoryHost}}/runs/{{runName}}
 Content-Type: application/json
 
 {
-  "status": "created"
+  "status": "running"
 }
 
 ###

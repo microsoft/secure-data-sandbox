@@ -29,6 +29,7 @@ export function createRunRouter(lab: ILaboratory): Router {
     .post(async (req, res) => {
       const runRequest = validate(RunRequestType, req.body);
       const run = await lab.createRunRequest(runRequest);
+      res.status(202);
       res.json(run);
     });
 
@@ -39,12 +40,16 @@ export function createRunRouter(lab: ILaboratory): Router {
     })
     .patch(async (req, res) => {
       const { status } = validate(UpdateRunStatusType, req.body);
-      res.json(await lab.updateRunStatus(req.params['name'], status));
+      await lab.updateRunStatus(req.params['name'], status);
+      res.status(204);
+      res.end();
     });
 
   router.post('/runs/:name/results', async (req, res) => {
     const { measures } = validate(ReportRunResultsType, req.body);
-    res.json(await lab.reportRunResults(req.params['name'], measures));
+    await lab.reportRunResults(req.params['name'], measures)
+    res.status(204);
+    res.end();
   });
 
   return router;

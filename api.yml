@@ -174,8 +174,8 @@ paths:
             schema:
               $ref: "#/components/schemas/IRunRequest"
       responses:
-        200:
-          description: Invoke a run
+        202:
+          description: Schedule a run
           content:
             application/json:
               schema:
@@ -205,7 +205,7 @@ paths:
             schema:
               $ref: "#/components/schemas/UpdateRunStatus"
       responses:
-        200:
+        204:
           description: Update a Run
   /runs/{name}/results:
     parameters:
@@ -223,7 +223,7 @@ paths:
               $ref: "#/components/schemas/ReportRunResults"
       tags: [Runs]
       responses:
-        200:
+        204:
           description: Add results to a run
 components:
   schemas:
