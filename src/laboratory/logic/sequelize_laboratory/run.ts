@@ -31,7 +31,6 @@ export function normalizeRunRequest(runRequest: IRunRequest): IRunRequest {
 export async function processRunRequest(
   server: string,
   runRequest: IRunRequest,
-  runBlobBase: string,
   queue: IQueue<PipelineRun>
 ): Promise<Run> {
   // Verify that referenced candidate exists.
@@ -72,19 +71,10 @@ export async function processRunRequest(
   // TODO: consider moving name generation to normalize.ts.
   const name = v1();
 
-  // `new URL()` will clobber the final path segment unless the
-  // base ends with a trailing slash, so ensure it here
-  if (!runBlobBase.endsWith('/')) {
-    runBlobBase += '/';
-  }
-
-  const blobURI: URL = new URL(name, runBlobBase);
-
   const run: IRun = {
     name,
     author: 'unknown', // TODO: fill in name
     status: RunStatus.CREATED,
-    blob: blobURI.toString(),
     benchmark,
     candidate,
     suite,
@@ -94,14 +84,7 @@ export async function processRunRequest(
   const result = await Run.create(run);
 
   // Queue the run request.
-  const message = createMessage(
-    server,
-    blobURI.toString(),
-    name,
-    benchmark,
-    suite,
-    candidate
-  );
+  const message = createMessage(server, name, benchmark, suite, candidate);
   await queue.enqueue(message);
 
   return result;
@@ -162,7 +145,6 @@ export async function processRunResults(
 
 function createMessage(
   server: string,
-  blobPrefix: string,
   name: string,
   benchmark: IBenchmark,
   suite: ISuite,
@@ -201,7 +183,6 @@ function createMessage(
 
   const message: PipelineRun = {
     name,
-    blobPrefix,
     statusEndpoint: statusEndpoint.toString(),
     resultsEndpoint: resultsEndpoint.toString(),
     stages,

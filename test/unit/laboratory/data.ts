@@ -16,7 +16,6 @@ import {
 } from '../../../src';
 
 export const serviceURL = 'http://localhost:3000'; // TODO: plumb real url.
-export const blobBase = 'http://blobs';
 
 export const timestamps = {
   createdAt: new Date('2020-03-19T21:37:31.452Z'),
@@ -212,7 +211,6 @@ export const run1: IRun = {
   benchmark: benchmark1,
   candidate: candidate1,
   suite: suite1,
-  blob: new URL(runid, blobBase).toString(),
   status: RunStatus.CREATED,
   ...timestamps,
 };

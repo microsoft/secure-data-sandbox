@@ -290,7 +290,7 @@ describe('laboratory/server', () => {
         .post(`/runs`)
         .send(runRequest)
         .end((err, res) => {
-          assert.equal(res.status, 200);
+          assert.equal(res.status, 202);
           assert.deepEqual(observedRequest, runRequest);
           const observed = validate(RunType, res.body);
           assert.deepEqual(observed, run1);
@@ -319,7 +319,7 @@ describe('laboratory/server', () => {
         .patch(`/runs/${name}`)
         .send(body)
         .end((err, res) => {
-          assert.equal(res.status, 200);
+          assert.equal(res.status, 204);
           assert.equal(observedRawName, name);
           assert.equal(observedStatus, status);
         });
@@ -345,7 +345,7 @@ describe('laboratory/server', () => {
         .post(`/runs/${name}/results`)
         .send(body)
         .end((err, res) => {
-          assert.equal(res.status, 200);
+          assert.equal(res.status, 204);
           assert.equal(observedName, name);
           assert.deepEqual(observedMeasures, measures);
         });

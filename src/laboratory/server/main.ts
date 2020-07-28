@@ -14,17 +14,12 @@ async function main(argv: string[]) {
   const sequelizeOptions = GetSequelizeOptions(config.database);
   await initializeSequelize(sequelizeOptions);
 
-  const lab = new SequelizeLaboratory(
-    config.endpointBaseUrl,
-    config.blobContainerUrl,
-    queue
-  );
+  const lab = new SequelizeLaboratory(config.endpointBaseUrl, queue);
 
   const app = await createApp(lab);
   app.listen(config.port, () => {
     console.log('Starting SDS laboratory service.');
     console.log(`Service url is ${config.endpointBaseUrl}.`);
-    console.log(`Blob base is ${config.blobContainerUrl}.`);
     console.info(`Laboratory service listening on port ${config.port}.`);
   });
 }

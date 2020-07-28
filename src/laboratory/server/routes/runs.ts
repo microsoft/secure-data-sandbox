@@ -47,7 +47,7 @@ export function createRunRouter(lab: ILaboratory): Router {
 
   router.post('/runs/:name/results', async (req, res) => {
     const { measures } = validate(ReportRunResultsType, req.body);
-    await lab.reportRunResults(req.params['name'], measures)
+    await lab.reportRunResults(req.params['name'], measures);
     res.status(204);
     res.end();
   });

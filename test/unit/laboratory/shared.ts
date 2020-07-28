@@ -13,7 +13,7 @@ import { initializeSequelize, SequelizeLaboratory } from '../../../src';
 import { PipelineRun } from '../../../src/messages';
 import { InMemoryQueue } from '../../../src/queue';
 
-import { blobBase, serviceURL } from './data';
+import { serviceURL } from './data';
 
 chai.use(chaiExclude);
 
@@ -39,7 +39,7 @@ export async function resetTestEnvironment() {
   await sequelize.drop();
   await sequelize.sync();
   queue = new InMemoryQueue<PipelineRun>();
-  lab = new SequelizeLaboratory(serviceURL, blobBase, queue);
+  lab = new SequelizeLaboratory(serviceURL, queue);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

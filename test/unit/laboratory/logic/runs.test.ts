@@ -8,7 +8,6 @@ import { IResult, IRun, RunStatus } from '../../../../src';
 
 import {
   benchmark1,
-  blobBase,
   candidate1,
   candidate2,
   serviceURL,
@@ -50,7 +49,6 @@ describe('laboratory/runs', () => {
       benchmark: benchmark1,
       candidate: candidate1,
       suite: suite1,
-      blob: `${blobBase}/${run1.name}`,
       status: RunStatus.CREATED,
     };
     assertDeepEqual(run1, expectedRun1);
@@ -70,7 +68,6 @@ describe('laboratory/runs', () => {
     await messages[0].complete();
 
     const expectedMessage = {
-      blobPrefix: new URL(run1.name, blobBase).toString(),
       name: run1.name,
       resultsEndpoint: new URL(
         `runs/${run1.name}/results`,
@@ -149,7 +146,6 @@ describe('laboratory/runs', () => {
       benchmark: benchmark1,
       candidate: candidate2,
       suite: suite1,
-      blob: `${blobBase}/${r2.name}`,
       status: RunStatus.CREATED,
     };
     assertDeepEqual(bothRuns[1], expected2);

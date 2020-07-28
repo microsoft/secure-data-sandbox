@@ -166,7 +166,6 @@ export const RunType = t.intersection([
     benchmark: BenchmarkType,
     suite: SuiteType,
     candidate: CandidateType,
-    blob: t.string,
     status: RunStatusType,
   }),
 ]);

@@ -9,7 +9,6 @@ async function createRun(queue: IQueue<PipelineRun>) {
   const runId = v1();
   await queue.enqueue({
     name: `${runId}`,
-    blobPrefix: `https://storage.blob.core.windows.net/runs/${runId}`,
     statusEndpoint: `http://mylaboratory/runs/${runId}`,
     resultsEndpoint: `http://mylaboratory/runs/${runId}/results`,
     stages: [

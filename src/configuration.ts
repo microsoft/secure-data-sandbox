@@ -135,11 +135,6 @@ export function ParseLaboratoryConfiguration() {
 
   return {
     endpointBaseUrl,
-    blobContainerUrl: env
-      .get('BLOB_CONTAINER')
-      // TODO: review defaults. We probably want Azure by default, and opt-into "dev mode" via `npm run foo:dev`
-      .default('http://blobs')
-      .asUrlString(),
     port,
     queue: ParseQueueConfiguration(),
     database: ParseDatabaseConfiguration(),

@@ -214,7 +214,7 @@ describe('laboratory/client', () => {
       let request: nock.Body;
       nock(endpoint)
         .post('/runs')
-        .reply(200, (uri: string, body: nock.Body) => {
+        .reply(202, (uri: string, body: nock.Body) => {
           request = body;
           return run1;
         });
@@ -229,7 +229,7 @@ describe('laboratory/client', () => {
       let request: nock.Body;
       nock(endpoint)
         .patch(`/runs/${run1.name}`)
-        .reply(200, (uri: string, body: nock.Body) => {
+        .reply(204, (uri: string, body: nock.Body) => {
           request = body;
         });
 
@@ -246,7 +246,7 @@ describe('laboratory/client', () => {
       let request: nock.Body;
       nock(endpoint)
         .post(`/runs/${run1.name}/results`)
-        .reply(200, (uri: string, body: nock.Body) => {
+        .reply(204, (uri: string, body: nock.Body) => {
           request = body;
         });
 

@@ -33,7 +33,6 @@ describe('functional.worker', () => {
     const runId = v1();
     await queue.enqueue({
       name: runId,
-      blobPrefix: `https://test.blob.core.windows.net/runs/${runId}`,
       statusEndpoint: `http://localhost:3000/runs/${runId}`,
       resultsEndpoint: `http://localhost/runs/${runId}/results`,
       stages: [
@@ -55,7 +54,6 @@ describe('functional.worker', () => {
     const runId = v1();
     await queue.enqueue({
       name: runId,
-      blobPrefix: `https://test.blob.core.windows.net/runs/${runId}`,
       statusEndpoint: `http://localhost:3000/runs/${runId}`,
       resultsEndpoint: `http://localhost/runs/${runId}/results`,
       stages: [
@@ -92,7 +90,6 @@ describe('functional.worker', () => {
 
     await queue.enqueue({
       name: runId,
-      blobPrefix: `https://test.blob.core.windows.net/runs/${runId}`,
       statusEndpoint: `http://localhost:3000/runs/${runId}`,
       resultsEndpoint: `http://localhost/runs/${runId}/results`,
       stages: [
