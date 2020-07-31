@@ -1,12 +1,9 @@
 import { Command } from 'commander';
 import * as fs from 'fs';
 import { Decoder } from 'io-ts';
-import * as t from 'io-ts';
 import * as yaml from 'js-yaml';
 import { DateTime } from 'luxon';
-import * as os from 'os';
 import * as path from 'path';
-import * as url from 'url';
 
 import {
   BenchmarkType,
@@ -17,11 +14,11 @@ import {
   IllegalOperationError,
   IRun,
   ISuite,
-  LaboratoryClient,
   SuiteType,
   validate,
 } from '../laboratory';
 
+import { initConnection, getLabClient } from './conn';
 import { decodeError } from './decode_error';
 import { configureDemo } from './demo';
 import { formatChoices, formatTable, Alignment } from './formatting';
@@ -149,21 +146,11 @@ function examples(argv: string[]) {
 ///////////////////////////////////////////////////////////////////////////////
 async function connect(host: string) {
   if (host === undefined) {
-    if (connection) {
-      console.log(`Connected to ${connection!.endpoint}.`);
-    } else {
-      console.log(
-        'No laboratory connection. Use the "connect" command to specify a laboratory.'
-      );
-    }
-  } else {
-    const labUrl = url.parse(host);
-    const endpoint = labUrl.href;
-    const config = yaml.safeDump({ endpoint });
-    fs.writeFileSync(sdsFile, config);
-    tryInitializeConnection();
-    console.log(`Connected to ${endpoint}.`);
+    throw new Error('You must specify a host.');
   }
+
+  await initConnection(host);
+  console.log(`Connected to ${host}.`);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -189,7 +176,7 @@ async function createHelper<T>(ops: ISpecOps<T>, specFile: string) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 async function demo() {
-  configureDemo(getLab());
+  configureDemo(await getLabClient());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -265,7 +252,7 @@ async function listHelper<T extends IEntityBase>(
 //
 ///////////////////////////////////////////////////////////////////////////////
 async function results(benchmark: string, suite: string) {
-  const results = await getLab().allRunResults(benchmark, suite);
+  const results = await (await getLabClient()).allRunResults(benchmark, suite);
 
   if (results.length === 0) {
     console.log(`No matching results`);
@@ -320,7 +307,10 @@ async function results(benchmark: string, suite: string) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 async function run(candidate: string, suite: string) {
-  const run = await getLab().createRunRequest({ candidate, suite });
+  const run = await (await getLabClient()).createRunRequest({
+    candidate,
+    suite,
+  });
   console.log(`Scheduling run ${run.name}`);
 }
 
@@ -371,29 +361,30 @@ const benchmarkOps: ISpecOps<IBenchmark> = {
   name: () => 'benchmark',
   load: (specFile: string) => load(BenchmarkType, specFile),
   format: (spec: IBenchmark) => formatSpec(spec),
-  all: () => getLab().allBenchmarks(),
-  one: (name: string) => getLab().oneBenchmark(name),
-  upsert: (spec: IBenchmark, name?: string) =>
-    getLab().upsertBenchmark(spec, name),
+  all: async () => (await getLabClient()).allBenchmarks(),
+  one: async (name: string) => (await getLabClient()).oneBenchmark(name),
+  upsert: async (spec: IBenchmark, name?: string) =>
+    (await getLabClient()).upsertBenchmark(spec, name),
 };
 
 const candidateOps: ISpecOps<ICandidate> = {
   name: () => 'candidate',
   load: (specFile: string) => load(CandidateType, specFile),
   format: (spec: ICandidate) => formatSpec(spec),
-  all: () => getLab().allCandidates(),
-  one: (name: string) => getLab().oneCandidate(name),
-  upsert: (spec: ICandidate, name?: string) =>
-    getLab().upsertCandidate(spec, name),
+  all: async () => (await getLabClient()).allCandidates(),
+  one: async (name: string) => (await getLabClient()).oneCandidate(name),
+  upsert: async (spec: ICandidate, name?: string) =>
+    (await getLabClient()).upsertCandidate(spec, name),
 };
 
 const suiteOps: ISpecOps<ISuite> = {
   name: () => 'suite',
   load: (specFile: string) => load(SuiteType, specFile),
   format: (spec: ISuite) => formatSpec(spec),
-  all: () => getLab().allSuites(),
-  one: (name: string) => getLab().oneSuite(name),
-  upsert: (spec: ISuite, name?: string) => getLab().upsertSuite(spec, name),
+  all: async () => (await getLabClient()).allSuites(),
+  one: async (name: string) => (await getLabClient()).oneSuite(name),
+  upsert: async (spec: ISuite, name?: string) =>
+    (await getLabClient()).upsertSuite(spec, name),
 };
 
 const runOps: ISpecOps<IRun> = {
@@ -402,8 +393,8 @@ const runOps: ISpecOps<IRun> = {
     throw new IllegalOperationError(`Load operation not supported for IRun.`);
   },
   format: (spec: IRun) => formatSpec(spec),
-  all: () => getLab().allRuns(),
-  one: (name: string) => getLab().oneRun(name),
+  all: async () => (await getLabClient()).allRuns(),
+  one: async (name: string) => (await getLabClient()).oneRun(name),
   upsert: (spec: IRun, name?: string) => {
     throw new IllegalOperationError(`Upsert operation not supported for IRun.`);
   },
@@ -453,49 +444,6 @@ function load<I, A>(decoder: Decoder<I, A>, specFile: string): A {
 
 function formatSpec(spec: object) {
   return yaml.safeDump(spec, {});
-}
-
-///////////////////////////////////////////////////////////////////////////////
-//
-// Connection management
-//
-///////////////////////////////////////////////////////////////////////////////
-
-// tslint:disable-next-line:variable-name
-const ConnectConfigurationType = t.type({
-  endpoint: t.string,
-});
-export type IConnectConfiguration = t.TypeOf<typeof ConnectConfigurationType>;
-
-const sdsFile = path.join(os.homedir(), '.sds');
-let connection: IConnectConfiguration | undefined;
-let lab: LaboratoryClient | undefined;
-
-function getLab(): LaboratoryClient {
-  if (connection === undefined || lab === undefined) {
-    tryInitializeConnection();
-  }
-  if (connection === undefined || lab === undefined) {
-    const message =
-      'No laboratory connection. Use the "connect" command to specify a laboratory.';
-    throw new IllegalOperationError(message);
-  }
-  return lab;
-}
-
-function tryInitializeConnection() {
-  try {
-    const yamlText = fs.readFileSync(sdsFile, 'utf8');
-    const root = yaml.safeLoad(yamlText);
-    connection = validate(ConnectConfigurationType, root);
-    lab = new LaboratoryClient(connection.endpoint);
-  } catch (e) {
-    const err = e as NodeJS.ErrnoException;
-    if (err.code !== 'ENOENT') {
-      const message = `Invalid ~/.sds file: "${err.message}"`;
-      console.log(message);
-    }
-  }
 }
 
 main(process.argv);

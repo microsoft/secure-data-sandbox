@@ -6,8 +6,10 @@ import {
   BenchmarkType,
   CandidateArrayType,
   CandidateType,
+  ClientConnectionInfoType,
   IBenchmark,
   ICandidate,
+  IClientConnectionInfo,
   ILaboratory,
   IllegalOperationError,
   IReportRunResults,
@@ -28,15 +30,48 @@ import {
   validate,
 } from '../logic';
 
-const config: AxiosRequestConfig = {
-  // TODO: put credentials here.
-};
+// A TokenRetriever should return a valid OAuth2 Bearer token
+type TokenRetriever = () => Promise<string>;
 
 export class LaboratoryClient implements ILaboratory {
   endpoint: string;
+  tokenRetriever?: TokenRetriever;
 
-  constructor(endpoint: string) {
+  constructor(endpoint: string, tokenRetriever?: TokenRetriever) {
     this.endpoint = endpoint;
+    this.tokenRetriever = tokenRetriever;
+  }
+
+  private async getConfig(): Promise<AxiosRequestConfig> {
+    if (this.tokenRetriever) {
+      return {
+        headers: {
+          Authorization: `Bearer ${await this.tokenRetriever()}`,
+        },
+      };
+    }
+
+    return {};
+  }
+
+  /////////////////////////////////////////////////////////////////////////////
+  //
+  // Connection info
+  //
+  /////////////////////////////////////////////////////////////////////////////
+  async negotiateConnection(): Promise<IClientConnectionInfo> {
+    const url = new URL('connect', this.endpoint);
+    const response = await axios.get(url.toString());
+    const connectionInfo = validate(ClientConnectionInfoType, response.data);
+    return connectionInfo;
+  }
+
+  async validateConnection(): Promise<void> {
+    const url = new URL('connect/validate', this.endpoint);
+    const response = await axios.get(url.toString(), await this.getConfig());
+    if (response.status !== 200) {
+      throw new Error('There was something wrong with the connection');
+    }
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -46,7 +81,7 @@ export class LaboratoryClient implements ILaboratory {
   /////////////////////////////////////////////////////////////////////////////
   async allBenchmarks(): Promise<IBenchmark[]> {
     const url = new URL('benchmarks', this.endpoint);
-    const response = await axios.get(url.toString(), config);
+    const response = await axios.get(url.toString(), await this.getConfig());
     const benchmarks = validate(BenchmarkArrayType, response.data);
     return benchmarks;
   }
@@ -54,7 +89,7 @@ export class LaboratoryClient implements ILaboratory {
   async oneBenchmark(rawName: string): Promise<IBenchmark> {
     const name = normalizeName(rawName);
     const url = new URL(`benchmarks/${name}`, this.endpoint);
-    const response = await axios.get(url.toString(), config);
+    const response = await axios.get(url.toString(), await this.getConfig());
     const benchmark = validate(BenchmarkType, response.data);
     return benchmark;
   }
@@ -69,7 +104,7 @@ export class LaboratoryClient implements ILaboratory {
       throw new IllegalOperationError(message);
     }
     const url = new URL(`benchmarks/${name}`, this.endpoint);
-    await axios.put(url.toString(), benchmark, config);
+    await axios.put(url.toString(), benchmark, await this.getConfig());
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -79,7 +114,7 @@ export class LaboratoryClient implements ILaboratory {
   /////////////////////////////////////////////////////////////////////////////
   async allCandidates(): Promise<ICandidate[]> {
     const url = new URL('candidates', this.endpoint);
-    const response = await axios.get(url.toString(), config);
+    const response = await axios.get(url.toString(), await this.getConfig());
     const candidates = validate(CandidateArrayType, response.data);
     return candidates;
   }
@@ -87,7 +122,7 @@ export class LaboratoryClient implements ILaboratory {
   async oneCandidate(rawName: string): Promise<ICandidate> {
     const name = normalizeName(rawName);
     const url = new URL(`candidates/${name}`, this.endpoint);
-    const response = await axios.get(url.toString(), config);
+    const response = await axios.get(url.toString(), await this.getConfig());
     const candidate = validate(CandidateType, response.data);
     return candidate;
   }
@@ -102,7 +137,7 @@ export class LaboratoryClient implements ILaboratory {
       throw new IllegalOperationError(message);
     }
     const url = new URL(`candidates/${name}`, this.endpoint);
-    await axios.put(url.toString(), candidate, config);
+    await axios.put(url.toString(), candidate, await this.getConfig());
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -112,7 +147,7 @@ export class LaboratoryClient implements ILaboratory {
   /////////////////////////////////////////////////////////////////////////////
   async allSuites(): Promise<ISuite[]> {
     const url = new URL('suites', this.endpoint);
-    const response = await axios.get(url.toString(), config);
+    const response = await axios.get(url.toString(), await this.getConfig());
     const suites = validate(SuiteArrayType, response.data);
     return suites;
   }
@@ -120,7 +155,7 @@ export class LaboratoryClient implements ILaboratory {
   async oneSuite(rawName: string): Promise<ISuite> {
     const name = normalizeName(rawName);
     const url = new URL(`suites/${name}`, this.endpoint);
-    const response = await axios.get(url.toString(), config);
+    const response = await axios.get(url.toString(), await this.getConfig());
     const suite = validate(SuiteType, response.data);
     return suite;
   }
@@ -132,7 +167,7 @@ export class LaboratoryClient implements ILaboratory {
       throw new IllegalOperationError(message);
     }
     const url = new URL(`suites/${name}`, this.endpoint);
-    await axios.put(url.toString(), suite, config);
+    await axios.put(url.toString(), suite, await this.getConfig());
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -142,7 +177,7 @@ export class LaboratoryClient implements ILaboratory {
   /////////////////////////////////////////////////////////////////////////////
   async allRuns(): Promise<IRun[]> {
     const url = new URL('runs', this.endpoint);
-    const response = await axios.get(url.toString(), config);
+    const response = await axios.get(url.toString(), await this.getConfig());
     const runs = validate(RunArrayType, response.data);
     return runs;
   }
@@ -150,14 +185,18 @@ export class LaboratoryClient implements ILaboratory {
   async oneRun(rawName: string): Promise<IRun> {
     const name = normalizeRunName(rawName);
     const url = new URL(`runs/${name}`, this.endpoint);
-    const response = await axios.get(url.toString(), config);
+    const response = await axios.get(url.toString(), await this.getConfig());
     const run = validate(RunType, response.data);
     return run;
   }
 
   async createRunRequest(spec: IRunRequest): Promise<IRun> {
     const url = new URL('runs', this.endpoint);
-    const response = await axios.post(url.toString(), spec, config);
+    const response = await axios.post(
+      url.toString(),
+      spec,
+      await this.getConfig()
+    );
     const run = validate(RunType, response.data);
     return run;
   }
@@ -166,21 +205,21 @@ export class LaboratoryClient implements ILaboratory {
     const name = normalizeRunName(rawName);
     const url = new URL(`runs/${name}`, this.endpoint);
     const body: IUpdateRunStatus = { status };
-    await axios.patch(url.toString(), body, config);
+    await axios.patch(url.toString(), body, await this.getConfig());
   }
 
   async reportRunResults(rawName: string, measures: Measures): Promise<void> {
     const name = normalizeRunName(rawName);
     const url = new URL(`runs/${name}/results`, this.endpoint);
     const body: IReportRunResults = { measures };
-    await axios.post(url.toString(), body, config);
+    await axios.post(url.toString(), body, await this.getConfig());
   }
 
   async allRunResults(benchmark: string, suite: string): Promise<IResult[]> {
     const b = normalizeName(benchmark);
     const s = normalizeName(suite);
     const url = new URL(`runs?benchmark=${b}&suite=${s}`, this.endpoint);
-    const response = await axios.get(url.toString(), config);
+    const response = await axios.get(url.toString(), await this.getConfig());
     const results = validate(ResultArrayType, response.data);
     return results;
   }

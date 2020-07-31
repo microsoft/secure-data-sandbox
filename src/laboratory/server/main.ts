@@ -16,7 +16,7 @@ async function main(argv: string[]) {
 
   const lab = new SequelizeLaboratory(config.endpointBaseUrl, queue);
 
-  const app = await createApp(lab);
+  const app = await createApp(lab, config.auth);
   app.listen(config.port, () => {
     console.log('Starting SDS laboratory service.');
     console.log(`Service url is ${config.endpointBaseUrl}.`);

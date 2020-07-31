@@ -29,6 +29,26 @@ const createEnum = <E>(e: any, name: string): t.Type<E> => {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// IClientConnectionInfo
+//
+///////////////////////////////////////////////////////////////////////////////
+
+// tslint:disable-next-line:variable-name
+export const ClientConnectionInfoType = t.union([
+  t.type({
+    type: t.literal('aad'),
+    clientId: t.string,
+    authority: t.string,
+    scopes: t.array(t.string),
+  }),
+  t.type({
+    type: t.literal('unauthenticated'),
+  }),
+]);
+export type IClientConnectionInfo = t.TypeOf<typeof ClientConnectionInfoType>;
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // EntityBase
 //
 ///////////////////////////////////////////////////////////////////////////////

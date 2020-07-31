@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@azure/identity": "^1.0.3",
+    "@azure/msal-node": "^1.0.0-alpha.3",
     "@azure/storage-queue": "^12.0.4",
     "axios": "^0.19.2",
     "body-parser": "^1.19.0",
@@ -40,6 +41,7 @@
     "io-ts": "^2.2.2",
     "js-yaml": "^3.13.1",
     "luxon": "^1.24.1",
+    "passport-azure-ad": "^4.2.1",
     "reflect-metadata": "^0.1.13",
     "sequelize": "^5.21.7",
     "sequelize-typescript": "^1.1.0",
@@ -64,6 +66,7 @@
     "@types/mocha": "^7.0.2",
     "@types/nock": "^11.1.0",
     "@types/node": "^12.12.37",
+    "@types/passport-azure-ad": "^4.0.7",
     "@types/request-promise": "^4.1.46",
     "@types/sinon": "^7.5.2",
     "@types/sinonjs__fake-timers": "^6.0.1",

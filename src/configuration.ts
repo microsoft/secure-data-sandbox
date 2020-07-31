@@ -20,6 +20,14 @@ import {
   AzureStorageQueueConfiguration,
 } from './queue';
 
+import {
+  AADConfiguration,
+  AuthConfiguration,
+  LaboratoryConfiguration,
+  AuthMode,
+  NoAuthConfiguration,
+} from './laboratory/server/configuration';
+
 class AzureCredential {
   private static instance: TokenCredential;
 
@@ -114,7 +122,45 @@ export function ParseDatabaseConfiguration(): DatabaseConfiguration {
   }
 }
 
-export function ParseLaboratoryConfiguration() {
+function ParseAuthConfiguration(): AuthConfiguration {
+  const authMode = env.get('AUTH_MODE').asString();
+
+  if (authMode === 'aad') {
+    const tenantId = env
+      .get('AUTH_TENANT_ID')
+      .required()
+      .asString();
+    const laboratoryClientId = env
+      .get('AUTH_LABORATORY_CLIENT_ID')
+      .required()
+      .asString();
+    const cliClientId = env
+      .get('AUTH_CLI_CLIENT_ID')
+      .required()
+      .asString();
+    const scopes = env
+      .get('AUTH_SCOPES')
+      .default('laboratory')
+      .asArray(' ')
+      .map(s => `api://${laboratoryClientId}/${s}`);
+
+    // offline_access is required to use refresh tokens
+    scopes.push('offline_access');
+
+    const config: AADConfiguration = {
+      mode: AuthMode.AAD,
+      tenantId,
+      laboratoryClientId,
+      cliClientId,
+      scopes,
+    };
+    return config;
+  } else {
+    return NoAuthConfiguration;
+  }
+}
+
+export function ParseLaboratoryConfiguration(): LaboratoryConfiguration {
   const port = env
     .get('PORT')
     .default(3000)
@@ -138,5 +184,6 @@ export function ParseLaboratoryConfiguration() {
     port,
     queue: ParseQueueConfiguration(),
     database: ParseDatabaseConfiguration(),
+    auth: ParseAuthConfiguration(),
   };
 }
