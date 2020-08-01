@@ -1,0 +1,38 @@
+{
+  "name": "@microsoft/sds-server",
+  "version": "0.1.0",
+  "description": "A toolkit for conducting machine learning trials against confidential data",
+  "license": "MIT",
+  "main": "dist/index",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=12"
+  },
+  "scripts": {
+    "check": "gts check",
+    "clean": "gts clean",
+    "compile": "tsc -p tsconfig.build.json",
+    "fix": "gts fix",
+    "prepare": "npm run compile",
+    "pretest": "npm run compile",
+    "posttest": "npm run check",
+    "test": "ts-mocha --paths"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.12",
+    "@types/mocha": "^8.0.1",
+    "@types/node": "^13.11.1",
+    "chai": "^4.2.0",
+    "gts": "^2.0.2",
+    "mocha": "^8.1.0",
+    "ts-mocha": "^7.0.0",
+    "tsconfig-paths": "^3.9.0",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "@microsoft/sds": "*",
+    "dockerode": "^3.2.1"
+  }
+}

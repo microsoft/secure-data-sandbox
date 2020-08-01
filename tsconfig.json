@@ -1,13 +1,9 @@
 {
-  "extends": "./node_modules/gts/tsconfig-google.json",
+  "extends": "./tsconfig.build.json",
   "compilerOptions": {
-    "experimentalDecorators": true,
-    "rootDir": ".",
-    "outDir": "build"
-  },
-  "include": [
-    "scripts/**/*.ts",
-    "src/**/*.ts",
-    "test/**/*.ts"
-  ]
+    "baseUrl": ".",
+    "paths": {
+      "@microsoft/sds*": ["packages/sds*/src"]
+    }
+  }
 }
