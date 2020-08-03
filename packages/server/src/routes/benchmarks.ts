@@ -1,7 +1,7 @@
 require('express-async-errors');
 import { Router } from 'express';
 
-import { BenchmarkType, ILaboratory, validate } from '../../logic';
+import { BenchmarkType, ILaboratory, validate } from '@microsoft/sds';
 
 export function createBenchmarkRouter(lab: ILaboratory): Router {
   const router = Router();

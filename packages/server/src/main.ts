@@ -1,9 +1,12 @@
-import { initializeSequelize, SequelizeLaboratory } from '../logic';
+import {
+  initializeSequelize,
+  SequelizeLaboratory,
+  PipelineRun,
+  GetQueue,
+  GetSequelizeOptions
+} from '@microsoft/sds';
+import { ParseLaboratoryConfiguration } from './configuration';
 
-import { ParseLaboratoryConfiguration } from '../../configuration';
-import { GetSequelizeOptions } from '../../database';
-import { PipelineRun } from '../../messages';
-import { GetQueue } from '../../queue';
 import { createApp } from './app';
 
 async function main(argv: string[]) {

@@ -3,9 +3,7 @@ import * as errorhandler from 'strong-error-handler';
 import * as passport from 'passport';
 import { BearerStrategy } from 'passport-azure-ad';
 
-import { IClientConnectionInfo } from '../../laboratory';
-
-import { ILaboratory } from '../logic';
+import { IClientConnectionInfo, ILaboratory } from '@microsoft/sds';
 import { setErrorStatus } from './errors';
 import {
   createBenchmarkRouter,

@@ -1,7 +1,7 @@
 require('express-async-errors');
 import { Router } from 'express';
 
-import { ILaboratory, SuiteType, validate } from '../../logic';
+import { ILaboratory, SuiteType, validate } from '@microsoft/sds';
 
 export function createSuiteRouter(lab: ILaboratory): Router {
   const router = Router();

@@ -7,7 +7,7 @@ import {
   RunRequestType,
   UpdateRunStatusType,
   validate,
-} from '../../logic';
+} from '@microsoft/sds';
 
 export function createRunRouter(lab: ILaboratory): Router {
   const router = Router();

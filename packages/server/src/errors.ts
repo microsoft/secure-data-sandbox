@@ -1,9 +1,6 @@
 import * as express from 'express';
 
-import {
-  EntityNotFoundError,
-  IllegalOperationError,
-} from '../logic/interfaces';
+import { EntityNotFoundError, IllegalOperationError } from '@microsoft/sds';
 
 export function setErrorStatus(
   err: Error,

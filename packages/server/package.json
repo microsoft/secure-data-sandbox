@@ -22,8 +22,10 @@
   },
   "devDependencies": {
     "@types/chai": "^4.2.12",
+    "@types/express": "^4.17.7",
     "@types/mocha": "^8.0.1",
     "@types/node": "^13.11.1",
+    "@types/passport-azure-ad": "^4.0.7",
     "chai": "^4.2.0",
     "gts": "^2.0.2",
     "mocha": "^8.1.0",
@@ -33,6 +35,11 @@
   },
   "dependencies": {
     "@microsoft/sds": "*",
-    "dockerode": "^3.2.1"
+    "env-var": "^6.3.0",
+    "express": "^4.17.1",
+    "express-async-errors": "^3.1.1",
+    "passport": "^0.4.1",
+    "passport-azure-ad": "^4.2.1",
+    "strong-error-handler": "^3.5.0"
   }
 }

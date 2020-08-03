@@ -1,7 +1,7 @@
 require('express-async-errors');
 import { Router } from 'express';
 
-import { CandidateType, ILaboratory, validate } from '../../logic';
+import { CandidateType, ILaboratory, validate } from '@microsoft/sds';
 
 export function createCandidateRouter(lab: ILaboratory): Router {
   const router = Router();
