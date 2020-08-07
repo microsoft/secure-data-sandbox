@@ -3,8 +3,10 @@
   "private": true,
   "scripts": {
     "check": "lerna run check",
+    "cli": "npm run start --silent --prefix packages/cli",
     "compile": "lerna run compile",
     "fix": "lerna run fix",
+    "laboratory": "npm run start --silent --prefix packages/server",
     "postinstall": "lerna bootstrap",
     "test": "lerna run test"
   },

@@ -19,6 +19,7 @@
     "prepare": "npm run compile",
     "pretest": "npm run compile",
     "posttest": "npm run check",
+    "start": "ts-node src/index.ts",
     "test": "ts-mocha"
   },
   "devDependencies": {
@@ -31,7 +32,8 @@
     "gts": "^2.0.2",
     "mocha": "^8.1.0",
     "ts-mocha": "^7.0.0",
-    "typescript": "^3.8.3"
+    "typescript": "^3.8.3",
+    "uuid": "^8.3.0"
   },
   "dependencies": {
     "@azure/msal-node": "^1.0.0-alpha.3",

@@ -20,7 +20,7 @@ With `SDS`, an organization can host machine learning challenges and invite thir
 written in [TypeScript](https://www.typescriptlang.org/).
 In order to use `SDS` you must have
 [Node](https://nodejs.org/en/download/) installed on your machine.
-`SDS` has been tested with Node version [13.7.0](https://nodejs.org/download/release/v13.7.0/).
+`SDS` has been tested with Node version [12.16.3](https://nodejs.org/download/release/v12.16.3/).
 
 Here are the steps for cloning and building `SDS`:
 ~~~
@@ -38,9 +38,9 @@ Open two shell windows. In the first window, start the laboratory service:
 % npm run laboratory
 ~~~
 
-We can run the CLI run the second shell window. Let's start with the `--help` command:
+We can run the CLI run the second shell window. Let's start with the `help` command:
 ~~~
-% node build/src/cli/main.js --help
+% npm run cli help
 
 Usage: sds [options] [command]
 
@@ -65,15 +65,15 @@ Commands:
 For more information and examples, see https://github.com/microsoft/secure-data-sandbox/blob/main/laboratory/README.md
 ~~~
 
-The first thing we need to do is connect the CLI to the laboratory service that we just started. Currently the `build/src/laboratory/server/main.js` listens on port 3000 of localhost.
+The first thing we need to do is connect the CLI to the laboratory service that we just started. Currently `packages/server/dist/main.js` listens on port 3000 of localhost.
 ~~~
-% node build/src/cli/main.js connect http://localhost:3000
+% npm run cli connect http://localhost:3000
 
 Connected to http://localhost:3000/.
 ~~~
 This writes the connection information to `~/.sds`, which is consulted every time the CLI is run. If you don't connect to a Laboratory, you will get the following error:
 ~~~
-% node build/src/cli/main.js list benchmark
+%npm run cli list benchmark
 
 Error: No laboratory connection. Use the "connect" command to specify a laboratory.
 ~~~
@@ -86,7 +86,7 @@ we can use the `demo` command to populate the server with sample data, including
 * Two `runs` with results.
 
 ~~~
-% node build/src/cli/main.js demo
+% npm run cli demo
 
 === Sample benchmark ===
 name: benchmark1
@@ -132,19 +132,19 @@ Initiated run 0dba4780-d059-11ea-ab64-31e44163fc86
 
 If we didn't want to use the built-in `demo` command, we could have created the benchmark, candidate, suite, and runs manually as follows:
 ~~~
-% node build/src/cli/main.js create benchmark sample-data/benchmark1.yaml
+% npm run cli create benchmark sample-data/benchmark1.yaml
 benchmark created
 
-% node build/src/cli/main.js create candidate sample-data/candidate1.yaml
+% npm run cli create candidate sample-data/candidate1.yaml
 candidate created
 
-% node build/src/cli/main.js create suite sample-data/suite1.yaml
+% npm run cli create suite sample-data/suite1.yaml
 suite created
 
-% node build/src/cli/main.js run candidate1 suite1
+% npm run cli run candidate1 suite1
 Scheduling run 1dae9970-d059-11ea-ab64-31e44163fc86
 
-% node build/src/cli/main.js run candidate1 suite1
+% npm run cli run candidate1 suite1
 Scheduling run 1fbe1880-d059-11ea-ab64-31e44163fc86
 ~~~
 
@@ -153,22 +153,22 @@ The `demo` command does one thing we can't do through the CLI, and that is to pr
 **List benchmarks, candidates, suites**
 
 ~~~
-% node build/src/cli/main.js list benchmark
+% npm run cli list benchmark
 name         submitter   date
 benchmark1   author1     2020-07-27 22:32:28 UTC
 
-% node build/src/cli/main.js  list candidate
+% npm run cli list candidate
 name         submitter   date  
 candidate1   author1     2020-07-27 22:32:28 UTC
 
-% node build/src/cli/main.js list suite
+% npm run cli list suite
 name     submitter   date
 suite1   author1     2020-07-27 22:32:28 UTC
 ~~~
 
 **Show benchmarks, candidates, suites**
 ~~~
-% node build/src/cli/main.js show benchmark benchmark1
+% npm run cli show benchmark benchmark1
 stages:
   - name: candidate
     kind: candidate
@@ -188,7 +188,7 @@ createdAt: 2020-07-27T22:32:28.865Z
 updatedAt: 2020-07-27T22:32:43.284Z
 
 
-% node build/src/cli/main.js show candidate candidate1
+% npm run cli show candidate candidate1
 name: candidate1
 author: author1
 benchmark: benchmark1
@@ -197,7 +197,7 @@ createdAt: 2020-07-27T22:32:28.883Z
 updatedAt: 2020-07-27T22:32:47.384Z
 
 
-% node build/src/cli/main.js show suite suite1
+% npm run cli show suite suite1
 volumes:
   - name: training
     type: AzureBlob
@@ -214,7 +214,7 @@ updatedAt: 2020-07-27T22:32:50.623Z
 
 **List runs**
 ~~~
-% node build/src/cli/main.js list run
+% npm run cli list run
 name                                   submitter   date                      candidate    suite    status   
 0db6c510-d059-11ea-ab64-31e44163fc86   unknown     2020-07-27 22:32:28 UTC   candidate1   suite1   completed
 0dba4780-d059-11ea-ab64-31e44163fc86   unknown     2020-07-27 22:32:28 UTC   candidate1   suite1   completed
@@ -224,7 +224,7 @@ name                                   submitter   date                      can
 
 **Displaying Run Results**
 ~~~
-% node build/src/cli/main.js results benchmark1 suite1
+% npm run cli results benchmark1 suite1
 
 run                                    submitter   date                      passed   failed   skipped
 0db6c510-d059-11ea-ab64-31e44163fc86   unknown     2020-07-27 22:32:28 UTC        5        6       ---

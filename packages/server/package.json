@@ -11,6 +11,9 @@
   "engines": {
     "node": ">=12"
   },
+  "bin": {
+    "sds-server": "./dist/main.js"
+  },
   "scripts": {
     "check": "gts check",
     "clean": "gts clean",
@@ -19,6 +22,7 @@
     "prepare": "npm run compile",
     "pretest": "npm run compile",
     "posttest": "npm run check",
+    "start": "ts-node src/main.ts",
     "test": "ts-mocha"
   },
   "devDependencies": {

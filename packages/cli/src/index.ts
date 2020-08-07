@@ -439,7 +439,8 @@ function load<A>(
   decoder: Decoder<string | object | undefined, A>,
   specFile: string
 ): A {
-  const yamlText = fs.readFileSync(specFile, 'utf8');
+  const baseDir = process.env.INIT_CWD ?? process.cwd();
+  const yamlText = fs.readFileSync(path.resolve(baseDir, specFile), 'utf8');
   const spec = yaml.safeLoad(yamlText);
   return validate(decoder, spec);
 }
