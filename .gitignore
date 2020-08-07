@@ -1,4 +1,5 @@
 .env
+*.tsbuildinfo
 build
 dist
 node_modules

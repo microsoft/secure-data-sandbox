@@ -1,6 +1,9 @@
 {
   "packages": [
-    "packages/*"
+    "packages/sds",
+    "packages/cli",
+    "packages/worker",
+    "packages/server"
   ],
   "version": "0.0.0"
 }

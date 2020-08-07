@@ -16,7 +16,7 @@ import { assert } from 'chai';
 import chaiHttp = require('chai-http');
 chai.use(chaiHttp);
 
-import { createApp } from '../../../src/laboratory/server';
+import { createApp } from '../src';
 
 import {
   BenchmarkType,
@@ -34,12 +34,24 @@ import {
   CandidateType,
   SuiteType,
   RunType,
-} from '../../../src';
+  ILaboratory,
+} from '@microsoft/sds';
 
-import { benchmark1, candidate1, run1, suite1 } from '../data';
-import { lab } from '../shared';
+import {
+  benchmark1,
+  candidate1,
+  run1,
+  suite1,
+} from '../../sds/test/laboratory/data';
+import { initTestEnvironment } from '../../sds/test/laboratory/shared';
+
+let lab: ILaboratory;
 
 describe('laboratory/server', () => {
+  before(async () => {
+    lab = await initTestEnvironment();
+  });
+
   ///////////////////////////////////////////////////////////////////////////
   //
   // Benchmarks

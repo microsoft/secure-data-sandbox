@@ -4,6 +4,7 @@
   "description": "A toolkit for conducting machine learning trials against confidential data",
   "license": "MIT",
   "main": "dist/index",
+  "typings": "dist/index",
   "files": [
     "dist"
   ],
@@ -18,7 +19,7 @@
     "prepare": "npm run compile",
     "pretest": "npm run compile",
     "posttest": "npm run check",
-    "test": "ts-mocha --paths"
+    "test": "ts-mocha"
   },
   "devDependencies": {
     "@types/chai": "^4.2.12",
@@ -32,7 +33,6 @@
     "mocha": "^8.1.0",
     "sinon": "^9.0.2",
     "ts-mocha": "^7.0.0",
-    "tsconfig-paths": "^3.9.0",
     "typescript": "^3.8.3",
     "uuid": "^8.3.0"
   },

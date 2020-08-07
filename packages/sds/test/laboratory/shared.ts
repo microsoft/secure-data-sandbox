@@ -32,6 +32,7 @@ export async function initTestEnvironment() {
     logging: false,
   });
   await sequelize.sync();
+  return new SequelizeLaboratory(serviceURL, queue);
 }
 
 export async function resetTestEnvironment() {

@@ -3,7 +3,7 @@ import {
   SequelizeLaboratory,
   PipelineRun,
   GetQueue,
-  GetSequelizeOptions
+  GetSequelizeOptions,
 } from '@microsoft/sds';
 import { ParseLaboratoryConfiguration } from './configuration';
 
