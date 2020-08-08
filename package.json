@@ -7,6 +7,7 @@
     "compile": "lerna run compile",
     "fix": "lerna run fix",
     "laboratory": "npm run start --silent --prefix packages/server",
+    "pack": "lerna bootstrap --ignore-scripts && lerna exec npm pack",
     "postinstall": "lerna bootstrap",
     "test": "lerna run test"
   },

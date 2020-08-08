@@ -22,8 +22,6 @@
     "test": "ts-mocha"
   },
   "devDependencies": {
-    "@azure/identity": "^1.0.3",
-    "@azure/storage-queue": "^12.1.0-preview.1",
     "@sinonjs/fake-timers": "^6.0.1",
     "@types/bluebird": "^3.5.32",
     "@types/chai": "^4.2.12",
@@ -49,6 +47,8 @@
     "xmlhttprequest": "^1.8.0"
   },
   "dependencies": {
+    "@azure/identity": "^1.0.3",
+    "@azure/storage-queue": "^12.1.0-preview.1",
     "axios": "^0.19.2",
     "env-var": "^6.3.0",
     "fp-ts": "^2.7.1",

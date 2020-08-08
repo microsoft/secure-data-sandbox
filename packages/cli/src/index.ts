@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { Command } from 'commander';
 import * as fs from 'fs';
 import { Decoder } from 'io-ts';

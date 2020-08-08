@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { configuration, GetQueue, PipelineRun } from '@microsoft/sds';
 import { PipelineWorker } from './pipelineWorker';
 

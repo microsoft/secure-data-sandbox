@@ -1,30 +1,32 @@
 # Typescript compilation in a build container
 FROM node:lts-slim AS build
+RUN npm set unsafe-perm true
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci
+COPY package*.json lerna.json tsconfig.json ./
+RUN npm ci --ignore-scripts
 
-COPY tsconfig.json .
-COPY src src
-RUN npm run compile
+COPY packages ./packages
+RUN npm run pack
 
-# Run as a nonprivileged user in production mode
+# Application images
 FROM node:lts-slim AS app
-ENV NODE_ENV=production
+ENV NODE_ENV=production PATH="${PATH}:node_modules/.bin"
 WORKDIR /app
-
 RUN chown node:node .
 USER node
 
-COPY --from=build /app/package*.json ./
-RUN npm install
+FROM app AS cli
+COPY --from=build /app/packages/sds/*.tgz /app/packages/cli/*.tgz /packages/
+RUN npm install /packages/*.tgz
+CMD sds-cli
 
-COPY --from=build /app/build/src /app/build/src
+FROM app AS server
+COPY --from=build /app/packages/sds/*.tgz /app/packages/server/*.tgz /packages/
+RUN npm install /packages/*.tgz
+CMD sds-server
 
-# Custom targets for specific entrypoints
 FROM app AS worker
-CMD npm run worker
-
-FROM app AS laboratory
-CMD npm run laboratory
+COPY --from=build /app/packages/sds/*.tgz /app/packages/worker/*.tgz /packages/
+RUN npm install /packages/*.tgz
+CMD sds-worker

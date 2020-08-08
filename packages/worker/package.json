@@ -11,6 +11,9 @@
   "engines": {
     "node": ">=12"
   },
+  "bin": {
+    "sds-worker": "./dist/index.js"
+  },
   "scripts": {
     "check": "gts check",
     "clean": "gts clean",
