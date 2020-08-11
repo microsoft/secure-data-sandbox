@@ -3,8 +3,9 @@ import * as Dockerode from 'dockerode';
 import * as fs from 'fs';
 import * as sinon from 'sinon';
 import { v1 } from 'uuid';
-import { configuration, PipelineRun } from '@microsoft/sds';
+import { PipelineRun } from '@microsoft/sds';
 import { PipelineWorker } from '../../src/pipelineWorker';
+import * as configuration from '../../../sds/test/functional/configuration';
 
 describe('functional.worker', () => {
   const { queue } = configuration.getQueueConfiguration<PipelineRun>();

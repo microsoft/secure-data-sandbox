@@ -1,11 +1,12 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "dist"
-  },
-  "references": [
-    {
-      "path": "../sds"
+    "outDir": "dist",
+    "baseUrl": "../",
+    "paths": {
+      "@microsoft/sds": [
+        "sds/src"
+      ]
     }
-  ]
+  }
 }
