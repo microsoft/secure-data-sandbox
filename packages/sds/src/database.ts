@@ -21,9 +21,6 @@ export interface AzureSqlDatabaseConfiguration extends DatabaseConfiguration {
 export function GetSequelizeOptions(
   config: DatabaseConfiguration
 ): SequelizeOptions {
-  // tsc ensures that all elements of the discriminated union are covered: https://www.typescriptlang.org/docs/handbook/advanced-types.html#exhaustiveness-checking
-  // The following is safe but tslint doesn't understand, so we suppress the rule: https://github.com/palantir/tslint/issues/2104
-  // tslint:disable:switch-default
   switch (config.mode) {
     case DatabaseMode.AzureSql:
       // eslint-disable-next-line no-case-declarations

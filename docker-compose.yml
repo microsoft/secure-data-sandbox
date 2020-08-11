@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  laboratory:
+    build:
+      context: .
+      target: server
+
+  cli:
+    build:
+      context: .
+      target: cli
+    command: /bin/sh -c 'sds-cli connect http://laboratory:3000 && sds-cli demo'
+    depends_on:
+    - laboratory

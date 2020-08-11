@@ -91,7 +91,6 @@ we can use the `demo` command to populate the server with sample data, including
 === Sample benchmark ===
 name: benchmark1
 author: author1
-mode: mode1
 stages:
   - name: candidate
     kind: candidate
@@ -183,7 +182,6 @@ stages:
         path: /reference
 name: benchmark1
 author: author1
-mode: mode1
 createdAt: 2020-07-27T22:32:28.865Z
 updatedAt: 2020-07-27T22:32:43.284Z
 

@@ -29,7 +29,6 @@ export interface AADConfiguration extends AuthConfiguration {
   scopes: string[];
 }
 
-// tslint:disable-next-line:variable-name
 export const NoAuthConfiguration = {
   mode: AuthMode.None,
 };
@@ -56,8 +55,6 @@ export function ParseDatabaseConfiguration(): DatabaseConfiguration {
     .required(mode !== DatabaseMode.InMemory)
     .asString();
 
-  // tsc ensures exhaustiveness checking, but tslint thinks it's an error
-  // tslint:disable:switch-default
   switch (mode) {
     case DatabaseMode.AzureSql:
       return {

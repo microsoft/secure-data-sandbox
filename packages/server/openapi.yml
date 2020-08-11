@@ -275,14 +275,11 @@ components:
       allOf:
       - $ref: "#/components/schemas/IEntityBase"
       properties:
-        mode:
-          type: string
         stages:
           type: array
           items:
             $ref: "#/components/schemas/PipelineStage"
       required: 
-      - mode
       - stages
     ISuite:
       type: object

@@ -47,9 +47,6 @@ export interface QueueConfiguration {
  * @param endpoint The location of the queue.
  */
 export function GetQueue<T>(config: QueueConfiguration): IQueue<T> {
-  // tsc ensures that all elements of the discriminated union are covered: https://www.typescriptlang.org/docs/handbook/advanced-types.html#exhaustiveness-checking
-  // The following is safe but tslint doesn't understand, so we suppress the rule: https://github.com/palantir/tslint/issues/2104
-  // tslint:disable:switch-default
   switch (config.mode) {
     case QueueMode.InMemory:
       return new InMemoryQueue<T>();

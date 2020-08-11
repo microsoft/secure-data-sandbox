@@ -12,7 +12,6 @@ import {
 const benchmark1: IBenchmark = {
   name: 'benchmark1',
   author: 'author1',
-  mode: 'mode1',
   stages: [
     {
       // Candidate

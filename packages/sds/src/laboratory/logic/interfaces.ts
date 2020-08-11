@@ -2,7 +2,6 @@ import { either } from 'fp-ts/lib/Either';
 import * as t from 'io-ts';
 import { DateTime } from 'luxon';
 
-// tslint:disable-next-line:variable-name
 const DateType = new t.Type<Date, string, unknown>(
   'Date',
   (u): u is Date => u instanceof Date,
@@ -32,7 +31,6 @@ const createEnum = <E>(e: any, name: string): t.Type<E> => {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// tslint:disable-next-line:variable-name
 export const ClientConnectionInfoType = t.union([
   t.type({
     type: t.literal('aad'),
@@ -52,7 +50,6 @@ export type IClientConnectionInfo = t.TypeOf<typeof ClientConnectionInfoType>;
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// tslint:disable-next-line:variable-name
 export const EntityBaseType = t.intersection([
   t.type({
     name: t.string,
@@ -76,13 +73,11 @@ export enum BenchmarkStageKind {
   CONTAINER = 'container',
 }
 
-// tslint:disable-next-line:variable-name
 const BenchmarkStageKindType = createEnum<BenchmarkStageKind>(
   BenchmarkStageKind,
   'BenchmarkStageKind'
 );
 
-// tslint:disable-next-line:variable-name
 const PipelineStageVolumeMountType = t.type({
   volume: t.string,
   path: t.string,
@@ -90,7 +85,6 @@ const PipelineStageVolumeMountType = t.type({
 type PipelineStageVolumeMount = t.TypeOf<typeof PipelineStageVolumeMountType>;
 
 // TODO: make 'image' required when kind == 'container'
-// tslint:disable-next-line:variable-name
 const PipelineStageType = t.intersection([
   t.type({
     name: t.string,
@@ -103,17 +97,14 @@ const PipelineStageType = t.intersection([
 ]);
 export type PipelineStage = t.TypeOf<typeof PipelineStageType>;
 
-// tslint:disable-next-line:variable-name
 export const BenchmarkType = t.intersection([
   EntityBaseType,
   t.interface({
-    mode: t.string,
     stages: t.array(PipelineStageType),
   }),
 ]);
 export type IBenchmark = t.TypeOf<typeof BenchmarkType>;
 
-// tslint:disable-next-line:variable-name
 export const BenchmarkArrayType = t.array(BenchmarkType);
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -122,7 +113,6 @@ export const BenchmarkArrayType = t.array(BenchmarkType);
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// tslint:disable-next-line:variable-name
 export const CandidateType = t.intersection([
   EntityBaseType,
   t.interface({
@@ -132,7 +122,6 @@ export const CandidateType = t.intersection([
 ]);
 export type ICandidate = t.TypeOf<typeof CandidateType>;
 
-// tslint:disable-next-line:variable-name
 export const CandidateArrayType = t.array(CandidateType);
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -141,7 +130,6 @@ export const CandidateArrayType = t.array(CandidateType);
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// tslint:disable-next-line:variable-name
 const SuiteVolumeType = t.type({
   name: t.string,
   type: t.string,
@@ -149,7 +137,6 @@ const SuiteVolumeType = t.type({
 });
 export type SuiteVolume = t.TypeOf<typeof SuiteVolumeType>;
 
-// tslint:disable-next-line:variable-name
 export const SuiteType = t.intersection([
   EntityBaseType,
   t.interface({
@@ -159,7 +146,6 @@ export const SuiteType = t.intersection([
 ]);
 export type ISuite = t.TypeOf<typeof SuiteType>;
 
-// tslint:disable-next-line:variable-name
 export const SuiteArrayType = t.array(SuiteType);
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -175,10 +161,8 @@ export enum RunStatus {
   FAILED = 'failed',
 }
 
-// tslint:disable-next-line:variable-name
 const RunStatusType = createEnum<RunStatus>(RunStatus, 'RunStatus');
 
-// tslint:disable-next-line:variable-name
 export const RunType = t.intersection([
   EntityBaseType,
   t.interface({
@@ -190,7 +174,6 @@ export const RunType = t.intersection([
 ]);
 export type IRun = t.TypeOf<typeof RunType>;
 
-// tslint:disable-next-line:variable-name
 export const RunArrayType = t.array(RunType);
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -199,7 +182,6 @@ export const RunArrayType = t.array(RunType);
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// tslint:disable-next-line:variable-name
 export const RunRequestType = t.type({
   candidate: t.string,
   suite: t.string,
@@ -212,7 +194,6 @@ export type IRunRequest = t.TypeOf<typeof RunRequestType>;
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// tslint:disable-next-line:variable-name
 export const UpdateRunStatusType = t.type({
   status: RunStatusType,
 });
@@ -224,7 +205,6 @@ export type IUpdateRunStatus = t.TypeOf<typeof UpdateRunStatusType>;
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// tslint:disable-next-line:variable-name
 export const MeasuresType = t.UnknownRecord;
 export type Measures = t.TypeOf<typeof MeasuresType>;
 
@@ -234,7 +214,6 @@ export type Measures = t.TypeOf<typeof MeasuresType>;
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// tslint:disable-next-line:variable-name
 export const ReportRunResultsType = t.type({
   measures: MeasuresType,
 });
@@ -246,7 +225,6 @@ export type IReportRunResults = t.TypeOf<typeof ReportRunResultsType>;
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-// tslint:disable-next-line:variable-name
 export const ResultType = t.intersection([
   EntityBaseType,
   t.type({
@@ -258,7 +236,6 @@ export const ResultType = t.intersection([
 ]);
 export type IResult = t.TypeOf<typeof ResultType>;
 
-// tslint:disable-next-line:variable-name
 export const ResultArrayType = t.array(ResultType);
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -1,6 +1,5 @@
 name: benchmark1
 author: author1
-mode: mode1
 stages:
   - name: candidate
     kind: candidate

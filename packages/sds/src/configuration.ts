@@ -49,8 +49,6 @@ export function ParseQueueConfiguration(): QueueConfiguration {
     .required(mode !== QueueMode.InMemory)
     .asUrlString();
 
-  // tsc ensures exhaustiveness checking, but tslint thinks it's an error
-  // tslint:disable:switch-default
   switch (mode) {
     case QueueMode.Azure:
       return {

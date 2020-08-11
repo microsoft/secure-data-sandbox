@@ -25,7 +25,6 @@ export const timestamps = {
 export const benchmark1: IBenchmark = {
   name: 'benchmark1',
   author: 'author1',
-  mode: 'mode1',
   stages: [
     {
       // Candidate
@@ -57,7 +56,6 @@ export const benchmark1: IBenchmark = {
 export const benchmark2: IBenchmark = {
   name: 'benchmark2',
   author: 'author2',
-  mode: 'mode1',
   stages: [
     {
       // Candidate
@@ -89,7 +87,6 @@ export const benchmark2: IBenchmark = {
 export const benchmark3: IBenchmark = {
   name: 'benchmark3',
   author: 'author3',
-  mode: 'mode1',
   stages: [
     {
       // Candidate
