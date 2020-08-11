@@ -9,6 +9,6 @@ services:
     build:
       context: .
       target: cli
-    command: /bin/sh -c 'sds-cli connect http://laboratory:3000 && sds-cli demo'
+    command: /bin/sh -c 'sleep 5 && sds-cli connect http://laboratory:3000 && sds-cli demo'
     depends_on:
     - laboratory
