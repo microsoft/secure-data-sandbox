@@ -3,7 +3,7 @@ services:
   laboratory:
     build:
       context: .
-      target: server
+      target: laboratory
 
   cli:
     build:

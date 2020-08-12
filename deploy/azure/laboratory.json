@@ -280,7 +280,7 @@
         "serverFarmId": "[resourceId('Microsoft.Web/serverFarms', variables('appSvcPlan'))]",
         "siteConfig": {
           "alwaysOn": true,
-          "appCommandLine": "node_modules/@microsoft/sds-server/dist/main.js",
+          "appCommandLine": "node_modules/@microsoft/sds-laboratory/dist/main.js",
           "appSettings": [
             {
               "name": "AZURE_CLIENT_ID",

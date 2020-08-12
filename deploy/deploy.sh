@@ -79,8 +79,8 @@ deploy_environment() {
 deploy_laboratory() {
   SITE_ID=$(az deployment group show -g $RESOURCE_GROUP -n azuredeploy --query properties.outputs.laboratorySiteId.value -o tsv)
 
-  npm run laboratory:pack
-  az webapp deployment source config-zip --ids $SITE_ID --src dist/server/sds-server.zip
+  npm run pack:laboratory:appservice
+  az webapp deployment source config-zip --ids $SITE_ID --src dist/laboratory/sds-laboratory.zip
   az webapp restart --ids $SITE_ID
 }
 

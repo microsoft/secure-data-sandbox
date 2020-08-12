@@ -65,7 +65,7 @@ Commands:
 For more information and examples, see https://github.com/microsoft/secure-data-sandbox/blob/main/laboratory/README.md
 ~~~
 
-The first thing we need to do is connect the CLI to the laboratory service that we just started. Currently `packages/server/dist/main.js` listens on port 3000 of localhost.
+The first thing we need to do is connect the CLI to the laboratory service that we just started. Currently `packages/laboratory/dist/main.js` listens on port 3000 of localhost.
 ~~~
 % npm run cli connect http://localhost:3000
 

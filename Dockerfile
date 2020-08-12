@@ -21,10 +21,10 @@ COPY --from=build /app/packages/sds/*.tgz /app/packages/cli/*.tgz /packages/
 RUN npm install /packages/*.tgz
 CMD sds-cli
 
-FROM app AS server
-COPY --from=build /app/packages/sds/*.tgz /app/packages/server/*.tgz /packages/
+FROM app AS laboratory
+COPY --from=build /app/packages/sds/*.tgz /app/packages/laboratory/*.tgz /packages/
 RUN npm install /packages/*.tgz
-CMD sds-server
+CMD sds-laboratory
 
 FROM app AS worker
 COPY --from=build /app/packages/sds/*.tgz /app/packages/worker/*.tgz /packages/

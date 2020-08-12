@@ -3,7 +3,7 @@
     "packages/sds",
     "packages/cli",
     "packages/worker",
-    "packages/server"
+    "packages/laboratory"
   ],
   "version": "0.0.0"
 }

@@ -1,5 +1,5 @@
 {
-  "name": "@microsoft/sds-server",
+  "name": "@microsoft/sds-laboratory",
   "version": "0.1.0",
   "description": "A toolkit for conducting machine learning trials against confidential data",
   "license": "MIT",
@@ -12,7 +12,7 @@
     "node": ">=12"
   },
   "bin": {
-    "sds-server": "./dist/main.js"
+    "sds-laboratory": "./dist/main.js"
   },
   "scripts": {
     "check": "gts check",
