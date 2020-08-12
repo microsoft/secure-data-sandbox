@@ -66,7 +66,7 @@ deploy_environment() {
     TMP_DIR=$(mktemp -d)
     (
       pushd $TMP_DIR
-      curl -sL -O "${ASSETS_BASE}/worker/packer.json" -O "${ASSETS_BASE}/worker/setup.sh" -O "${ASSETS_BASE}/worker/start.sh"
+      curl -sL -O "${ASSETS_BASE}/worker-vm/packer.json" -O "${ASSETS_BASE}/worker-vm/setup.sh" -O "${ASSETS_BASE}/worker-vm/start.sh"
       packer build -force -var resource_group=$RESOURCE_GROUP packer.json
     )
   else
@@ -79,8 +79,8 @@ deploy_environment() {
 deploy_laboratory() {
   SITE_ID=$(az deployment group show -g $RESOURCE_GROUP -n azuredeploy --query properties.outputs.laboratorySiteId.value -o tsv)
 
-  npm run laboratory:package:appservice
-  az webapp deployment source config-zip --ids $SITE_ID --src dist/secure-data-sandbox.zip
+  npm run laboratory:pack
+  az webapp deployment source config-zip --ids $SITE_ID --src dist/server/sds-server.zip
   az webapp restart --ids $SITE_ID
 }
 

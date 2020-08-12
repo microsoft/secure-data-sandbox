@@ -280,15 +280,11 @@
         "serverFarmId": "[resourceId('Microsoft.Web/serverFarms', variables('appSvcPlan'))]",
         "siteConfig": {
           "alwaysOn": true,
-          "appCommandLine": "npm run laboratory",
+          "appCommandLine": "node_modules/@microsoft/sds-server/dist/main.js",
           "appSettings": [
             {
               "name": "AZURE_CLIENT_ID",
               "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identity'))).clientId]"
-            },
-            {
-              "name": "BLOB_CONTAINER",
-              "value": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('metadataStorage'))).primaryEndpoints.blob, variables('runsContainer'))]"
             },
             {
               "name": "QUEUE_MODE",

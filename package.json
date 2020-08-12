@@ -5,8 +5,12 @@
     "check": "lerna run check",
     "cli": "npm run start --silent --prefix packages/cli",
     "compile": "lerna run compile",
+    "predev:azure": "serve -l 9001 deploy >/dev/null &",
+    "dev:azure": "ngrok start -config .ngrok.yml deploy",
+    "postdev:azure": "kill $(lsof -t -i:9001)",
     "fix": "lerna run fix",
     "laboratory": "npm run start --silent --prefix packages/server",
+    "laboratory:pack": "rimraf ./dist/server && mkdir -p ./dist/server && npm run pack && cd ./dist/server && npm init -y && npm install --only=prod ../../packages/sds/*.tgz ../../packages/server/*.tgz && zip -r sds-server.zip package*.json node_modules",
     "pack": "lerna bootstrap --ignore-scripts && lerna exec npm pack",
     "postinstall": "lerna bootstrap",
     "test": "lerna run test"
@@ -14,6 +18,9 @@
   "devDependencies": {
     "gts": "^2.0.2",
     "lerna": "^3.22.1",
+    "ngrok": "^3.2.7",
+    "rimraf": "^3.0.2",
+    "serve": "^11.3.2",
     "typescript": "^3.9.7"
   },
   "dependencies": {}
