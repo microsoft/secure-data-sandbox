@@ -4,16 +4,9 @@
   "files.insertFinalNewline": true,
   "typescript.tsdk": "node_modules/typescript/lib",
 
-  // note: mochaExplorer captures only a subset of mocha options, so the
-  // configuration in .mocharc.yml used by CI and CLI tools needs to be replicated
-  "mochaExplorer.files": "build/test/unit/**/*.js",
-  "mochaExplorer.mochaPath": "./node_modules/mocha",
-  "mochaExplorer.require": "source-map-support/register",
-
   "rest-client.environmentVariables": {
     "$shared": {
-      "laboratoryHost": "http://localhost:3000",
-      "laboratoryRegistry": "sdslaboratory.azurecr.io"
+      "laboratoryHost": "http://localhost:3000"
     }
   }
 }
