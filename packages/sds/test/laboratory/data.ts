@@ -25,6 +25,7 @@ export const timestamps = {
 export const benchmark1: IBenchmark = {
   name: 'benchmark1',
   author: 'author1',
+  apiVersion: 'v1alpha1',
   stages: [
     {
       // Candidate
@@ -56,6 +57,7 @@ export const benchmark1: IBenchmark = {
 export const benchmark2: IBenchmark = {
   name: 'benchmark2',
   author: 'author2',
+  apiVersion: 'v1alpha1',
   stages: [
     {
       // Candidate
@@ -87,6 +89,7 @@ export const benchmark2: IBenchmark = {
 export const benchmark3: IBenchmark = {
   name: 'benchmark3',
   author: 'author3',
+  apiVersion: 'v1alpha1',
   stages: [
     {
       // Candidate
@@ -118,6 +121,7 @@ export const benchmark3: IBenchmark = {
 export const candidate1: ICandidate = {
   name: 'candidate1',
   author: 'author1',
+  apiVersion: 'v1alpha1',
   benchmark: 'benchmark1',
   image: 'candidate1-image',
   ...timestamps,
@@ -126,6 +130,7 @@ export const candidate1: ICandidate = {
 export const candidate2: ICandidate = {
   name: 'candidate2',
   author: 'author2',
+  apiVersion: 'v1alpha1',
   benchmark: 'benchmark1',
   image: 'candidate2-image',
   ...timestamps,
@@ -134,6 +139,7 @@ export const candidate2: ICandidate = {
 export const candidate3: ICandidate = {
   name: 'candidate3',
   author: 'author3',
+  apiVersion: 'v1alpha1',
   benchmark: 'benchmark1',
   image: 'candidate3-image',
   ...timestamps,
@@ -142,6 +148,7 @@ export const candidate3: ICandidate = {
 export const suite1: ISuite = {
   name: 'suite1',
   author: 'author1',
+  apiVersion: 'v1alpha1',
   benchmark: 'benchmark1',
   volumes: [
     {
@@ -161,6 +168,7 @@ export const suite1: ISuite = {
 export const suite2: ISuite = {
   name: 'suite2',
   author: 'author2',
+  apiVersion: 'v1alpha1',
   benchmark: 'benchmark1',
   volumes: [
     {
@@ -180,6 +188,7 @@ export const suite2: ISuite = {
 export const suite3: ISuite = {
   name: 'suite3',
   author: 'author3',
+  apiVersion: 'v1alpha1',
   benchmark: 'benchmark1',
   volumes: [
     {
@@ -205,6 +214,7 @@ const runid = '69bd5df9-48a2-4fd0-81c5-0a7d6932eef2';
 export const run1: IRun = {
   name: runid,
   author: 'author1',
+  apiVersion: 'v1alpha1',
   benchmark: benchmark1,
   candidate: candidate1,
   suite: suite1,

@@ -91,6 +91,7 @@ we can use the `demo` command to populate the server with sample data, including
 === Sample benchmark ===
 name: benchmark1
 author: author1
+version: v1alpha1
 stages:
   - name: candidate
     kind: candidate
@@ -108,6 +109,7 @@ stages:
 === Sample candidate ===
 name: candidate1
 author: author1
+version: v1alpha1
 benchmark: benchmark1
 image: candidate1-image
 
@@ -115,6 +117,7 @@ image: candidate1-image
 === Sample suite ===
 name: suite1
 author: author1
+version: v1alpha1
 benchmark: benchmark1
 volumes:
   - name: training
@@ -182,6 +185,7 @@ stages:
         path: /reference
 name: benchmark1
 author: author1
+version: v1alpha1
 createdAt: 2020-07-27T22:32:28.865Z
 updatedAt: 2020-07-27T22:32:43.284Z
 
@@ -189,6 +193,7 @@ updatedAt: 2020-07-27T22:32:43.284Z
 % npm run cli show candidate candidate1
 name: candidate1
 author: author1
+version: v1alpha1
 benchmark: benchmark1
 image: candidate1-image
 createdAt: 2020-07-27T22:32:28.883Z
@@ -205,6 +210,7 @@ volumes:
     target: 'https://sample.blob.core.windows.net/reference'
 name: suite1
 author: author1
+version: v1alpha1
 benchmark: benchmark1
 createdAt: 2020-07-27T22:32:28.889Z
 updatedAt: 2020-07-27T22:32:50.623Z

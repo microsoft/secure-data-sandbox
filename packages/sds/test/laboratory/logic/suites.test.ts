@@ -2,7 +2,6 @@ import * as chai from 'chai';
 import { assert } from 'chai';
 import chaiAsPromised = require('chai-as-promised');
 import chaiExclude from 'chai-exclude';
-import { Sequelize } from 'sequelize-typescript';
 
 import { benchmark1, suite1, suite2, suite3 } from '../data';
 
@@ -66,6 +65,7 @@ describe('laboratory/suites', () => {
 
     const suite3 = {
       ...suite1,
+      apiVersion: suite1.apiVersion = 'x',
     };
     await lab.upsertSuite(suite3);
     const results3 = await lab.allSuites();

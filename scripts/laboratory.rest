@@ -10,6 +10,7 @@ Content-Type: application/json
 {
   "name": "benchmark1",
   "author": "admin",
+  "apiVersion": "v1alpha1",
   "stages": [
     {
       "name": "candidate",
@@ -54,6 +55,7 @@ Content-Type: application/json
 {
   "name": "suite1",
   "author": "admin",
+  "apiVersion": "v1alpha1",
   "benchmark": "benchmark1",
   "volumes": [
     {
@@ -88,6 +90,7 @@ Content-Type: application/json
 {
   "name": "candidate1",
   "author": "admin",
+  "apiVersion": "v1alpha1",
   "benchmark": "benchmark1",
   "image": "{{laboratoryRegistry}}/alpine"
 }

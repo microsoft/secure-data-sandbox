@@ -12,6 +12,7 @@ import {
 const benchmark1: IBenchmark = {
   name: 'benchmark1',
   author: 'author1',
+  apiVersion: 'v1alpha1',
   stages: [
     {
       // Candidate
@@ -42,6 +43,7 @@ const benchmark1: IBenchmark = {
 const candidate1: ICandidate = {
   name: 'candidate1',
   author: 'author1',
+  apiVersion: 'v1alpha1',
   benchmark: 'benchmark1',
   image: 'candidate1-image',
 };
@@ -49,6 +51,7 @@ const candidate1: ICandidate = {
 const suite1: ISuite = {
   name: 'suite1',
   author: 'author1',
+  apiVersion: 'v1alpha1',
   benchmark: 'benchmark1',
   volumes: [
     {

@@ -2,9 +2,6 @@ import * as chai from 'chai';
 import { assert } from 'chai';
 import chaiAsPromised = require('chai-as-promised');
 import chaiExclude from 'chai-exclude';
-import { Sequelize } from 'sequelize-typescript';
-
-import { initializeSequelize, SequelizeLaboratory } from '../../../src';
 
 import { benchmark1, candidate1, candidate2, candidate3 } from '../data';
 
@@ -68,6 +65,7 @@ describe('laboratory/candidates', () => {
 
     const candidate3 = {
       ...candidate1,
+      apiVersion: candidate1.apiVersion + 'x',
     };
     await lab.upsertCandidate(candidate3);
     const results3 = await lab.allCandidates();

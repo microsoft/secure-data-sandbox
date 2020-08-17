@@ -74,6 +74,7 @@ export async function processRunRequest(
   const run: IRun = {
     name,
     author: 'unknown', // TODO: fill in name
+    apiVersion: 'v1alpha1',
     status: RunStatus.CREATED,
     benchmark,
     candidate,
@@ -134,6 +135,7 @@ export async function processRunResults(
   const results: IResult = {
     name: run.name,
     author: run.author,
+    apiVersion: 'v1alpha1',
     benchmark: run.benchmark.name,
     suite: run.suite.name,
     candidate: run.candidate.name,

@@ -16,6 +16,9 @@ export class Suite extends Model<Suite> implements ISuite {
   author!: string;
 
   @Column(DataType.STRING)
+  apiVersion!: string;
+
+  @Column(DataType.STRING)
   benchmark!: string;
 
   // TODO: REVIEW: magic number 1024

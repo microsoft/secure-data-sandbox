@@ -1,5 +1,6 @@
 name: suite1
 author: author1
+version: v1alpha1
 benchmark: benchmark1
 volumes:
 - name: training

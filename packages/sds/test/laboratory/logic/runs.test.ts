@@ -46,6 +46,7 @@ describe('laboratory/runs', () => {
     const expectedRun1: IRun = {
       name: run1.name,
       author: 'unknown',
+      apiVersion: 'v1alpha1',
       benchmark: benchmark1,
       candidate: candidate1,
       suite: suite1,
@@ -122,6 +123,7 @@ describe('laboratory/runs', () => {
     assert.equal(results.length, 1);
     const expectedResults: IResult = {
       author: 'unknown',
+      apiVersion: 'v1alpha1',
       benchmark: benchmark1.name,
       candidate: candidate1.name,
       measures,
@@ -143,6 +145,7 @@ describe('laboratory/runs', () => {
     const expected2: IRun = {
       name: r2.name,
       author: 'unknown',
+      apiVersion: 'v1alpha1',
       benchmark: benchmark1,
       candidate: candidate2,
       suite: suite1,

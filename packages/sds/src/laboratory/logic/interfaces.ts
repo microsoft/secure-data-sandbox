@@ -54,6 +54,7 @@ export const EntityBaseType = t.intersection([
   t.type({
     name: t.string,
     author: t.string,
+    apiVersion: t.string,
   }),
   t.partial({
     createdAt: DateType,

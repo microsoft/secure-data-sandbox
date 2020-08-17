@@ -22,6 +22,9 @@ export class Run extends Model<Run> implements IRun {
   author!: string;
 
   @Column(DataType.STRING)
+  apiVersion!: string;
+
+  @Column(DataType.STRING)
   status!: RunStatus;
 
   // TODO: REVIEW: magic number 1024

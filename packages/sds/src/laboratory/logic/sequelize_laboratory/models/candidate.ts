@@ -14,6 +14,9 @@ export class Candidate extends Model<Candidate> implements ICandidate {
   author!: string;
 
   @Column(DataType.STRING)
+  apiVersion!: string;
+
+  @Column(DataType.STRING)
   benchmark!: string;
 
   @Column(DataType.STRING)
