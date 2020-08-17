@@ -1,0 +1,16 @@
+{
+  "extends": "./node_modules/gts/",
+  "ignorePatterns": [
+    "dist/**/*"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "test/**/*.ts"
+      ],
+      "env": {
+        "mocha": true
+      }
+    }
+  ]
+}

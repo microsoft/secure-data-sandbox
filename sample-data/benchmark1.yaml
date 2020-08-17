@@ -1,8 +1,15 @@
 name: benchmark1
 author: author1
-version: 0.0.1
-pipelines:
-  - mode: mode1
-    stages:
-      - {}
-      - image: benchmark-image-mode1
+version: v1alpha1
+stages:
+  - name: candidate
+    kind: candidate
+    volumes:
+      - volume: training
+        path: /input
+  - name: scoring
+    kind: container
+    image: benchmark-image
+    volumes:
+      - volume: reference
+        path: /reference

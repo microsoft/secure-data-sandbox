@@ -2,9 +2,9 @@
 .git
 .github
 .vscode
-build
-dist
 docs
-*Dockerfile*
-node_modules
 scripts
+
+**/dist
+**/*Dockerfile*
+**/node_modules

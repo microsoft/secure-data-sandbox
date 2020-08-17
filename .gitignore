@@ -1,4 +1,6 @@
 .env
+*.tgz
+*.tsbuildinfo
 build
 dist
 node_modules

@@ -1,0 +1,52 @@
+{
+  "name": "@microsoft/sds-laboratory",
+  "version": "0.1.0",
+  "description": "A toolkit for conducting machine learning trials against confidential data",
+  "license": "MIT",
+  "main": "dist/index",
+  "typings": "dist/index",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=12"
+  },
+  "bin": {
+    "sds-laboratory": "./dist/main.js"
+  },
+  "scripts": {
+    "check": "gts check",
+    "clean": "gts clean",
+    "compile": "tsc -p tsconfig.build.json",
+    "fix": "gts fix",
+    "prepare": "npm run compile",
+    "pretest": "npm run compile",
+    "posttest": "npm run check",
+    "start": "ts-node src/main.ts",
+    "test": "ts-mocha"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.12",
+    "@types/chai-http": "^4.2.0",
+    "@types/express": "^4.17.7",
+    "@types/mocha": "^8.0.1",
+    "@types/node": "^13.11.1",
+    "@types/passport-azure-ad": "^4.0.7",
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
+    "gts": "^2.0.2",
+    "mocha": "^8.1.0",
+    "ts-mocha": "^7.0.0",
+    "typescript": "^3.8.3",
+    "xmlhttprequest": "^1.8.0"
+  },
+  "dependencies": {
+    "@microsoft/sds": "*",
+    "env-var": "^6.3.0",
+    "express": "^4.17.1",
+    "express-async-errors": "^3.1.1",
+    "passport": "^0.4.1",
+    "passport-azure-ad": "^4.2.1",
+    "strong-error-handler": "^3.5.0"
+  }
+}

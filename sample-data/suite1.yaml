@@ -1,5 +1,11 @@
 name: suite1
 author: author1
-version: 0.0.1
+version: v1alpha1
 benchmark: benchmark1
-mode: mode1
+volumes:
+- name: training
+  type: AzureBlob
+  target: https://sample.blob.core.windows.net/training
+- name: reference
+  type: AzureBlob
+  target: https://sample.blob.core.windows.net/reference

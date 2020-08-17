@@ -1,6 +1,5 @@
 {
   "recommendations": [
-    "hbenl.vscode-mocha-test-adapter",
     "humao.rest-client",
     "ms-azuretools.vscode-azureappservice",
     "msazurermtools.azurerm-vscode-tools",

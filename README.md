@@ -20,7 +20,7 @@ With `SDS`, an organization can host machine learning challenges and invite thir
 written in [TypeScript](https://www.typescriptlang.org/).
 In order to use `SDS` you must have
 [Node](https://nodejs.org/en/download/) installed on your machine.
-`SDS` has been tested with Node version [13.7.0](https://nodejs.org/download/release/v13.7.0/).
+`SDS` has been tested with Node version [12.16.3](https://nodejs.org/download/release/v12.16.3/).
 
 Here are the steps for cloning and building `SDS`:
 ~~~
@@ -35,47 +35,45 @@ This local instance does not have a worker pool, so it won't be able to actually
 
 Open two shell windows. In the first window, start the laboratory service:
 ~~~
-% node build/src/laboratory/server/main.js
+% npm run laboratory
 ~~~
 
-We can run the CLI run the second shell window. Let's start with the `--help` command:
+We can run the CLI run the second shell window. Let's start with the `help` command:
 ~~~
-% node build/src/cli/sds.js --help
+% npm run cli help
 
 Usage: sds [options] [command]
 
 Secure Data Sandbox CLI
 
 Options:
-  -V, --version                output the version number
   -h, --help                   display help for command
 
 Commands:
-  connect <server>             PARTIALLY IMPLEMENTED. Connect to a Laboratory service.
-  create <type> <spec>         Create a benchmark, candidate, or suite from a specification where <type> is either "benchmark",
-                               "candidate", or "suite".
+  connect [service]            Connect to a Laboratory [service] or print connection info.
+  create <type> <spec>         Create a benchmark, candidate, or suite from a specification where <type> is either "benchmark", "candidate", or
+                               "suite".
   demo                         Configures Laboratory service with demo data.
   deploy <server>              NOT YET IMPLEMENTED. Deploy a Laboratory service.
   examples                     Show usage examples.
   list <type>                  Display summary information about benchmarks, candidates, runs, and suites.
   results <benchmark> <suite>  Display the results of all runs against a named benchmark and suite.
   run <candidate> <suite>      Run a named <candidate> against a named <suite>.
-  show <type> [name]           Display all benchmarks, candidates, suites, or runs. If optional [name] is specified, only show
-                               matching items.
+  show <type> [name]           Display all benchmarks, candidates, suites, or runs. If optional [name] is specified, only show matching items.
   help [command]               display help for command
 
-For more information and examples, see https://github.com/microsoft/secure-data-sandbox/README.md
+For more information and examples, see https://github.com/microsoft/secure-data-sandbox/blob/main/laboratory/README.md
 ~~~
 
-The first thing we need to do is connect the CLI to the laboratory service that we just started. Currently the `build/src/laboratory/server/main.js` listens on port 3000 of localhost.
+The first thing we need to do is connect the CLI to the laboratory service that we just started. Currently `packages/laboratory/dist/main.js` listens on port 3000 of localhost.
 ~~~
-% node build/src/cli/sds.js connect localhost:3000
+% npm run cli connect http://localhost:3000
 
-Connected to http://localhost:3000/
+Connected to http://localhost:3000/.
 ~~~
 This writes the connection information to `~/.sds`, which is consulted every time the CLI is run. If you don't connect to a Laboratory, you will get the following error:
 ~~~
-% node build/src/cli/sds.js list benchmark
+%npm run cli list benchmark
 
 Error: No laboratory connection. Use the "connect" command to specify a laboratory.
 ~~~
@@ -88,56 +86,68 @@ we can use the `demo` command to populate the server with sample data, including
 * Two `runs` with results.
 
 ~~~
-% node build/src/cli/sds.js demo
+% npm run cli demo
 
 === Sample benchmark ===
 name: benchmark1
 author: author1
-version: 0.0.1
-pipelines:
-  - mode: mode1
-    stages:
-      - {}
-      - image: benchmark-image-mode1
+version: v1alpha1
+stages:
+  - name: candidate
+    kind: candidate
+    volumes:
+      - volume: training
+        path: /input
+  - name: scoring
+    image: benchmark-image
+    kind: container
+    volumes:
+      - volume: reference
+        path: /reference
 
 
 === Sample candidate ===
 name: candidate1
 author: author1
-version: 0.0.1
+version: v1alpha1
 benchmark: benchmark1
-mode: mode1
 image: candidate1-image
 
 
 === Sample suite ===
 name: suite1
 author: author1
-version: 0.0.1
+version: v1alpha1
 benchmark: benchmark1
-mode: mode1
+volumes:
+  - name: training
+    type: AzureBlob
+    target: 'https://sample.blob.core.windows.net/training'
+  - name: reference
+    type: AzureBlob
+    target: 'https://sample.blob.core.windows.net/reference'
 
 
-Initiated run f411c160-6bad-11ea-bd94-8fa64eaf2878
-Initiated run f4156ae0-6bad-11ea-bd94-8fa64eaf2878
+Initiated run 0db6c510-d059-11ea-ab64-31e44163fc86
+Initiated run 0dba4780-d059-11ea-ab64-31e44163fc86
 ~~~
 
 If we didn't want to use the built-in `demo` command, we could have created the benchmark, candidate, suite, and runs manually as follows:
 ~~~
-% node build/src/cli/sds.js create benchmark sample-data/benchmark1.yaml
+% npm run cli create benchmark sample-data/benchmark1.yaml
 benchmark created
 
-% node build/src/cli/sds.js create candidate sample-data/candidate1.yaml
+% npm run cli create candidate sample-data/candidate1.yaml
 candidate created
 
-% node build/src/cli/sds.js create suite sample-data/suite1.yaml
+% npm run cli create suite sample-data/suite1.yaml
 suite created
 
-% node build/src/cli/sds.js run candidate1 suite1
-Scheduling run dfc8c5e0-6bae-11ea-bd94-8fa64eaf2878
+% npm run cli run candidate1 suite1
+Scheduling run 1dae9970-d059-11ea-ab64-31e44163fc86
 
-% node build/src/cli/sds.js run candidate1 suite1
-Scheduling run e152c140-6bae-11ea-bd94-8fa64eaf2878
+% npm run cli run candidate1 suite1
+Scheduling run 1fbe1880-d059-11ea-ab64-31e44163fc86
 ~~~
 
 The `demo` command does one thing we can't do through the CLI, and that is to pretend to be a worker and report status for the runs.
@@ -145,75 +155,84 @@ The `demo` command does one thing we can't do through the CLI, and that is to pr
 **List benchmarks, candidates, suites**
 
 ~~~
-% node build/src/cli/sds.js list benchmark
+% npm run cli list benchmark
 name         submitter   date
-benchmark1   author1     2020-03-19 14:37:31 PDT
+benchmark1   author1     2020-07-27 22:32:28 UTC
 
-% node build/src/cli/sds.js  list candidate
-name         submitter   date
-candidate1   author1     2020-03-19 14:37:31 PDT
+% npm run cli list candidate
+name         submitter   date  
+candidate1   author1     2020-07-27 22:32:28 UTC
 
-% node build/src/cli/sds.js list suite
+% npm run cli list suite
 name     submitter   date
-suite1   author1     2020-03-19 14:39:15 PDT
+suite1   author1     2020-07-27 22:32:28 UTC
 ~~~
 
 **Show benchmarks, candidates, suites**
 ~~~
-% node build/src/cli/sds.js show benchmark benchmark1
-pipelines:
-  - mode: mode1
-    stages:
-      - {}
-      - image: benchmark-image-mode1
-id: 1
+% npm run cli show benchmark benchmark1
+stages:
+  - name: candidate
+    kind: candidate
+    volumes:
+      - volume: training
+        path: /input
+  - name: scoring
+    kind: container
+    image: benchmark-image
+    volumes:
+      - volume: reference
+        path: /reference
 name: benchmark1
 author: author1
-version: 0.0.1
-createdAt: 2020-03-19T21:37:31.437Z
-updatedAt: 2020-03-21T20:00:04.907Z
+version: v1alpha1
+createdAt: 2020-07-27T22:32:28.865Z
+updatedAt: 2020-07-27T22:32:43.284Z
 
 
-% node build/src/cli/sds.js show candidate candidate1
-id: 1
+% npm run cli show candidate candidate1
 name: candidate1
 author: author1
-version: 0.0.1
+version: v1alpha1
 benchmark: benchmark1
-mode: mode1
 image: candidate1-image
-createdAt: 2020-03-19T21:37:31.452Z
-updatedAt: 2020-03-21T20:00:37.772Z
+createdAt: 2020-07-27T22:32:28.883Z
+updatedAt: 2020-07-27T22:32:47.384Z
 
 
-% node build/src/cli/sds.js show suite suite1
-id: 1
+% npm run cli show suite suite1
+volumes:
+  - name: training
+    type: AzureBlob
+    target: 'https://sample.blob.core.windows.net/training'
+  - name: reference
+    type: AzureBlob
+    target: 'https://sample.blob.core.windows.net/reference'
 name: suite1
 author: author1
-version: 0.0.1
+version: v1alpha1
 benchmark: benchmark1
-mode: mode1
-createdAt: 2020-03-19T21:39:15.634Z
-updatedAt: 2020-03-21T20:00:48.302Z
+createdAt: 2020-07-27T22:32:28.889Z
+updatedAt: 2020-07-27T22:32:50.623Z
 ~~~
 
 **List runs**
 ~~~
-% node build/src/cli/sds.js list run
-name                                   submitter   date                     candidate    suite    status
-f411c160-6bad-11ea-bd94-8fa64eaf2878   unknown     2020-03-21 12:55:45 PDT  candidate1   suite1   completed
-f4156ae0-6bad-11ea-bd94-8fa64eaf2878   unknown     2020-03-21 12:55:45 PDT  candidate1   suite1   completed
-dfc8c5e0-6bae-11ea-bd94-8fa64eaf2878   unknown     2020-03-21 13:02:21 PDT  candidate1   suite1   created
-e152c140-6bae-11ea-bd94-8fa64eaf2878   unknown     2020-03-21 13:02:23 PDT  candidate1   suite1   created
+% npm run cli list run
+name                                   submitter   date                      candidate    suite    status   
+0db6c510-d059-11ea-ab64-31e44163fc86   unknown     2020-07-27 22:32:28 UTC   candidate1   suite1   completed
+0dba4780-d059-11ea-ab64-31e44163fc86   unknown     2020-07-27 22:32:28 UTC   candidate1   suite1   completed
+1dae9970-d059-11ea-ab64-31e44163fc86   unknown     2020-07-27 22:32:55 UTC   candidate1   suite1   created  
+1fbe1880-d059-11ea-ab64-31e44163fc86   unknown     2020-07-27 22:32:59 UTC   candidate1   suite1   created  
 ~~~
 
 **Displaying Run Results**
 ~~~
-% node build/src/cli/sds.js results benchmark1 suite1
+% npm run cli results benchmark1 suite1
 
 run                                    submitter   date                      passed   failed   skipped
-f411c160-6bad-11ea-bd94-8fa64eaf2878   unknown     2020-03-21 12:55:45 PDT        5        6       ---
-f4156ae0-6bad-11ea-bd94-8fa64eaf2878   unknown     2020-03-21 12:55:45 PDT        3      ---         7
+0db6c510-d059-11ea-ab64-31e44163fc86   unknown     2020-07-27 22:32:28 UTC        5        6       ---
+0dba4780-d059-11ea-ab64-31e44163fc86   unknown     2020-07-27 22:32:28 UTC        3      ---         7
 ~~~
 
 ## Deploying SDS to the cloud

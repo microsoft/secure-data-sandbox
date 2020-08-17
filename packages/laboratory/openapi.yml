@@ -1,0 +1,389 @@
+openapi: 3.0.2
+info:
+  title: secure-data-sandbox
+  version: 0.0.1
+  license:
+    name: MIT
+    url: https://github.com/microsoft/secure-data-sandbox/blob/main/LICENSE
+  contact:
+    name: microsoft/secure-data-sandbox
+    url: https://github.com/microsoft/secure-data-sandbox
+  description: A toolkit for conducting machine learning trials against confidential data
+tags:
+- name: Benchmarks
+- name: Suites
+- name: Candidates
+- name: Runs
+paths:
+  /benchmarks:
+    get:
+      tags: [Benchmarks]
+      responses:
+        200:
+          description: Get all benchmarks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/IBenchmark"
+  /benchmarks/{name}:
+    parameters:
+    - name: name
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      tags: [Benchmarks]
+      responses:
+        200:
+          description: Get a benchmark
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IBenchmark"
+    put:
+      tags: [Benchmarks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IBenchmark"
+      responses:
+        200:
+          description: Create or update a benchmark
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IBenchmark"
+  /suites:
+    get:
+      tags: [Suites]
+      responses:
+        200:
+          description: Get all suites
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ISuite"
+  /suites/{name}:
+    parameters:
+    - name: name
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      tags: [Suites]
+      responses:
+        200:
+          description: Get a suite
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ISuite"
+    put:
+      tags: [Suites]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ISuite"
+      responses:
+        200:
+          description: Create or update a suite
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ISuite"
+  /candidates:
+    get:
+      tags: [Candidates]
+      responses:
+        200:
+          description: Get all candidates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ICandidate"
+  /candidates/{name}:
+    parameters:
+    - name: name
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      tags: [Candidates]
+      responses:
+        200:
+          description: Get a candidate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ICandidate"
+    put:
+      tags: [Candidates]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ICandidate"
+      responses:
+        200:
+          description: Create or update a candidate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ICandidate"
+  /runs:
+    get:
+      tags: [Runs]
+      parameters:
+      - name: benchmark
+        in: query
+        schema:
+          type: string
+      - name: suite
+        in: query
+        schema:
+          type: string
+      responses:
+        200:
+          description: Get runs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/IRun"
+    post:
+      tags: [Runs]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IRunRequest"
+      responses:
+        202:
+          description: Schedule a run
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IRun"
+  /runs/{name}:
+    parameters:
+    - name: name
+      in: path
+      required: true
+      schema:
+        type: string
+    get:
+      tags: [Runs]
+      responses:
+        200:
+          description: Get a single run
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IRun"
+    patch:
+      tags: [Runs]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateRunStatus"
+      responses:
+        204:
+          description: Update a Run
+  /runs/{name}/results:
+    parameters:
+    - name: name
+      in: path
+      required: true
+      schema:
+        type: string
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportRunResults"
+      tags: [Runs]
+      responses:
+        204:
+          description: Add results to a run
+components:
+  schemas:
+    IEntityBase:
+      type: object
+      properties:
+        name:
+          type: string
+        author:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+      - name
+      - author
+    PipelineStage:
+      type: object
+      properties:
+        name:
+          type: string
+        kind:
+          type: string
+          enum:
+          - candidate
+          - container
+        image:
+          type: string
+        volumes:
+          type: array
+          items:
+            type: object
+            properties:
+              volume:
+                type: string
+              path:
+                type: string
+            required:
+            - volume
+            - path
+      required:
+      - name
+      - kind
+    IBenchmark:
+      type: object
+      allOf:
+      - $ref: "#/components/schemas/IEntityBase"
+      properties:
+        stages:
+          type: array
+          items:
+            $ref: "#/components/schemas/PipelineStage"
+      required: 
+      - stages
+    ISuite:
+      type: object
+      allOf:
+      - $ref: "#/components/schemas/IEntityBase"
+      properties:
+        benchmark:
+          type: string
+        volumes:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              type:
+                type: string
+              target:
+                type: string
+            required:
+            - name
+            - type
+            - target
+      required: 
+      - benchmark
+      - volumes
+    ICandidate:
+      type: object
+      allOf:
+      - $ref: "#/components/schemas/IEntityBase"
+      properties:
+        benchmark:
+          type: string
+        image:
+          type: string
+      required: 
+      - benchmark
+      - image
+    IRun:
+      type: object
+      allOf:
+      - $ref: "#/components/schemas/IEntityBase"
+      properties:
+        benchmark:
+          $ref: "#/components/schemas/IBenchmark"
+        suite:
+          $ref: "#/components/schemas/ISuite"
+        candidate:
+          $ref: "#/components/schemas/ICandidate"
+        blob:
+          type: string
+        status:
+          $ref: "#/components/schemas/RunStatus"
+      required:
+      - benchmark
+      - suite
+      - candidate
+      - blob
+      - status
+    IRunRequest:
+      type: object
+      properties:
+        candidate:
+          type: string
+        suite:
+          type: string
+      required:
+      - candidate
+      - suite
+    IResult:
+      type: object
+      properties:
+        benchmark:
+          type: string
+        suite:
+          type: string
+        candidate:
+          type: string
+        measures:
+          $ref: "#/components/schemas/Measures"
+      required:
+      - benchmark
+      - suite
+      - candidate
+      - measures
+    Measures:
+      type: object
+      additionalProperties: true
+    ReportRunResults:
+      type: object
+      properties:
+        measures:
+          $ref: "#/components/schemas/Measures"
+      required:
+      - measures
+    RunStatus:
+      type: string
+      enum:
+      - created
+      - running
+      - completed
+      - failed
+    UpdateRunStatus:
+      type: object
+      properties:
+        status:
+          $ref: "#/components/schemas/RunStatus"

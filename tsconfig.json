@@ -1,13 +1,10 @@
 {
   "extends": "./node_modules/gts/tsconfig-google.json",
   "compilerOptions": {
-    "experimentalDecorators": true,
-    "rootDir": ".",
-    "outDir": "build"
+    "declarationMap": true
   },
-  "include": [
-    "scripts/**/*.ts",
-    "src/**/*.ts",
-    "test/**/*.ts"
+  "exclude": [
+    "node_modules",
+    "dist"
   ]
 }

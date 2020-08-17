@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  laboratory:
+    build:
+      context: .
+      target: laboratory
+
+  cli:
+    build:
+      context: .
+      target: cli
+    command: /bin/sh -c 'sleep 5 && sds-cli connect http://laboratory:3000 && sds-cli demo'
+    depends_on:
+    - laboratory

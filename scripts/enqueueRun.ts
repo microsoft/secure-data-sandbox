@@ -9,7 +9,6 @@ async function createRun(queue: IQueue<PipelineRun>) {
   const runId = v1();
   await queue.enqueue({
     name: `${runId}`,
-    blobPrefix: `https://storage.blob.core.windows.net/runs/${runId}`,
     statusEndpoint: `http://mylaboratory/runs/${runId}`,
     resultsEndpoint: `http://mylaboratory/runs/${runId}/results`,
     stages: [
@@ -20,11 +19,13 @@ async function createRun(queue: IQueue<PipelineRun>) {
         cmd: ['/bin/sh', '-c', '--', `ls /input > /results/${runId}.txt`],
         volumes: [
           {
+            type: 'LocalFile',
             target: '/input',
             source: `${basePath}/input`,
             readonly: true,
           },
           {
+            type: 'LocalFile',
             target: '/results',
             source: `${basePath}/candidateOutput`,
             readonly: false,
@@ -43,11 +44,13 @@ async function createRun(queue: IQueue<PipelineRun>) {
         ],
         volumes: [
           {
+            type: 'LocalFile',
             target: '/input',
             source: `${basePath}/candidateOutput`,
             readonly: true,
           },
           {
+            type: 'LocalFile',
             target: '/results',
             source: `${basePath}/scoredResults`,
             readonly: false,

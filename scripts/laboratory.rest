@@ -8,17 +8,29 @@ PUT {{laboratoryHost}}/benchmarks/benchmark1
 Content-Type: application/json
 
 {
-  "version": "v1",
   "name": "benchmark1",
   "author": "admin",
-  "pipelines": [
+  "apiVersion": "v1alpha1",
+  "stages": [
     {
-      "mode": "default",
-      "stages": [
+      "name": "candidate",
+      "kind": "candidate",
+      "volumes": [
         {
-          "image": "{{laboratoryRegistry}}/alpine"
-        },
-        {}
+          "volume": "training",
+          "path": "/input"
+        }
+      ]
+    },
+    {
+      "name": "scoring",
+      "kind": "container",
+      "image": "{{laboratoryRegistry}}/alpine",
+      "volumes": [
+        {
+          "volume": "reference",
+          "path": "/reference"
+        }
       ]
     }
   ]
@@ -41,11 +53,22 @@ PUT {{laboratoryHost}}/suites/suite1
 Content-Type: application/json
 
 {
-  "version": "v1",
   "name": "suite1",
   "author": "admin",
+  "apiVersion": "v1alpha1",
   "benchmark": "benchmark1",
-  "mode": "default"
+  "volumes": [
+    {
+      "name": "training",
+      "type": "AzureBlob",
+      "target": "https://sample.blob.core.windows.net/training"
+    },
+    {
+      "name": "reference",
+      "type": "AzureBlob",
+      "target": "https://sample.blob.core.windows.net/training"
+    }
+  ]
 }
 
 ###
@@ -65,11 +88,10 @@ PUT {{laboratoryHost}}/candidates/candidate1
 Content-Type: application/json
 
 {
-  "version": "v1",
   "name": "candidate1",
   "author": "admin",
+  "apiVersion": "v1alpha1",
   "benchmark": "benchmark1",
-  "mode": "default",
   "image": "{{laboratoryRegistry}}/alpine"
 }
 
@@ -109,13 +131,13 @@ PATCH {{laboratoryHost}}/runs/{{runName}}
 Content-Type: application/json
 
 {
-  "status": "created"
+  "status": "running"
 }
 
 ###
 
 # Report run results
-PATCH {{laboratoryHost}}/runs/{{runName}}/results
+POST {{laboratoryHost}}/runs/{{runName}}/results
 Content-Type: application/json
 
 {
@@ -128,4 +150,4 @@ Content-Type: application/json
 ###
 
 # Get run results
-GET {{laboratoryHost}}/runs/benchmark1/suite1
+GET {{laboratoryHost}}/runs?benchmark=benchmark1&suite=suite1
