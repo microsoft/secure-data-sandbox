@@ -1,11 +1,11 @@
 import { assert } from 'chai';
-import { PipelineWorker } from '../src/pipelineWorker';
+import { Worker } from '../src/worker';
 import { InMemoryQueue, PipelineRun } from '@microsoft/sds';
 
 describe('worker', () => {
   it('initializes', () => {
     const queue = new InMemoryQueue<PipelineRun>();
-    const worker = new PipelineWorker(queue);
+    const worker = new Worker(queue);
 
     assert.isNotNull(worker);
   });

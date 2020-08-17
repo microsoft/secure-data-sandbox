@@ -24,7 +24,3 @@ export function getQueueConfiguration<T>() {
     queue: GetQueue<T>(config),
   };
 }
-
-export function getDockerBaseVolumePath(): string {
-  return env.get('TEST_BASE_VOLUME_PATH').required().asString();
-}
