@@ -61,18 +61,7 @@ validate_arguments() {
   FORCE=${FORCE:-false}
 }
 
-deploy_environment() {
-  if ! az image show -g $RESOURCE_GROUP -n sds-worker &>/dev/null || [ "$FORCE" = true ]; then
-    TMP_DIR=$(mktemp -d)
-    (
-      pushd $TMP_DIR
-      curl -sL -O "${ASSETS_BASE}/worker-vm/packer.json" -O "${ASSETS_BASE}/worker-vm/setup.sh" -O "${ASSETS_BASE}/worker-vm/start.sh"
-      packer build -force -var resource_group=$RESOURCE_GROUP packer.json
-    )
-  else
-    >&2 echo "Skipping worker VM image. Run with --force to recreate"
-  fi
- 
+deploy_environment() { 
   az deployment group create -g $RESOURCE_GROUP -u "${ASSETS_BASE}/azure/azuredeploy.json" -p "assetsBaseUrl=$ASSETS_BASE"
 }
 
@@ -87,6 +76,7 @@ deploy_laboratory() {
 deploy_worker() {
   REGISTRY=$(az deployment group show -g $RESOURCE_GROUP -n azuredeploy --query properties.outputs.laboratoryRegistryName.value -o tsv)
 
+  # TODO: replace with a stable registry and/or always build during CI
   az acr import -n $REGISTRY --source docker.io/acanthamoeba/sds-worker:latest -t worker:latest --force
 }
 
