@@ -1,5 +1,5 @@
 name: candidate1
 author: author1
-version: v1alpha1
+apiVersion: v1alpha1
 benchmark: benchmark1
 image: candidate1-image

@@ -1,6 +1,6 @@
 name: benchmark1
 author: author1
-version: v1alpha1
+apiVersion: v1alpha1
 stages:
   - name: candidate
     kind: candidate
