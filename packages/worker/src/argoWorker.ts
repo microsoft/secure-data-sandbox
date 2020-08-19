@@ -1,6 +1,6 @@
 import * as k8s from '@kubernetes/client-node';
 import { IQueue, QueueProcessor, PipelineRun } from '@microsoft/sds';
-import { Workflow } from './argo';
+import { Workflow, Template } from './argo';
 
 // Executes Runs by creating an Argo workflow
 export class ArgoWorker {
@@ -40,17 +40,27 @@ export function createWorkflow(run: PipelineRun): Workflow {
     },
   ]);
 
-  const templates = run.stages.map(s => ({
-    name: s.name,
-    container: {
-      image: s.image,
-      command: s.cmd,
-      env: Object.entries(s.env || {})?.map(e => ({
+  const templates = run.stages.map(s => {
+    const template: Template = {
+      name: s.name,
+      container: {
+        image: s.image,
+      },
+    };
+
+    if (s.cmd) {
+      template.container!.command = s.cmd;
+    }
+
+    if (s.env) {
+      template.container!.env = Object.entries(s.env || {})?.map(e => ({
         name: e[0],
         value: e[1],
-      })),
-    },
-  }));
+      }));
+    }
+
+    return template;
+  });
 
   return {
     apiVersion: 'argoproj.io/v1alpha1',

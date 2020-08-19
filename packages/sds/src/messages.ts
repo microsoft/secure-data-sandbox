@@ -5,6 +5,7 @@ export type PipelineRun = Readonly<{
   statusEndpoint: string;
   resultsEndpoint: string;
   stages: ReadonlyArray<PipelineRunStage>;
+  // TODO: consider elevating volumes to top-level property
 }>;
 
 export interface PipelineRunStage {
@@ -17,6 +18,7 @@ export interface PipelineRunStage {
   volumes?: ReadonlyArray<{
     type: string;
     target: string;
+    // TODO: allow `source` as optional for type: 'ephemeral'
     source: string | undefined;
     readonly: boolean;
   }>;

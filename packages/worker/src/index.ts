@@ -3,7 +3,7 @@ import * as k8s from '@kubernetes/client-node';
 import { configuration, GetQueue, PipelineRun } from '@microsoft/sds';
 import { ArgoWorker } from './argoWorker';
 
-async function main(argv: string[]) {
+async function main() {
   const queueConfig = configuration.ParseQueueConfiguration();
   const queue = GetQueue<PipelineRun>(queueConfig);
 
@@ -15,4 +15,4 @@ async function main(argv: string[]) {
   worker.start();
 }
 
-main(process.argv).catch(e => console.error(e));
+main().catch(e => console.error(e));
