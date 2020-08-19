@@ -39,6 +39,7 @@ export function createWorkflow(run: PipelineRun): Workflow {
       template: s.name,
     },
   ]);
+
   const templates = run.stages.map(s => ({
     name: s.name,
     container: {

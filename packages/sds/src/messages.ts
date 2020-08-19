@@ -17,7 +17,7 @@ export interface PipelineRunStage {
   volumes?: ReadonlyArray<{
     type: string;
     target: string;
-    source: string;
+    source: string | undefined;
     readonly: boolean;
   }>;
 }

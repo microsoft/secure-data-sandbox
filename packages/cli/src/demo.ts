@@ -20,7 +20,7 @@ const benchmark1: IBenchmark = {
       kind: BenchmarkStageKind.CANDIDATE,
       volumes: [
         {
-          volume: 'training',
+          name: 'training',
           path: '/input',
         },
       ],
@@ -32,7 +32,7 @@ const benchmark1: IBenchmark = {
       kind: BenchmarkStageKind.CONTAINER,
       volumes: [
         {
-          volume: 'reference',
+          name: 'reference',
           path: '/reference',
         },
       ],

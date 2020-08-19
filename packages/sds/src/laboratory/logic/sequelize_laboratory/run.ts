@@ -158,7 +158,7 @@ function createMessage(
         ? candidate.image
         : stage.image!;
     const volumes = stage.volumes?.map(v => {
-      const sourceVolume = suite.volumes?.filter(sv => sv.name === v.volume)[0];
+      const sourceVolume = suite.volumes?.filter(sv => sv.name === v.name)[0];
 
       return {
         type: sourceVolume.type,
@@ -168,13 +168,21 @@ function createMessage(
       };
     });
 
-    // TODO implement cmd, env.
-
-    return {
+    const runStage: PipelineRunStage = {
       name: stage.name,
       image,
       volumes,
-    } as PipelineRunStage;
+    };
+
+    if (stage.cmd) {
+      runStage.cmd = stage.cmd;
+    }
+
+    if (stage.env) {
+      runStage.env = stage.env;
+    }
+
+    return runStage;
   });
 
   const statusEndpoint = new URL(`runs/${name}`, server);

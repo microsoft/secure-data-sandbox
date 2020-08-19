@@ -96,13 +96,13 @@ stages:
   - name: candidate
     kind: candidate
     volumes:
-      - volume: training
+      - name: training
         path: /input
   - name: scoring
     image: benchmark-image
     kind: container
     volumes:
-      - volume: reference
+      - name: reference
         path: /reference
 
 
@@ -175,13 +175,13 @@ stages:
   - name: candidate
     kind: candidate
     volumes:
-      - volume: training
+      - name: training
         path: /input
   - name: scoring
     kind: container
     image: benchmark-image
     volumes:
-      - volume: reference
+      - name: reference
         path: /reference
 name: benchmark1
 author: author1

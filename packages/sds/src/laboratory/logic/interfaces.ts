@@ -74,27 +74,39 @@ export enum BenchmarkStageKind {
   CONTAINER = 'container',
 }
 
-const BenchmarkStageKindType = createEnum<BenchmarkStageKind>(
-  BenchmarkStageKind,
-  'BenchmarkStageKind'
-);
-
 const PipelineStageVolumeMountType = t.type({
-  volume: t.string,
+  name: t.string,
   path: t.string,
 });
-type PipelineStageVolumeMount = t.TypeOf<typeof PipelineStageVolumeMountType>;
 
-// TODO: make 'image' required when kind == 'container'
-const PipelineStageType = t.intersection([
+const CandidatePipelineStageType = t.intersection([
   t.type({
     name: t.string,
-    kind: BenchmarkStageKindType,
+    kind: t.literal(BenchmarkStageKind.CANDIDATE),
   }),
   t.partial({
-    image: t.string,
+    cmd: t.array(t.string),
+    env: t.record(t.string, t.string),
     volumes: t.array(PipelineStageVolumeMountType),
   }),
+]);
+
+const ContainerPipelineStageType = t.intersection([
+  t.type({
+    name: t.string,
+    kind: t.literal(BenchmarkStageKind.CONTAINER),
+    image: t.string,
+  }),
+  t.partial({
+    cmd: t.array(t.string),
+    env: t.record(t.string, t.string),
+    volumes: t.array(PipelineStageVolumeMountType),
+  }),
+]);
+
+const PipelineStageType = t.union([
+  CandidatePipelineStageType,
+  ContainerPipelineStageType,
 ]);
 export type PipelineStage = t.TypeOf<typeof PipelineStageType>;
 
@@ -131,11 +143,26 @@ export const CandidateArrayType = t.array(CandidateType);
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-const SuiteVolumeType = t.type({
+const EphemeralSuiteVolumeType = t.intersection([
+  t.type({
+    name: t.string,
+    type: t.literal('ephemeral'),
+  }),
+  t.partial({
+    target: t.undefined,
+  }),
+]);
+
+const TargetedSuiteVolumeType = t.type({
   name: t.string,
   type: t.string,
   target: t.string,
 });
+
+const SuiteVolumeType = t.union([
+  TargetedSuiteVolumeType,
+  EphemeralSuiteVolumeType,
+]);
 export type SuiteVolume = t.TypeOf<typeof SuiteVolumeType>;
 
 export const SuiteType = t.intersection([
