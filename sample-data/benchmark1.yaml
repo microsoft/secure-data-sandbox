@@ -5,13 +5,18 @@ stages:
   - name: candidate
     kind: candidate
     volumes:
-      - volume: training
+      - name: training
         path: /input
         readonly: true
   - name: scoring
     kind: container
     image: benchmark-image
     volumes:
-      - volume: reference
+      - name: reference
         path: /reference
         readonly: true
+volumes:
+  - name: training
+    type: ephemeral
+  - name: reference
+    type: ephemeral

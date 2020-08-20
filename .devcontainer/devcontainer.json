@@ -1,0 +1,7 @@
+{
+  "forwardPorts": [
+    2746,   // argo-server
+    3000,   // laboratory
+    7777    // octant
+  ]
+}
