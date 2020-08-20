@@ -77,6 +77,7 @@ export enum BenchmarkStageKind {
 const PipelineStageVolumeMountType = t.type({
   name: t.string,
   path: t.string,
+  readonly: t.boolean,
 });
 
 const CandidatePipelineStageType = t.intersection([

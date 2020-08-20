@@ -29,7 +29,8 @@ Content-Type: application/json
       "volumes": [
         {
           "volume": "reference",
-          "path": "/reference"
+          "path": "/reference",
+          "readonly": true
         }
       ]
     }

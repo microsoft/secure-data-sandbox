@@ -8,14 +8,17 @@ stages:
   volumes:
   - name: images
     path: /out
+    readonly: false
 
 - name: candidate
   kind: candidate
   volumes:
   - name: images
     path: /in
+    readonly: true
   - name: predictions
     path: /out
+    readonly: false
 
 - name: eval
   kind: container
@@ -23,9 +26,15 @@ stages:
   volumes:
   - name: predictions
     path: /results
+    readonly: true
+  - name: scores
+    path: /scores
+    readonly: false
 
 volumes:
 - name: images
   type: ephemeral
 - name: predictions
   type: ephemeral
+- name: scores
+  type: scores

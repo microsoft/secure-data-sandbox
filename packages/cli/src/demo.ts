@@ -22,6 +22,7 @@ const benchmark1: IBenchmark = {
         {
           name: 'training',
           path: '/input',
+          readonly: true,
         },
       ],
     },
@@ -34,6 +35,7 @@ const benchmark1: IBenchmark = {
         {
           name: 'reference',
           path: '/reference',
+          readonly: true,
         },
       ],
     },

@@ -35,6 +35,7 @@ export const benchmark1: IBenchmark = {
         {
           name: 'training',
           path: '/input',
+          readonly: true,
         },
       ],
     },
@@ -47,6 +48,7 @@ export const benchmark1: IBenchmark = {
         {
           name: 'reference',
           path: '/reference',
+          readonly: true,
         },
       ],
     },
@@ -67,6 +69,7 @@ export const benchmark2: IBenchmark = {
         {
           name: 'training',
           path: '/input',
+          readonly: true,
         },
       ],
     },
@@ -79,6 +82,7 @@ export const benchmark2: IBenchmark = {
         {
           name: 'reference',
           path: '/reference',
+          readonly: true,
         },
       ],
     },
@@ -99,6 +103,7 @@ export const benchmark3: IBenchmark = {
         {
           name: 'training',
           path: '/input',
+          readonly: true,
         },
       ],
     },
@@ -111,6 +116,7 @@ export const benchmark3: IBenchmark = {
         {
           name: 'reference',
           path: '/reference',
+          readonly: true,
         },
       ],
     },

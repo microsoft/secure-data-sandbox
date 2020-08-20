@@ -7,9 +7,11 @@ stages:
     volumes:
       - volume: training
         path: /input
+        readonly: true
   - name: scoring
     kind: container
     image: benchmark-image
     volumes:
       - volume: reference
         path: /reference
+        readonly: true

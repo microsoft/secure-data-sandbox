@@ -40,36 +40,23 @@ export function createWorkflow(run: PipelineRun): Workflow {
     },
   ]);
 
-  // TODO: replace global volume with volumes from benchmark
-  const volumeClaimTemplates: PersistentVolumeClaim[] = [
-    {
-      metadata: {
-        name: 'global',
-      },
-      spec: {
-        accessModes: ['ReadWriteOnce'],
-        resources: {
-          requests: {
-            storage: '1Gi',
-          },
-        },
-      },
-    },
-  ];
-
   const templates = run.stages.map(s => {
     const template: Template = {
       name: s.name,
       container: {
         image: s.image,
-        // TODO: replace global volume with volumes from benchmark
-        volumeMounts: s.volumes?.map(v => ({
-          name: 'global',
-          mountPath: v.target,
-          readOnly: v.readonly,
-        })),
       },
     };
+
+    // TODO: replace global volume with volumes from benchmark
+    const volumeMounts = s.volumes?.map(v => ({
+      name: 'global',
+      mountPath: v.target,
+      readOnly: v.readonly,
+    }));
+    if (volumeMounts) {
+      template.container!.volumeMounts = volumeMounts;
+    }
 
     if (s.cmd) {
       template.container!.command = s.cmd;
@@ -85,7 +72,7 @@ export function createWorkflow(run: PipelineRun): Workflow {
     return template;
   });
 
-  return {
+  const workflow: Workflow = {
     apiVersion: 'argoproj.io/v1alpha1',
     kind: 'Workflow',
     metadata: {
@@ -100,7 +87,29 @@ export function createWorkflow(run: PipelineRun): Workflow {
         },
         ...templates,
       ],
-      volumeClaimTemplates: volumeClaimTemplates,
     },
   };
+
+  if (run.stages.some(s => s.volumes?.length || 0 > 0)) {
+    // TODO: replace global volume with volumes from benchmark
+    const volumeClaimTemplates: PersistentVolumeClaim[] = [
+      {
+        metadata: {
+          name: 'global',
+        },
+        spec: {
+          accessModes: ['ReadWriteOnce'],
+          resources: {
+            requests: {
+              storage: '1Gi',
+            },
+          },
+        },
+      },
+    ];
+
+    workflow.spec.volumeClaimTemplates = volumeClaimTemplates;
+  }
+
+  return workflow;
 }

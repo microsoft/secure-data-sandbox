@@ -160,12 +160,11 @@ function createMessage(
     const volumes = stage.volumes?.map(v => {
       const sourceVolume = suite.volumes?.filter(sv => sv.name === v.name)[0];
 
-      // TODO: implement readonly on volumes
       return {
         type: sourceVolume.type,
         target: v.path,
         source: sourceVolume.target,
-        readonly: false,
+        readonly: v.readonly,
       };
     });
 
