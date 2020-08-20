@@ -43,7 +43,8 @@ spec:
       serviceAccountName: worker
       containers:
       - name: worker
-        image: worker
+        image: acanthamoeba/sds-worker
+        imagePullPolicy: IfNotPresent
         resources:
           limits:
             cpu: "1"

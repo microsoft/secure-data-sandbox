@@ -1,6 +1,6 @@
 import * as k8s from '@kubernetes/client-node';
 import { IQueue, QueueProcessor, PipelineRun } from '@microsoft/sds';
-import { Workflow, Template } from './argo';
+import { Workflow, Template, PersistentVolumeClaim } from './argo';
 
 // Executes Runs by creating an Argo workflow
 export class ArgoWorker {
@@ -40,11 +40,34 @@ export function createWorkflow(run: PipelineRun): Workflow {
     },
   ]);
 
+  // TODO: replace global volume with volumes from benchmark
+  const volumeClaimTemplates: PersistentVolumeClaim[] = [
+    {
+      metadata: {
+        name: 'global',
+      },
+      spec: {
+        accessModes: ['ReadWriteOnce'],
+        resources: {
+          requests: {
+            storage: '1Gi',
+          },
+        },
+      },
+    },
+  ];
+
   const templates = run.stages.map(s => {
     const template: Template = {
       name: s.name,
       container: {
         image: s.image,
+        // TODO: replace global volume with volumes from benchmark
+        volumeMounts: s.volumes?.map(v => ({
+          name: 'global',
+          mountPath: v.target,
+          readOnly: v.readonly,
+        })),
       },
     };
 
@@ -77,6 +100,7 @@ export function createWorkflow(run: PipelineRun): Workflow {
         },
         ...templates,
       ],
+      volumeClaimTemplates: volumeClaimTemplates,
     },
   };
 }

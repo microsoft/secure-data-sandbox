@@ -1,0 +1,31 @@
+name: catdetection
+author: acanthamoeba
+apiVersion: v1alpha1
+stages:
+- name: prep
+  kind: container
+  image: acanthamoeba/sds-prep
+  volumes:
+  - name: images
+    path: /out
+
+- name: candidate
+  kind: candidate
+  volumes:
+  - name: images
+    path: /in
+  - name: predictions
+    path: /out
+
+- name: eval
+  kind: container
+  image: acanthamoeba/sds-eval
+  volumes:
+  - name: predictions
+    path: /results
+
+volumes:
+- name: images
+  type: ephemeral
+- name: predictions
+  type: ephemeral

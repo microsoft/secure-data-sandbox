@@ -1,0 +1,9 @@
+name: cognitiveservices
+author: acanthamoeba
+apiVersion: v1alpha1
+benchmark: catdetection
+image: acanthamoeba/sds-candidate
+# TODO: move to secrets
+env:
+  API_KEY: <your api key here>
+  SERVICE_ENDPOINT: https://<your service>.cognitiveservices.azure.com/

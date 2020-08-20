@@ -132,6 +132,10 @@ export const CandidateType = t.intersection([
     benchmark: t.string,
     image: t.string,
   }),
+  t.partial({
+    cmd: t.array(t.string),
+    env: t.record(t.string, t.string),
+  }),
 ]);
 export type ICandidate = t.TypeOf<typeof CandidateType>;
 

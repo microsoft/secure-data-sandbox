@@ -1,0 +1,9 @@
+name: images
+author: acanthamoeba
+apiVersion: v1alpha1
+benchmark: catdetection
+volumes:
+- name: images
+  type: ephemeral
+- name: predictions
+  type: ephemeral

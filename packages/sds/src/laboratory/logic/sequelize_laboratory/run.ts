@@ -160,11 +160,12 @@ function createMessage(
     const volumes = stage.volumes?.map(v => {
       const sourceVolume = suite.volumes?.filter(sv => sv.name === v.name)[0];
 
+      // TODO: implement readonly on volumes
       return {
         type: sourceVolume.type,
         target: v.path,
         source: sourceVolume.target,
-        readonly: true,
+        readonly: false,
       };
     });
 
@@ -180,6 +181,10 @@ function createMessage(
 
     if (stage.env) {
       runStage.env = stage.env;
+    }
+
+    if (stage.kind === BenchmarkStageKind.CANDIDATE && candidate.env) {
+      runStage.env = { ...runStage.env, ...candidate.env };
     }
 
     return runStage;
