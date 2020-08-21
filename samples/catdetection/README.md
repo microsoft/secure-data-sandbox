@@ -14,6 +14,16 @@ This sample demonstrates a three stage pipeline with the following behavior
   * Reads the Candidate's results
   * Determines whether or not a cat was correctly identified
 
+## Configuration
+
+Update the environment variables in `candidate.yml` to point to an Azure Cognitive Services account
+
+```yaml
+env:
+  API_KEY: <your api key here>
+  SERVICE_ENDPOINT: https://<your service>.cognitiveservices.azure.com/
+```
+
 ## Explanation
 
 This sample demonstrates several aspects of SDS for Benchmarks/Candidates/Runs
