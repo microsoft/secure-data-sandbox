@@ -23,7 +23,7 @@ To fully develop and debug SDS, you'll want to have the following installed on y
 
 * Node 12+
 * Docker
-* kubectl
+* Helm 3
 * Azure CLI
 
 ## Azure development
@@ -53,23 +53,6 @@ Copy `.env.template` to `.env` and enter the data returned by the CLI. A transla
 * `AZURE_CLIENT_ID`: `appId`
 * `AZURE_CLIENT_SECRET`: `password`
 
-
-### Kubernetes configs
-
-In `deploy/k8s/3-worker.yml`, update the environment variables used by the Worker to use your queue and Service Principal information
-
-```yaml
-# Sample only, replace with the values returned by the CLI
-- name: QUEUE_ENDPOINT
-  value: https://<yourstorageaccount>.queue.core.windows.net/runs
-- name: AZURE_TENANT_ID
-  value: 00000000-0000-0000-0000-000000000000
-- name: AZURE_CLIENT_ID
-  value: 00000000-0000-0000-0000-000000000000
-- name: AZURE_CLIENT_SECRET
-  value: 00000000-0000-0000-0000-000000000000
-```
-
 ## Kubernetes development
 
 The `Worker` component runs on Kubernetes. Follow the instructions below to set up your dev environment
@@ -81,8 +64,15 @@ chmod +x ./kind
 sudo mv ./kind /usr/local/bin/kind
 kind cluster create
 
-# Deploy Worker components to the cluster
-kubectl apply -f ./deploy/k8s
+# Deploy Worker components to the cluster, filling in parameters for your resources
+helm install \
+  --set argoController.containerRuntimeExecutor=pns \
+  --set argoServer.enabled=true \
+  --set worker.queueEndpoint=https://<storageaccount>.queue.core.windows.net/runs \
+  --set worker.tenantId=00000000-0000-0000-0000-000000000000 \
+  --set worker.clientId=00000000-0000-0000-0000-000000000000 \
+  --set worker.clientSecret=00000000-0000-0000-0000-000000000000 \
+  sds ./deploy/sds-worker
 ```
 
 ### Iterating on the Worker
