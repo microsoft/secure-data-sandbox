@@ -73,7 +73,7 @@ Connected to http://localhost:3000/.
 ~~~
 This writes the connection information to `~/.sds`, which is consulted every time the CLI is run. If you don't connect to a Laboratory, you will get the following error:
 ~~~
-%npm run cli list benchmark
+% npm run cli list benchmark
 
 Error: No laboratory connection. Use the "connect" command to specify a laboratory.
 ~~~
@@ -237,22 +237,11 @@ run                                    submitter   date                      pas
 
 ## Deploying SDS to the cloud
 
-Requirements
+TODO
 
-* [azure-cli](https://aka.ms/azure-cli)
-* [jq](https://stedolan.github.io/jq/)
-* [Packer](https://www.packer.io/)
+## [Developer Guide](docs/development.md)
 
-Run the following commands in a bash terminal
-
-~~~
-# Create a resource group to hold all the sandbox resources
-az group create -n sandbox -l southcentralus
-
-# Deploy an instance of the sandbox
-./deploy/deploy.sh -g sandbox
-~~~
-
+For developers looking to modify SDS itself, please refer to the [developer guide](docs/development.md)
 
 ## Contributing
 
@@ -267,3 +256,4 @@ provided by the bot. You will only need to do this once across all repos using o
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
