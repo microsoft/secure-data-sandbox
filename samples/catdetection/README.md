@@ -24,6 +24,21 @@ env:
   SERVICE_ENDPOINT: https://<your service>.cognitiveservices.azure.com/
 ```
 
+## Usage
+
+```shell
+# Set up the Benchmark and Suite
+npm run cli create benchmark ./samples/catdetection/benchmark.yml
+npm run cli create suite ./samples/catdetection/suite.yml
+
+# Create a Candidate
+npm run cli create candidate ./samples/catdetection/candidate.yml
+
+# Run the Candidate
+npm run cli run cognitiveservices images
+
+```
+
 ## Explanation
 
 This sample demonstrates several aspects of SDS for Benchmarks/Candidates/Runs
