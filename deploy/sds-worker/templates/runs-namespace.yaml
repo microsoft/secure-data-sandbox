@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: runs
+  name: {{ .Values.runs.namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: workflow-creator
-  namespace: runs
+  namespace: {{ .Values.runs.namespace }}
 rules:
 - apiGroups:
   - argoproj.io
@@ -20,7 +20,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: argo-workflow
-  namespace: runs
+  namespace: {{ .Values.runs.namespace }}
 rules:
 - apiGroups:
   - ""
@@ -42,7 +42,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: argo-binding
-  namespace: runs
+  namespace: {{ .Values.runs.namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -50,13 +50,13 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: argo
-  namespace: argo
+  namespace: {{ .Values.argoController.namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: argo-server-binding
-  namespace: runs
+  namespace: {{ .Values.runs.namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -64,18 +64,32 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: argo-server
-  namespace: argo
+  namespace: {{ .Values.argoController.namespace }}
 ---
-  apiVersion: rbac.authorization.k8s.io/v1
-  kind: RoleBinding
-  metadata:
-    name: runs-default-workflow
-    namespace: runs
-  roleRef:
-    apiGroup: rbac.authorization.k8s.io
-    kind: Role
-    name: argo-workflow
-  subjects:
-  - kind: ServiceAccount
-    name: default
-    namespace: runs
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: runs-default-workflow
+  namespace: {{ .Values.runs.namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: argo-workflow
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: {{ .Values.runs.namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: worker-binding
+  namespace: {{ .Values.runs.namespace }}
+subjects:
+- kind: ServiceAccount
+  name: worker
+  namespace: worker
+roleRef:
+  kind: Role
+  name: workflow-creator
+  apiGroup: rbac.authorization.k8s.io

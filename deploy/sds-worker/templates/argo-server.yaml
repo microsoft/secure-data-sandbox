@@ -1,8 +1,9 @@
+{{- if .Values.argoServer.enabled -}}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: argo-server
-  namespace: argo
+  namespace: {{ .Values.argoController.namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -56,9 +57,10 @@ rules:
   - delete
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: RoleBinding
 metadata:
   name: argo-server-binding
+  namespace: {{ .Values.argoController.namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -66,13 +68,13 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: argo-server
-  namespace: argo
+  namespace: {{ .Values.argoController.namespace }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: argo-server
-  namespace: argo
+  namespace: {{ .Values.argoController.namespace }}
 spec:
   ports:
   - name: web
@@ -85,7 +87,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: argo-server
-  namespace: argo
+  namespace: {{ .Values.argoController.namespace }}
 spec:
   selector:
     matchLabels:
@@ -100,8 +102,8 @@ spec:
         - server
         - --namespaced
         - --managed-namespace
-        - runs
-        image: argoproj/argocli:v2.9.3
+        - {{ .Values.runs.namespace }}
+        image: {{ .Values.argoServer.image }}
         name: argo-server
         ports:
         - containerPort: 2746
@@ -116,3 +118,4 @@ spec:
       nodeSelector:
         kubernetes.io/os: linux
       serviceAccountName: argo-server
+{{- end }}

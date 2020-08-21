@@ -1,0 +1,25 @@
+# Default values for sds-worker.
+
+argoController:
+  # Set `containerRuntimeExecutor: pns` when developing on kind
+  containerRuntimeExecutor: docker
+  executorImage: argoproj/argoexec:v2.9.3
+  image: argoproj/workflow-controller:v2.9.3
+  namespace: argo
+
+argoServer:
+  # Determines whether to deploy the optional argo-server UX
+  enabled: false
+  image: argoproj/argocli:v2.9.3
+
+runs:
+  namespace: runs
+
+worker:
+  image: acanthamoeba/sds-worker
+  queueMode: azure
+  queueEndpoint: https://<storageaccount>.queue.core.windows.net/runs
+  # Set the following to use a Service Principal during development
+  # tenantId: "00000000-0000-0000-0000-000000000000"
+  # clientId: "00000000-0000-0000-0000-000000000000"
+  # clientSecret: "00000000-0000-0000-0000-000000000000"

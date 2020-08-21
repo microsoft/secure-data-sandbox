@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: workflow-controller-configmap
+  namespace: {{ .Values.argoController.namespace }}
+data:
+  containerRuntimeExecutor: {{ .Values.argoController.containerRuntimeExecutor }}

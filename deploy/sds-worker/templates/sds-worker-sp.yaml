@@ -1,0 +1,9 @@
+{{- if .Values.worker.clientSecret -}}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sds-worker-sp
+  namespace: worker
+data:
+  clientSecret: {{ .Values.worker.clientSecret | b64enc }}
+{{- end }}

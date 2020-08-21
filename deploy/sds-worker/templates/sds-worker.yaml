@@ -9,20 +9,6 @@ metadata:
   name: worker
   namespace: worker
 ---
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: worker-binding
-  namespace: runs
-subjects:
-- kind: ServiceAccount
-  name: worker
-  namespace: worker
-roleRef:
-  kind: Role
-  name: workflow-creator
-  apiGroup: rbac.authorization.k8s.io
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -43,7 +29,7 @@ spec:
       serviceAccountName: worker
       containers:
       - name: worker
-        image: acanthamoeba/sds-worker
+        image: {{ .Values.worker.image }}
         imagePullPolicy: IfNotPresent
         resources:
           limits:
@@ -51,6 +37,21 @@ spec:
             memory: 1Gi
         env:
         - name: QUEUE_MODE
-          value: azure
+          value: {{ .Values.worker.queueMode }}
         - name: QUEUE_ENDPOINT
-          value: https://myaccount.queue.core.windows.net/runs
+          value: {{ .Values.worker.queueEndpoint }}
+        {{- if .Values.worker.tenantId }}
+        - name: AZURE_TENANT_ID
+          value: {{ .Values.worker.tenantId }}
+        {{- end }}
+        {{- if .Values.worker.clientId }}
+        - name: AZURE_CLIENT_ID
+          value: {{ .Values.worker.clientId }}
+        {{- end }}
+        {{- if .Values.worker.clientSecret }}
+        - name: AZURE_CLIENT_SECRET
+          valueFrom:
+              secretKeyRef:
+                name: sds-worker-sp
+                key: clientSecret
+        {{- end }}
