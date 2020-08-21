@@ -7,3 +7,5 @@ volumes:
   type: ephemeral
 - name: predictions
   type: ephemeral
+- name: scores
+  type: ephemeral
