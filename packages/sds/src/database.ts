@@ -37,7 +37,7 @@ export function GetSequelizeOptions(
           beforeConnect: async config => {
             const tediousConfig = config.dialectOptions as ConnectionConfig;
             const accessToken = await azureConfig.credential.getToken(
-              'https://database.windows.net/'
+              'https://database.windows.net//.default'
             );
             Object.assign(tediousConfig, {
               authentication: {

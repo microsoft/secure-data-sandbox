@@ -47,7 +47,7 @@
     "xmlhttprequest": "^1.8.0"
   },
   "dependencies": {
-    "@azure/identity": "^1.0.3",
+    "@azure/identity": "^1.1.0",
     "@azure/storage-queue": "^12.1.0-preview.1",
     "axios": "^0.19.2",
     "env-var": "^6.3.0",
@@ -58,7 +58,7 @@
     "sequelize": "^5.22.3",
     "sequelize-typescript": "^1.1.0",
     "sqlite3": "^5.0.0",
-    "tedious": "^9.0.1",
+    "tedious": "^9.2.1",
     "uuid": "^8.3.0"
   }
 }
