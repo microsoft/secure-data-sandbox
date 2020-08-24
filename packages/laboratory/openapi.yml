@@ -147,15 +147,6 @@ paths:
   /runs:
     get:
       tags: [Runs]
-      parameters:
-      - name: benchmark
-        in: query
-        schema:
-          type: string
-      - name: suite
-        in: query
-        schema:
-          type: string
       responses:
         200:
           description: Get runs
@@ -180,6 +171,29 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/IRun"
+  /runs/results:
+    get:
+      tags: [Runs]
+      parameters:
+      - name: benchmark
+        in: query
+        schema:
+          type: string
+        required: true
+      - name: suite
+        in: query
+        schema:
+          type: string
+        required: true
+      responses:
+        200:
+          description: Get run results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/IResult"
   /runs/{name}:
     parameters:
     - name: name

@@ -7,6 +7,7 @@ import {
   RunRequestType,
   UpdateRunStatusType,
   validate,
+  ValidationError,
 } from '@microsoft/sds';
 
 export function createRunRouter(lab: ILaboratory): Router {
@@ -15,16 +16,7 @@ export function createRunRouter(lab: ILaboratory): Router {
   router
     .route('/runs')
     .get(async (req, res) => {
-      if (
-        typeof req.query.benchmark === 'string' &&
-        typeof req.query.suite === 'string'
-      ) {
-        res.json(
-          await lab.allRunResults(req.query['benchmark'], req.query['suite'])
-        );
-      } else {
-        res.json(await lab.allRuns());
-      }
+      res.json(await lab.allRuns());
     })
     .post(async (req, res) => {
       const runRequest = validate(RunRequestType, req.body);
@@ -32,6 +24,22 @@ export function createRunRouter(lab: ILaboratory): Router {
       res.status(202);
       res.json(run);
     });
+
+  router.get('/runs/results', async (req, res) => {
+    console.log(req.query);
+    if (
+      typeof req.query.benchmark !== 'string' ||
+      typeof req.query.suite !== 'string'
+    ) {
+      throw new ValidationError(
+        'Query parameters for `benchmark` and `suite` must be provided'
+      );
+    }
+
+    res.json(
+      await lab.allRunResults(req.query['benchmark'], req.query['suite'])
+    );
+  });
 
   router
     .route('/runs/:name')

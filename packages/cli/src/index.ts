@@ -261,7 +261,8 @@ async function results(benchmark: string, suite: string) {
     const columns = new Set<string>();
     for (const result of results) {
       for (const key in result.measures) {
-        if (!Object.prototype.hasOwnProperty.call(result, key)) continue;
+        // Don't clobber existing keys
+        if (Object.prototype.hasOwnProperty.call(result, key)) continue;
         columns.add(key);
       }
     }

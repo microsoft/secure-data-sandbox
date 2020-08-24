@@ -1,6 +1,10 @@
 import * as express from 'express';
 
-import { EntityNotFoundError, IllegalOperationError } from '@microsoft/sds';
+import {
+  EntityNotFoundError,
+  IllegalOperationError,
+  ValidationError,
+} from '@microsoft/sds';
 
 export function setErrorStatus(
   err: Error,
@@ -10,7 +14,10 @@ export function setErrorStatus(
 ) {
   if (err instanceof EntityNotFoundError) {
     res.statusCode = 404;
-  } else if (err instanceof IllegalOperationError) {
+  } else if (
+    err instanceof IllegalOperationError ||
+    err instanceof ValidationError
+  ) {
     res.statusCode = 400;
   }
   next(err);

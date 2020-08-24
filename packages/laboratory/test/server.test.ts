@@ -380,7 +380,7 @@ describe('laboratory/server', () => {
 
       chai
         .request(await createApp(lab))
-        .get(`/runs?benchmark=${benchmark}&suite=${suite}`)
+        .get(`/runs/results?benchmark=${benchmark}&suite=${suite}`)
         .end((err, res) => {
           assert.equal(res.status, 200);
           assert.deepEqual(res.body, expected);
