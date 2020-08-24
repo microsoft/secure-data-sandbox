@@ -26,7 +26,6 @@ export function createRunRouter(lab: ILaboratory): Router {
     });
 
   router.get('/runs/results', async (req, res) => {
-    console.log(req.query);
     if (
       typeof req.query.benchmark !== 'string' ||
       typeof req.query.suite !== 'string'
