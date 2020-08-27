@@ -72,7 +72,7 @@ helm install \
   --set worker.tenantId=00000000-0000-0000-0000-000000000000 \
   --set worker.clientId=00000000-0000-0000-0000-000000000000 \
   --set worker.clientSecret=00000000-0000-0000-0000-000000000000 \
-  sds ./deploy/sds-worker
+  sds ./charts/sds-worker
 ```
 
 ### Iterating on the Worker
