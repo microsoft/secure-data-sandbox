@@ -1,0 +1,213 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "sshPublicKey": {
+      "type": "securestring",
+      "defaultValue": ""
+    },
+    "vmPassword": {
+      "type": "securestring",
+      "defaultValue": "[newGuid()]"
+    }
+  },
+  "variables": {
+    "autoShutdownTime": "0200",
+    "autoShutdownTimeZone": "UTC",
+    "dev": "dev",
+    "devSubnetPrefix": "10.0.255.0/24",
+    "vmSize": "Standard_DS2_v2",
+    "vnet": "vnet",
+    "ownerRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/applicationSecurityGroups",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('dev')]",
+      "properties": {
+      }
+    },
+    {
+      "name": "[variables('dev')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic"
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/applicationSecurityGroups', variables('dev'))]"
+      ],
+      "name": "dev",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "ssh",
+            "properties": {
+              "description": "Allow SSH for development",
+              "priority": 2000,
+              "direction": "Inbound",
+              "access": "Allow",
+              "protocol": "TCP",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "22",
+              "destinationApplicationSecurityGroups": [
+                {
+                  "id": "[resourceId('Microsoft.Network/applicationSecurityGroups', variables('dev'))]"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('dev'))]"
+      ],
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "[concat('vnet/', variables('dev'))]",
+      "properties": {
+        "addressPrefix": "[variables('devSubnetPrefix')]",
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('dev'))]"
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/applicationSecurityGroups', variables('dev'))]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('dev'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet'), variables('dev'))]"
+      ],
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('dev')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "default",
+            "properties": {
+              "applicationSecurityGroups": [
+                {
+                  "id": "[resourceId('Microsoft.Network/applicationSecurityGroups', variables('dev'))]"
+                }
+              ],
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('dev'))]"
+              },
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet'), variables('dev'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('dev'))]"
+      ],
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2019-07-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('dev')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('vmSize')]"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('dev'))]"
+            }
+          ]
+        },
+        "osProfile": {
+          "adminUsername": "azureuser",
+          "adminPassword": "[parameters('vmPassword')]",
+          "computerName": "[variables('dev')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "18.04-LTS",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "Standard_LRS"
+            }
+          }
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', variables('dev'))]"
+      ],
+      "name": "[concat('shutdown-computevm-', variables('dev'))]",
+      "type": "Microsoft.DevTestLab/schedules",
+      "apiVersion": "2018-09-15",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "status": "Enabled",
+        "dailyRecurrence": {
+          "time": "[variables('autoShutdownTime')]"
+        },
+        "targetResourceId": "[resourceId('Microsoft.Compute/virtualMachines', variables('dev'))]",
+        "taskType": "ComputeVmShutdownTask",
+        "timeZoneId": "[variables('autoShutdownTimeZone')]"
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', variables('dev'))]"
+      ],
+      "condition": "[not(empty(parameters('sshPublicKey')))]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2019-07-01",
+      "location": "[resourceGroup().location]",
+      "name": "[concat(variables('dev'), '/vmAccess')]",
+      "properties": {
+        "publisher": "Microsoft.OSTCExtensions",
+        "type": "VMAccessForLinux",
+        "typeHandlerVersion": "1.5",
+        "autoUpgradeMinorVersion": true,
+        "settings": {},
+        "protectedSettings": {
+          "username": "azureuser",
+          "ssh_key": "[parameters('sshPublicKey')]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2018-09-01-preview",
+      "location": "[resourceGroup().location]",
+      "name": "[guid(concat('dev', 'Owner'))]",
+      "properties": {
+        "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachines', variables('dev')), '2019-07-01', 'Full').identity.principalId]",
+        "roleDefinitionId": "[variables('ownerRoleId')]"
+      }
+    }
+  ],
+  "outputs": {}
+}

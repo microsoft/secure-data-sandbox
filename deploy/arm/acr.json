@@ -1,0 +1,150 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "acrPrivateDnsZoneId": {
+      "type": "string"
+    },
+    "subnetId": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "infraAcr": "[concat('infra', variables('suffix'))]",
+    "userAcr": "[concat('user', variables('suffix'))]",
+    "suffix": "[toLower(take(uniqueString(resourceGroup().id), 6))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2019-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('infraAcr')]",
+      "sku": {
+        "name": "Premium"
+      },
+      "properties": {
+        "adminUserEnabled": false,
+        "networkRuleSet": {
+          "defaultAction": "Deny",
+          "virtualNetworkRules": []
+        },
+        "publicNetworkAccess": "Disabled"
+      }
+    },
+    {
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2019-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('userAcr')]",
+      "sku": {
+        "name": "Premium"
+      },
+      "properties": {
+        "adminUserEnabled": false
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.ContainerRegistry/registries', variables('infraAcr'))]"
+      ],
+      "type": "Microsoft.Network/privateEndpoints",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('infraAcr')]",
+      "properties": {
+        "privateLinkServiceConnections": [
+          {
+            "name": "[variables('infraAcr')]",
+            "properties": {
+              "groupIds": [
+                "registry"
+              ],
+              "privateLinkServiceId": "[resourceId('Microsoft.ContainerRegistry/registries', variables('infraAcr'))]"
+            }
+          }
+        ],
+        "subnet": {
+          "id": "[parameters('subnetId')]"
+        }
+      },
+      "resources": [
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Network/privateEndpoints', variables('infraAcr'))]"
+          ],
+          "type": "privateDnsZoneGroups",
+          "apiVersion": "2020-05-01",
+          "location": "[resourceGroup().location]",
+          "name": "default",
+          "properties": {
+            "privateDnsZoneConfigs": [
+              {
+                "name": "default",
+                "properties": {
+                  "privateDnsZoneId": "[parameters('acrPrivateDnsZoneId')]"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.ContainerRegistry/registries', variables('userAcr'))]"
+      ],
+      "type": "Microsoft.Network/privateEndpoints",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('userAcr')]",
+      "properties": {
+        "privateLinkServiceConnections": [
+          {
+            "name": "[variables('userAcr')]",
+            "properties": {
+              "groupIds": [
+                "registry"
+              ],
+              "privateLinkServiceId": "[resourceId('Microsoft.ContainerRegistry/registries', variables('userAcr'))]"
+            }
+          }
+        ],
+        "subnet": {
+          "id": "[parameters('subnetId')]"
+        }
+      },
+      "resources": [
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Network/privateEndpoints', variables('userAcr'))]"
+          ],
+          "type": "privateDnsZoneGroups",
+          "apiVersion": "2020-05-01",
+          "location": "[resourceGroup().location]",
+          "name": "default",
+          "properties": {
+            "privateDnsZoneConfigs": [
+              {
+                "name": "default",
+                "properties": {
+                  "privateDnsZoneId": "[parameters('acrPrivateDnsZoneId')]"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "infraAcrId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.ContainerRegistry/registries', variables('infraAcr'))]"
+    },
+    "userAcrId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.ContainerRegistry/registries', variables('userAcr'))]"
+    }
+  }
+}

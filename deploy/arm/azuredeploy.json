@@ -1,0 +1,158 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "assetsBaseUrl": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "createVnet": {
+      "type": "bool",
+      "defaultValue": true
+    }
+  },
+  "variables": {
+    "assetsBaseUrl": "[if(empty(parameters('assetsBaseUrl')), if(contains(deployment().properties, 'templateLink'), uri(deployment().properties.templateLink.uri, '../'), 'https://raw.githubusercontent.com/microsoft/secure-data-sandbox/main/deploy/'), parameters('assetsBaseUrl'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
+      "name": "network",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "createVnet": {
+            "value": "[parameters('createVnet')]"
+          }
+        },
+        "templateLink": {
+          "uri": "[uri(variables('assetsBaseUrl'), './arm/network.json')]"
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'network')]"
+      ],
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
+      "name": "queue",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "queuePrivateDnsZoneId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'network')).outputs.queuePrivateDnsZoneId.value]"
+          },
+          "subnetId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'network')).outputs.privateLinkSubnetId.value]"
+          }
+        },
+        "templateLink": {
+          "uri": "[uri(variables('assetsBaseUrl'), './arm/queue.json')]"
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'network')]"
+      ],
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
+      "name": "acr",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "acrPrivateDnsZoneId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'network')).outputs.acrPrivateDnsZoneId.value]"
+          },
+          "subnetId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'network')).outputs.privateLinkSubnetId.value]"
+          }
+        },
+        "templateLink": {
+          "uri": "[uri(variables('assetsBaseUrl'), './arm/acr.json')]"
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'queue')]"
+      ],
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
+      "name": "laboratory",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "queueEndpoint": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'queue')).outputs.runsEndpoint.value]"
+          }
+        },
+        "templateLink": {
+          "uri": "[uri(variables('assetsBaseUrl'), './arm/laboratory.json')]"
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'network')]"
+      ],
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
+      "name": "worker",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "filePrivateDnsZoneId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'network')).outputs.filePrivateDnsZoneId.value]"
+          },
+          "subnetId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'network')).outputs.detonationChamberSubnetId.value]"
+          }
+        },
+        "templateLink": {
+          "uri": "[uri(variables('assetsBaseUrl'), './arm/worker.json')]"
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'acr')]",
+        "[resourceId('Microsoft.Resources/deployments', 'worker')]"
+      ],
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
+      "name": "rbac",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "aksIdentityId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.aksIdentityId.value]"
+          },
+          "infraAcrId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'acr')).outputs.infraAcrId.value]"
+          },
+          "userAcrId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'acr')).outputs.userAcrId.value]"
+          }
+        },
+        "templateLink": {
+          "uri": "[uri(variables('assetsBaseUrl'), './arm/rbac.json')]"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "assetsBaseUrl": {
+      "type": "string",
+      "value": "[variables('assetsBaseUrl')]"
+    }
+  }
+}

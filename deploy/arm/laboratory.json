@@ -1,0 +1,238 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "queueEndpoint": {
+      "type": "string"
+    },
+    "sqlAdminPassword": {
+      "type": "securestring",
+      "defaultValue": "[newGuid()]"
+    }
+  },
+  "variables": {
+    "bootstrap": "bootstrap",
+    "laboratory": "laboratory",
+    "sqlAdminUsername": "laboratory",
+    "sqlServer": "[concat('laboratory', variables('suffix'))]",
+    "suffix": "[toLower(take(uniqueString(resourceGroup().id), 6))]",
+    "webApp": "[concat('laboratory', variables('suffix'))]",
+    "contributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2018-11-30",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('bootstrap')]"
+    },
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2018-11-30",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('laboratory')]"
+    },
+    {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2019-06-01-preview",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('sqlServer')]",
+      "properties": {
+        "administratorLogin": "[variables('sqlAdminUsername')]",
+        "administratorLoginPassword": "[parameters('sqlAdminPassword')]",
+        "minimalTlsVersion": "1.2",
+        "version": "12.0"
+      },
+      "resources": [
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]"
+          ],
+          "type": "firewallRules",
+          "apiVersion": "2015-05-01-preview",
+          "name": "AllowAllWindowsAzureIps",
+          "properties": {
+            "startIpAddress": "0.0.0.0",
+            "endIpAddress": "0.0.0.0"
+          }
+        },
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]"
+          ],
+          "type": "databases",
+          "apiVersion": "2019-06-01-preview",
+          "location": "[resourceGroup().location]",
+          "name": "[variables('laboratory')]",
+          "sku": {
+            "name": "Standard",
+            "tier": "Standard"
+          },
+          "properties": {
+          }
+        },
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]",
+            "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrap'))]"
+          ],
+          "type": "administrators",
+          "apiVersion": "2019-06-01-preview",
+          "location": "[resourceGroup().location]",
+          "name": "ActiveDirectory",
+          "properties": {
+            "administratorType": "ActiveDirectory",
+            "login": "[variables('bootstrap')]",
+            "sid": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrap')), '2018-11-30').principalId]",
+            "tenantId": "[subscription().tenantId]"
+          }
+        }
+      ]
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrap'))]"
+      ],
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2018-09-01-preview",
+      "location": "[resourceGroup().location]",
+      "name": "[guid(concat('bootstrap', 'Contributor'))]",
+      "properties": {
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrap'))).principalId]",
+        "roleDefinitionId": "[variables('contributorRoleId')]"
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrap'))]",
+        "[resourceId('Microsoft.Authorization/roleAssignments', guid(concat('bootstrap', 'Contributor')))]",
+        "[resourceId('Microsoft.Sql/servers/databases', variables('sqlServer'), variables('laboratory'))]"
+      ],
+      "type": "Microsoft.Resources/deploymentScripts",
+      "apiVersion": "2019-10-01-preview",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('bootstrap')]",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrap'))]": {}
+        }
+      },
+      "kind": "AzurePowerShell",
+      "properties": {
+        "azPowerShellVersion": "4.5",
+        "retentionInterval": "P1D",
+        "cleanupPreference": "OnSuccess",
+        "arguments": "[format(' -server {0} -database {1} -identity {2} -clientId {3}', reference(resourceId('Microsoft.Sql/servers', variables('sqlServer'))).fullyQualifiedDomainName, variables('laboratory'), variables('laboratory'), reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))).clientId)]",
+        "scriptContent": "
+param(
+  [string] [Parameter(Mandatory=$true)] $server,
+  [string] [Parameter(Mandatory=$true)] $database,
+  [string] [Parameter(Mandatory=$true)] $identity,
+  [string] [Parameter(Mandatory=$true)] $clientId
+)
+
+$ErrorActionPreference = 'Stop';
+
+# Connect to Azure SQL via AAD (Managed Identity)
+$token = curl -s 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https://database.windows.net/' -H 'Metadata: true' | ConvertFrom-Json;
+$conn = New-Object System.Data.SqlClient.SqlConnection;
+$conn.ConnectionString = 'Data Source={0}; Initial Catalog={1};' -f $server, $database;
+$conn.AccessToken = $token.access_token;
+$conn.Open();
+
+Write-Output 'Connected to {0}/{1} using Managed Identity' -f $server, $database
+
+# Grant AAD permissions in Azure SQL
+foreach ($byte in [System.Guid]::Parse($clientId).ToByteArray()) { $byteGuid += [System.String]::Format('{0:X2}', $byte) }
+$sql = @'
+if not exists (select name from sys.database_principals where name = '{0}')
+begin
+create user [{0}] with default_schema=[dbo], SID=0x{1}, TYPE=E;
+end
+
+alter role db_ddladmin add member [{0}];
+alter role db_datareader add member [{0}];
+alter role db_datawriter add member [{0}];
+'@ -f $identity, $byteGuid
+$cmd = New-Object System.Data.SqlClient.SqlCommand($sql, $conn)
+$cmd.ExecuteNonQuery()
+Write-Output 'Added {0} as an AAD user to {1}/{2}' -f $identity, $server, $database
+$conn.Close()
+        "
+      }
+    },
+    {
+      "type": "Microsoft.Web/serverFarms",
+      "apiVersion": "2018-02-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('laboratory')]",
+      "kind": "linux",
+      "sku": {
+        "name": "S1"
+      },
+      "properties": {
+        "reserved": true
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deploymentScripts', variables('bootstrap'))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))]",
+        "[resourceId('Microsoft.Web/serverFarms', variables('laboratory'))]",
+        "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]"
+      ],
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2018-11-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('webApp')]",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))]": {}
+        }
+      },
+      "properties": {
+        "httpsOnly": true,
+        "serverFarmId": "[resourceId('Microsoft.Web/serverFarms', variables('laboratory'))]",
+        "siteConfig": {
+          "alwaysOn": true,
+          "appCommandLine": "npm run laboratory",
+          "linuxFxVersion": "NODE|12-lts",
+          "minTlsVersion": "1.2",
+          "appSettings": [
+            {
+              "name": "QUEUE_ENDPOINT",
+              "value": "[parameters('queueEndpoint')]"
+            },
+            {
+              "name": "SQL_MODE",
+              "value": "azuresql"
+            },
+            {
+              "name": "SQL_HOST",
+              "value": "[reference(resourceId('Microsoft.Sql/servers', variables('sqlServer'))).fullyQualifiedDomainName]"
+            },
+            {
+              "name": "SQL_DB",
+              "value": "[variables('laboratory')]"
+            },
+            {
+              "name": "WEBSITE_DNS_SERVER",
+              "value": "168.63.129.16"
+            },
+            {
+              "name": "WEBSITE_RUN_FROM_PACKAGE",
+              "value": "1"
+            },
+            {
+              "name": "WEBSITE_VNET_ROUTE_ALL",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}

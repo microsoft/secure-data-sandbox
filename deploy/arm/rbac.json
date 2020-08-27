@@ -1,0 +1,43 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "aksIdentityId": {
+      "type": "string"
+    },
+    "infraAcrId": {
+      "type": "string"
+    },
+    "userAcrId": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "acrPullRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
+    "infraAcrName": "[last(split(parameters('infraAcrId'), '/'))]",
+    "userAcrName": "[last(split(parameters('userAcrId'), '/'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ContainerRegistry/registries/providers/roleAssignments",
+      "apiVersion": "2018-09-01-preview",
+      "location": "[resourceGroup().location]",
+      "name": "[concat(variables('infraAcrName'), '/Microsoft.Authorization/', guid(concat(parameters('aksIdentityId'), parameters('infraAcrId'), 'AcrPull')))]",
+      "properties": {
+        "principalId": "[parameters('aksIdentityId')]",
+        "roleDefinitionId": "[variables('acrPullRoleId')]"
+      }
+    },
+    {
+      "type": "Microsoft.ContainerRegistry/registries/providers/roleAssignments",
+      "apiVersion": "2018-09-01-preview",
+      "location": "[resourceGroup().location]",
+      "name": "[concat(variables('userAcrName'), '/Microsoft.Authorization/', guid(concat(parameters('aksIdentityId'), parameters('userAcrId'), 'AcrPull')))]",
+      "properties": {
+        "principalId": "[parameters('aksIdentityId')]",
+        "roleDefinitionId": "[variables('acrPullRoleId')]"
+      }
+    }
+  ],
+  "outputs": {}
+}

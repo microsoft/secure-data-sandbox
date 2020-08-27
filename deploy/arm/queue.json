@@ -1,0 +1,103 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "queuePrivateDnsZoneId": {
+      "type": "string"
+    },
+    "subnetId": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "runsQueue": "runs",
+    "queueEndpoint": "[concat(variables('storageAccount'), '-queue')]",
+    "storageAccount": "[concat('queue', variables('suffix'))]",
+    "suffix": "[toLower(take(uniqueString(resourceGroup().id), 6))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('storageAccount')]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "properties": {
+        "accessTier": "Hot",
+        "networkAcls": {
+          "bypass": "None",
+          "defaultAction": "Deny",
+          "virtualNetworkRules": []
+        },
+        "supportsHttpsTrafficOnly": true
+      },
+      "resources": [
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount'))]"
+          ],
+          "type": "queueServices/queues",
+          "apiVersion": "2019-06-01",
+          "name": "[concat('default/', variables('runsQueue'))]",
+          "properties": {
+          }
+        }
+      ]
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount'))]"
+      ],
+      "type": "Microsoft.Network/privateEndpoints",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('queueEndpoint')]",
+      "properties": {
+        "privateLinkServiceConnections": [
+          {
+            "name": "[variables('queueEndpoint')]",
+            "properties": {
+              "groupIds": [
+                "queue"
+              ],
+              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount'))]"
+            }
+          }
+        ],
+        "subnet": {
+          "id": "[parameters('subnetId')]"
+        }
+      },
+      "resources": [
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Network/privateEndpoints', variables('queueEndpoint'))]"
+          ],
+          "type": "privateDnsZoneGroups",
+          "apiVersion": "2020-05-01",
+          "location": "[resourceGroup().location]",
+          "name": "default",
+          "properties": {
+            "privateDnsZoneConfigs": [
+              {
+                "name": "default",
+                "properties": {
+                  "privateDnsZoneId": "[parameters('queuePrivateDnsZoneId')]"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "runsEndpoint": {
+      "type": "string",
+      "value": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount'))).primaryEndpoints.queue, variables('runsQueue'))]"
+    }
+  }
+}

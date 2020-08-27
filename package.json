@@ -6,7 +6,7 @@
     "cli": "npm run start --silent --prefix packages/cli",
     "compile": "lerna run compile",
     "predev:azure": "serve -l 9001 deploy >/dev/null &",
-    "dev:azure": "ngrok start -config .ngrok.yml deploy",
+    "dev:azure": "ngrok start -config .ngrok.yml arm",
     "postdev:azure": "kill $(lsof -t -i:9001)",
     "fix": "lerna run fix",
     "laboratory": "npm run start --silent --prefix packages/laboratory",

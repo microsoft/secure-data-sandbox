@@ -1,0 +1,368 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "createVnet": {
+      "type": "bool",
+      "defaultValue": true
+    }
+  },
+  "variables": {
+    "vnetAddressPrefix": "10.0.0.0/16",
+    "privateLinkSubnetPrefix": "10.0.0.0/24",
+    "firewallSubnetPrefix": "10.0.1.0/26",
+    "detonationChamberSubnetPrefix": "10.0.3.0/24",
+    "detonationChamber": "detonationChamber",
+    "firewall": "firewall",
+    "privateDnsZones": [
+      "privatelink.file.core.windows.net",
+      "privatelink.queue.core.windows.net",
+      "privatelink.azurecr.io"
+    ],
+    "privateLink": "privateLink",
+    "vnet": "vnet"
+  },
+  "resources": [
+    {
+      "condition": "[parameters('createVnet')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('vnet')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('vnetAddressPrefix')]"
+          ]
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet'))]"
+      ],
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "[concat(variables('vnet'), '/', variables('privateLink'))]",
+      "properties": {
+        "addressPrefix": "[variables('privateLinkSubnetPrefix')]",
+        "privateEndpointNetworkPolicies": "Disabled"
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet'))]"
+      ],
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "[concat(variables('vnet'), '/AzureFirewallSubnet')]",
+      "properties": {
+        "addressPrefix": "[variables('firewallSubnetPrefix')]"
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/routeTables', variables('firewall'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet'))]"
+      ],
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "[concat(variables('vnet'), '/', variables('detonationChamber'))]",
+      "properties": {
+        "addressPrefix": "[variables('detonationChamberSubnetPrefix')]",
+        "privateEndpointNetworkPolicies": "Disabled",
+        "routeTable": {
+          "id": "[resourceId('Microsoft.Network/routeTables', variables('firewall'))]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('firewall')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Static",
+        "publicIPAddressVersion": "IPv4"
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('firewall'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet'))]"
+      ],
+      "type": "Microsoft.Network/azureFirewalls",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('firewall')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "egress",
+            "properties": {
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet'), 'AzureFirewallSubnet')]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('firewall'))]"
+              }
+            }
+          }
+        ],
+        "applicationRuleCollections": [
+          {
+            "name": "aks",
+            "properties": {
+              "action": {
+                "type": "Allow"
+              },
+              "priority": 100,
+              "rules": [
+                {
+                  "name": "aks",
+                  "sourceAddresses": [ "*" ],
+                  "targetFqdns": [
+                    "mcr.microsoft.com",
+                    "*.cdn.mscr.io",
+                    "*.data.mcr.microsoft.com",
+                    "management.azure.com",
+                    "login.microsoftonline.com",
+                    "packages.microsoft.com",
+                    "acs-mirror.azureedge.net"
+                  ],
+                  "protocols": [
+                    {
+                      "port": 443,
+                      "protocolType": "Https"
+                    }
+                  ]
+                },
+                {
+                  "name": "updates",
+                  "sourceAddresses": ["*"],
+                  "targetFqdns": [
+                    "security.ubuntu.com",
+                    "azure.archive.ubuntu.com",
+                    "changelogs.ubuntu.com"
+                  ],
+                  "protocols": [
+                    {
+                      "port": 80,
+                      "protocolType": "Http"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "name": "dev",
+            "properties": {
+              "action": {
+                "type": "Allow"
+              },
+              "priority": 1000,
+              "rules": [
+                {
+                  "name": "docker",
+                  "sourceAddresses": [ "*" ],
+                  "targetFqdns": [
+                    "*.docker.io",
+                    "*.docker.com"
+                  ],
+                  "protocols": [
+                    {
+                      "port": 443,
+                      "protocolType": "Https"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "name": "benchmarks",
+            "properties": {
+              "action": {
+                "type": "Allow"
+              },
+              "priority": 1100,
+              "rules": [
+                {
+                  "name": "catdetection",
+                  "sourceAddresses": [ "*" ],
+                  "targetFqdns": [
+                    "placekitten.com",
+                    "*.cognitiveservices.azure.com"
+                  ],
+                  "protocols": [
+                    {
+                      "port": 443,
+                      "protocolType": "Https"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "networkRuleCollections": [
+          {
+            "name": "aks",
+            "properties": {
+              "action": {
+                "type": "Allow"
+              },
+              "priority": 100,
+              "rules": [
+                {
+                  "name": "ntp",
+                  "sourceAddresses": [ "*" ],
+                  "destinationFqdns": [ "ntp.ubuntu.com" ],
+                  "destinationPorts": [ "123" ],
+                  "protocols": [ "UDP" ]
+                }
+              ]
+            }
+          },
+          {
+            "name": "privateEndpoints",
+            "properties": {
+              "action": {
+                "type": "Allow"
+              },
+              "priority": 200,
+              "rules": [
+                {
+                  "name": "https",
+                  "sourceAddresses": [
+                    "[variables('detonationChamberSubnetPrefix')]"
+                  ],
+                  "destinationAddresses": [
+                    "[variables('privateLinkSubnetPrefix')]"
+                  ],
+                  "destinationPorts": [ "443" ],
+                  "protocols": [ "TCP" ]
+                }
+              ]
+            }
+          }
+        ],
+        "additionalProperties": {
+          "Network.DNS.EnableProxy": true
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/azureFirewalls', variables('firewall'))]"
+      ],
+      "type": "Microsoft.Network/routeTables",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('firewall')]",
+      "properties": {
+        "disableBgpRoutePropagation": false,
+        "routes": [
+          {
+            "name": "default",
+            "properties": {
+              "addressPrefix": "0.0.0.0/0",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "[reference(resourceId('Microsoft.Network/azureFirewalls', variables('firewall'))).ipConfigurations[0].properties.privateIPAddress]"
+            }
+          },
+          {
+            "name": "internet",
+            "properties": {
+              "addressPrefix": "[concat(reference(resourceId('Microsoft.Network/publicIPAddresses', variables('firewall'))).ipAddress, '/32')]",
+              "nextHopType": "Internet"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "copy": {
+        "name": "privateDnsZones",
+        "count": "[length(variables('privateDnsZones'))]"
+      },
+      "type": "Microsoft.Network/privateDnsZones",
+      "apiVersion": "2018-09-01",
+      "location": "global",
+      "name": "[variables('privateDnsZones')[copyIndex()]]",
+      "properties": {
+      },
+      "resources": [
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones')[copyIndex()])]"
+          ],
+          "type": "SOA",
+          "apiVersion": "2018-09-01",
+          "name": "@",
+          "properties": {
+            "ttl": 3600,
+            "soaRecord": {
+              "email": "azureprivatedns-host.microsoft.com",
+              "expireTime": 2419200,
+              "host": "azureprivatedns.net",
+              "refreshTime": 3600,
+              "retryTime": 300,
+              "serialNumber": 1,
+              "minimumTtl": 300
+            }
+          }
+        },
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZones')[copyIndex()])]"
+          ],
+          "type": "virtualNetworkLinks",
+          "apiVersion": "2018-09-01",
+          "location": "global",
+          "name": "privatedns",
+          "properties": {
+            "registrationEnabled": false,
+            "virtualNetwork": {
+              "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet'))]",
+              "resourceGroup": "[resourceGroup().name]"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "acrPrivateDnsZoneId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.azurecr.io')]"
+    },
+    "detonationChamberSubnetId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet'), variables('detonationChamber'))]"
+    },
+    "filePrivateDnsZoneId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.file.core.windows.net')]"
+    },
+    "privateLinkSubnetId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet'), variables('privateLink'))]"
+    },
+    "queuePrivateDnsZoneId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.queue.core.windows.net')]"
+    },
+    "vnetId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet'))]"
+    }
+  }
+}

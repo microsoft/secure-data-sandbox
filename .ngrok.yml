@@ -1,5 +1,5 @@
 tunnels:
-  deploy:
+  arm:
     addr: 9001
     proto: http
     bind_tls: true

@@ -1,0 +1,147 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "filePrivateDnsZoneId": {
+      "type": "string"
+    },
+    "subnetId": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "aks": "aks",
+    "k8sVersion": "1.17.9",
+    "nodeCount": 2,
+    "nodeSize": "Standard_DS2_v2",
+    "storageAccount": "[concat('runs', variables('suffix'))]",
+    "fileEndpoint": "[concat(variables('storageAccount'), '-files')]",
+    "suffix": "[toLower(take(uniqueString(resourceGroup().id), 6))]",
+    "dockerBridgeCidr": "172.18.0.1/16",
+    "serviceCidr": "172.16.0.0/16",
+    "dnsServiceIp": "172.16.0.10"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2020-06-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('aks')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "kubernetesVersion": "[variables('k8sVersion')]",
+        "dnsPrefix": "[variables('aks')]",
+        "agentPoolProfiles": [
+          {
+            "name": "default",
+            "count": "[variables('nodeCount')]",
+            "enableNodePublicIP": false,
+            "mode": "System",
+            "osType": "Linux",
+            "storageProfile": "ManagedDisks",
+            "type": "VirtualMachineScaleSets",
+            "vmSize": "[variables('nodeSize')]",
+            "vnetSubnetID": "[parameters('subnetId')]"
+          }
+        ],
+        "networkProfile": {
+          "loadBalancerSku": "standard",
+          "networkPlugin": "azure",
+          "networkPolicy": "azure",
+          "serviceCidr": "[variables('serviceCidr')]",
+          "dnsServiceIP": "[variables('dnsServiceIp')]",
+          "dockerBridgeCidr": "[variables('dockerBridgeCidr')]",
+          "outboundType": "userDefinedRouting"
+        },
+        "aadProfile": {
+          "managed": true
+        },
+        "apiServerAccessProfile": {
+          "enablePrivateCluster": true
+        },
+        "servicePrincipalProfile": {
+          "clientId": "msi"
+        },
+        "enableRBAC": true,
+        "addonProfiles": {
+          "kubeDashboard": {
+            "enabled": false
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('storageAccount')]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "properties": {
+        "accessTier": "Hot",
+        "networkAcls": {
+          "bypass": "None",
+          "defaultAction": "Deny",
+          "virtualNetworkRules": []
+        },
+        "supportsHttpsTrafficOnly": true
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount'))]"
+      ],
+      "type": "Microsoft.Network/privateEndpoints",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('fileEndpoint')]",
+      "properties": {
+        "privateLinkServiceConnections": [
+          {
+            "name": "[variables('fileEndpoint')]",
+            "properties": {
+              "groupIds": [
+                "file"
+              ],
+              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount'))]"
+            }
+          }
+        ],
+        "subnet": {
+          "id": "[parameters('subnetId')]"
+        }
+      },
+      "resources": [
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Network/privateEndpoints', variables('fileEndpoint'))]"
+          ],
+          "type": "privateDnsZoneGroups",
+          "apiVersion": "2020-05-01",
+          "location": "[resourceGroup().location]",
+          "name": "default",
+          "properties": {
+            "privateDnsZoneConfigs": [
+              {
+                "name": "default",
+                "properties": {
+                  "privateDnsZoneId": "[parameters('filePrivateDnsZoneId')]"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": {
+    "aksIdentityId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks')), '2020-06-01', 'Full').identity.principalId]"
+    }
+  }
+}
