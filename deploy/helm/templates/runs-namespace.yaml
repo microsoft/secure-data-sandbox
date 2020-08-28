@@ -93,3 +93,41 @@ roleRef:
   kind: Role
   name: workflow-creator
   apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: aadpodidentity.k8s.io/v1
+kind: AzureIdentity
+metadata:
+  name: benchmark
+  namespace: runs
+spec:
+  type: 0
+  resourceID: {{ .Values.benchmarkIdentity.resourceId }}
+  clientID: {{ .Values.benchmarkIdentity.clientId }}
+---
+apiVersion: aadpodidentity.k8s.io/v1
+kind: AzureIdentity
+metadata:
+  name: candidate
+  namespace: runs
+spec:
+  type: 0
+  resourceID: {{ .Values.candidateIdentity.resourceId }}
+  clientID: {{ .Values.candidateIdentity.clientId }}
+---
+apiVersion: aadpodidentity.k8s.io/v1
+kind: AzureIdentityBinding
+metadata:
+  name: benchmark
+  namespace: runs
+spec:
+  azureIdentity: benchmark
+  selector: benchmark
+---
+apiVersion: aadpodidentity.k8s.io/v1
+kind: AzureIdentityBinding
+metadata:
+  name: candidate
+  namespace: runs
+spec:
+  azureIdentity: candidate
+  selector: candidate

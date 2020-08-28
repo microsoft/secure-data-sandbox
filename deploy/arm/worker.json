@@ -13,15 +13,95 @@
     "aks": "aks",
     "k8sVersion": "1.17.9",
     "nodeCount": 2,
+    "nodeResourceGroup": "sds-worker",
     "nodeSize": "Standard_DS2_v2",
     "storageAccount": "[concat('runs', variables('suffix'))]",
     "fileEndpoint": "[concat(variables('storageAccount'), '-files')]",
     "suffix": "[toLower(take(uniqueString(resourceGroup().id), 6))]",
+    "benchmarkIdentity": "benchmark",
+    "candidateIdentity": "candidate",
+    "workerIdentity": "worker",
     "dockerBridgeCidr": "172.18.0.1/16",
     "serviceCidr": "172.16.0.0/16",
-    "dnsServiceIp": "172.16.0.10"
+    "dnsServiceIp": "172.16.0.10",
+    "managedIdentityOperatorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'f1a07417-d97a-45cb-824c-7a7467783830')]",
+    "storageAccountContributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '17d1049b-9a84-46fb-8f53-869881c3d3ab')]",
+    "storageFileDataSMBContributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb')]",
+    "virtualMachineContributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '9980e02c-c2be-4d73-94e8-173b1dc7cf3c')]"
   },
   "resources": [
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2018-11-30",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('workerIdentity')]",
+      "properties": {
+      },
+      "resources": [
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))]",
+            "[resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))]"
+          ],
+          "type": "providers/roleAssignments",
+          "apiVersion": "2018-09-01-preview",
+          "location": "[resourceGroup().location]",
+          "name": "[concat('Microsoft.Authorization/', guid(concat(variables('aks'), variables('workerIdentity'), 'ManagedIdentityOperator')))]",
+          "properties": {
+            "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks')), '2020-06-01', 'Full').identity.principalId]",
+            "roleDefinitionId": "[variables('managedIdentityOperatorRoleId')]"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2018-11-30",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('benchmarkIdentity')]",
+      "properties": {
+      },
+      "resources": [
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('benchmarkIdentity'))]",
+            "[resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))]"
+          ],
+          "type": "providers/roleAssignments",
+          "apiVersion": "2018-09-01-preview",
+          "location": "[resourceGroup().location]",
+          "name": "[concat('Microsoft.Authorization/', guid(concat(variables('aks'), variables('benchmarkIdentity'), 'ManagedIdentityOperator')))]",
+          "properties": {
+            "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks')), '2020-06-01', 'Full').identity.principalId]",
+            "roleDefinitionId": "[variables('managedIdentityOperatorRoleId')]"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2018-11-30",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('candidateIdentity')]",
+      "properties": {
+      },
+      "resources": [
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('candidateIdentity'))]",
+            "[resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))]"
+          ],
+          "type": "providers/roleAssignments",
+          "apiVersion": "2018-09-01-preview",
+          "location": "[resourceGroup().location]",
+          "name": "[concat('Microsoft.Authorization/', guid(concat(variables('aks'), variables('candidateIdentity'), 'ManagedIdentityOperator')))]",
+          "properties": {
+            "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks')), '2020-06-01', 'Full').identity.principalId]",
+            "roleDefinitionId": "[variables('managedIdentityOperatorRoleId')]"
+          }
+        }
+      ]
+    },
     {
       "type": "Microsoft.ContainerService/managedClusters",
       "apiVersion": "2020-06-01",
@@ -33,6 +113,7 @@
       "properties": {
         "kubernetesVersion": "[variables('k8sVersion')]",
         "dnsPrefix": "[variables('aks')]",
+        "nodeResourceGroup": "[variables('nodeResourceGroup')]",
         "agentPoolProfiles": [
           {
             "name": "default",
@@ -89,7 +170,53 @@
           "virtualNetworkRules": []
         },
         "supportsHttpsTrafficOnly": true
-      }
+      },
+      "resources": [
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount'))]",
+            "[resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))]"
+          ],
+          "type": "providers/roleAssignments",
+          "apiVersion": "2018-09-01-preview",
+          "location": "[resourceGroup().location]",
+          "name": "[concat('Microsoft.Authorization/', guid(concat(variables('aks'), variables('storageAccount'), 'StorageAccountContributor')))]",
+          "properties": {
+            "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks')), '2020-06-01', 'Full').identity.principalId]",
+            "roleDefinitionId": "[variables('storageAccountContributorRoleId')]"
+          }
+        },
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount'))]",
+            "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('benchmarkIdentity'))]"
+          ],
+          "type": "providers/roleAssignments",
+          "apiVersion": "2018-09-01-preview",
+          "location": "[resourceGroup().location]",
+          "name": "[concat('Microsoft.Authorization/', guid(concat(variables('benchmarkIdentity'), variables('storageAccount'), 'StorageAccountContributor')))]",
+          "properties": {
+            "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('benchmarkIdentity'))).principalId]",
+            "roleDefinitionId": "[variables('storageFileDataSMBContributorRoleId')]",
+            "principalType": "ServicePrincipal"
+          }
+        },
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount'))]",
+            "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('candidateIdentity'))]"
+          ],
+          "type": "providers/roleAssignments",
+          "apiVersion": "2018-09-01-preview",
+          "location": "[resourceGroup().location]",
+          "name": "[concat('Microsoft.Authorization/', guid(concat(variables('candidateIdentity'), variables('storageAccount'), 'StorageAccountContributor')))]",
+          "properties": {
+            "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('candidateIdentity'))).principalId]",
+            "roleDefinitionId": "[variables('storageFileDataSMBContributorRoleId')]",
+            "principalType": "ServicePrincipal"
+          }
+        }
+      ]
     },
     {
       "dependsOn": [
@@ -136,12 +263,40 @@
           }
         }
       ]
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))]"
+      ],
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "aks-rbac",
+      "resourceGroup": "[variables('nodeResourceGroup')]",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": [
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2018-09-01-preview",
+              "location": "[resourceGroup().location]",
+              "name": "[guid(concat(variables('aks'), 'VirtualMachineContributor'))]",
+              "properties": {
+                "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))).identityProfile.kubeletidentity.objectId]",
+                "roleDefinitionId": "[variables('virtualMachineContributorRoleId')]"
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "outputs": {
-    "aksIdentityId": {
+    "kubeletIdentityId": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks')), '2020-06-01', 'Full').identity.principalId]"
+      "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))).identityProfile.kubeletidentity.objectId]"
     }
   }
 }

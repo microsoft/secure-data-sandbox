@@ -25,6 +25,7 @@ spec:
     metadata:
       labels:
         app: worker
+        aadpodidbinding: worker
     spec:
       serviceAccountName: worker
       containers:
@@ -55,3 +56,23 @@ spec:
                 name: sds-worker-sp
                 key: clientSecret
         {{- end }}
+---
+apiVersion: aadpodidentity.k8s.io/v1
+kind: AzureIdentity
+metadata:
+  name: worker
+  namespace: worker
+spec:
+  type: 0
+  resourceID: {{ .Values.workerIdentity.resourceId }}
+  clientID: {{ .Values.workerIdentity.clientId }}
+---
+apiVersion: aadpodidentity.k8s.io/v1
+kind: AzureIdentityBinding
+metadata:
+  name: worker
+  namespace: worker
+spec:
+  azureIdentity: worker
+  selector: worker
+---

@@ -23,3 +23,15 @@ worker:
   # tenantId: "00000000-0000-0000-0000-000000000000"
   # clientId: "00000000-0000-0000-0000-000000000000"
   # clientSecret: "00000000-0000-0000-0000-000000000000"
+
+benchmarkIdentity:
+  resourceId: ''
+  clientId: ''
+
+candidateIdentity:
+  resourceId: ''
+  clientId: ''
+
+workerIdentity:
+  resourceId: ''
+  clientId: ''

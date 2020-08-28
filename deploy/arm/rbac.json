@@ -2,7 +2,7 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "aksIdentityId": {
+    "kubeletIdentityId": {
       "type": "string"
     },
     "infraAcrId": {
@@ -22,9 +22,9 @@
       "type": "Microsoft.ContainerRegistry/registries/providers/roleAssignments",
       "apiVersion": "2018-09-01-preview",
       "location": "[resourceGroup().location]",
-      "name": "[concat(variables('infraAcrName'), '/Microsoft.Authorization/', guid(concat(parameters('aksIdentityId'), parameters('infraAcrId'), 'AcrPull')))]",
+      "name": "[concat(variables('infraAcrName'), '/Microsoft.Authorization/', guid(concat(parameters('kubeletIdentityId'), parameters('infraAcrId'), 'AcrPull')))]",
       "properties": {
-        "principalId": "[parameters('aksIdentityId')]",
+        "principalId": "[parameters('kubeletIdentityId')]",
         "roleDefinitionId": "[variables('acrPullRoleId')]"
       }
     },
@@ -32,9 +32,9 @@
       "type": "Microsoft.ContainerRegistry/registries/providers/roleAssignments",
       "apiVersion": "2018-09-01-preview",
       "location": "[resourceGroup().location]",
-      "name": "[concat(variables('userAcrName'), '/Microsoft.Authorization/', guid(concat(parameters('aksIdentityId'), parameters('userAcrId'), 'AcrPull')))]",
+      "name": "[concat(variables('userAcrName'), '/Microsoft.Authorization/', guid(concat(parameters('kubeletIdentityId'), parameters('userAcrId'), 'AcrPull')))]",
       "properties": {
-        "principalId": "[parameters('aksIdentityId')]",
+        "principalId": "[parameters('kubeletIdentityId')]",
         "roleDefinitionId": "[variables('acrPullRoleId')]"
       }
     }

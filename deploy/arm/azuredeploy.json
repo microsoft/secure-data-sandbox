@@ -133,8 +133,8 @@
       "properties": {
         "mode": "Incremental",
         "parameters": {
-          "aksIdentityId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.aksIdentityId.value]"
+          "kubeletIdentityId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.kubeletIdentityId.value]"
           },
           "infraAcrId": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'acr')).outputs.infraAcrId.value]"
