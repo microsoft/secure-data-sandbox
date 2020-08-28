@@ -7,7 +7,7 @@ set -euo pipefail
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 # kubectl
-az aks install-cli
+sudo az aks install-cli
 
 # helm
 sudo snap install helm --classic
