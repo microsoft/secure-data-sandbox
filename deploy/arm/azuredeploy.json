@@ -136,11 +136,20 @@
           "kubeletIdentityId": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.kubeletIdentityId.value]"
           },
+          "workerIdentityId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.workerIdentityId.value]"
+          },
+          "laboratoryIdentityId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'laboratory')).outputs.laboratoryIdentityId.value]"
+          },
           "infraAcrId": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'acr')).outputs.infraAcrId.value]"
           },
           "userAcrId": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'acr')).outputs.userAcrId.value]"
+          },
+          "runsQueueId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'queue')).outputs.runsResourceId.value]"
           }
         },
         "templateLink": {

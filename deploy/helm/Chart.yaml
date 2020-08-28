@@ -21,8 +21,3 @@ version: 0.1.0
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 appVersion: 0.1.0
-
-dependencies:
-- name: aad-pod-identity
-  version: "~2.0.1"
-  repository: "https://raw.githubusercontent.com/Azure/aad-pod-identity/master/charts"

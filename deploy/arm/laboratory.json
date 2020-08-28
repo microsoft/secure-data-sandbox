@@ -235,5 +235,10 @@ $conn.Close()
       }
     }
   ],
-  "outputs": {}
+  "outputs": {
+    "laboratoryIdentityId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))).principalId]"
+    }
+  }
 }

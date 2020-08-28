@@ -41,13 +41,11 @@ spec:
           value: {{ .Values.worker.queueMode }}
         - name: QUEUE_ENDPOINT
           value: {{ .Values.worker.queueEndpoint }}
+        - name: AZURE_CLIENT_ID
+          value: {{ .Values.workerIdentity.clientId }}
         {{- if .Values.worker.tenantId }}
         - name: AZURE_TENANT_ID
           value: {{ .Values.worker.tenantId }}
-        {{- end }}
-        {{- if .Values.worker.clientId }}
-        - name: AZURE_CLIENT_ID
-          value: {{ .Values.worker.clientId }}
         {{- end }}
         {{- if .Values.worker.clientSecret }}
         - name: AZURE_CLIENT_SECRET

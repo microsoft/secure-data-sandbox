@@ -5,17 +5,30 @@
     "kubeletIdentityId": {
       "type": "string"
     },
+    "workerIdentityId": {
+      "type": "string"
+    },
+    "laboratoryIdentityId": {
+      "type": "string"
+    },
     "infraAcrId": {
       "type": "string"
     },
     "userAcrId": {
       "type": "string"
+    },
+    "runsQueueId": {
+      "type": "string"
     }
   },
   "variables": {
-    "acrPullRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
     "infraAcrName": "[last(split(parameters('infraAcrId'), '/'))]",
-    "userAcrName": "[last(split(parameters('userAcrId'), '/'))]"
+    "userAcrName": "[last(split(parameters('userAcrId'), '/'))]",
+    "runsStorageAccountName": "[split(parameters('runsQueueId'), '/')[8]]",
+    "runsQueueName": "[split(parameters('runsQueueId'), '/')[12]]",
+    "acrPullRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
+    "storageQueueDataMessageSenderRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'c6a89b2d-59bc-44d0-9896-0f6e12d7b80a')]",
+    "storageQueueDataMessageProcessorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8a0f0c08-91a1-4084-bc3d-661d67233fed')]"
   },
   "resources": [
     {
@@ -36,6 +49,28 @@
       "properties": {
         "principalId": "[parameters('kubeletIdentityId')]",
         "roleDefinitionId": "[variables('acrPullRoleId')]"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/queueServices/queues/providers/roleAssignments",
+      "apiVersion": "2018-09-01-preview",
+      "location": "[resourceGroup().location]",
+      "name": "[concat(variables('runsStorageAccountName'), '/default/', variables('runsQueueName'), '/Microsoft.Authorization/', guid(concat(parameters('workerIdentityId'), parameters('runsQueueId'), 'StorageQueueDataMessageProcessor')))]",
+      "properties": {
+        "principalId": "[parameters('workerIdentityId')]",
+        "roleDefinitionId": "[variables('storageQueueDataMessageProcessorRoleId')]",
+        "type": "ServicePrincipal"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/queueServices/queues/providers/roleAssignments",
+      "apiVersion": "2018-09-01-preview",
+      "location": "[resourceGroup().location]",
+      "name": "[concat(variables('runsStorageAccountName'), '/default/', variables('runsQueueName'), '/Microsoft.Authorization/', guid(concat(parameters('laboratoryIdentityId'), parameters('runsQueueId'), 'StorageQueueDataMessageSender')))]",
+      "properties": {
+        "principalId": "[parameters('laboratoryIdentityId')]",
+        "roleDefinitionId": "[variables('storageQueueDataMessageSenderRoleId')]",
+        "type": "ServicePrincipal"
       }
     }
   ],

@@ -48,7 +48,7 @@
           "location": "[resourceGroup().location]",
           "name": "[concat('Microsoft.Authorization/', guid(concat(variables('aks'), variables('workerIdentity'), 'ManagedIdentityOperator')))]",
           "properties": {
-            "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks')), '2020-06-01', 'Full').identity.principalId]",
+            "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))).identityProfile.kubeletidentity.objectId]",
             "roleDefinitionId": "[variables('managedIdentityOperatorRoleId')]"
           }
         }
@@ -72,7 +72,7 @@
           "location": "[resourceGroup().location]",
           "name": "[concat('Microsoft.Authorization/', guid(concat(variables('aks'), variables('benchmarkIdentity'), 'ManagedIdentityOperator')))]",
           "properties": {
-            "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks')), '2020-06-01', 'Full').identity.principalId]",
+            "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))).identityProfile.kubeletidentity.objectId]",
             "roleDefinitionId": "[variables('managedIdentityOperatorRoleId')]"
           }
         }
@@ -96,7 +96,7 @@
           "location": "[resourceGroup().location]",
           "name": "[concat('Microsoft.Authorization/', guid(concat(variables('aks'), variables('candidateIdentity'), 'ManagedIdentityOperator')))]",
           "properties": {
-            "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks')), '2020-06-01', 'Full').identity.principalId]",
+            "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))).identityProfile.kubeletidentity.objectId]",
             "roleDefinitionId": "[variables('managedIdentityOperatorRoleId')]"
           }
         }
@@ -297,6 +297,10 @@
     "kubeletIdentityId": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))).identityProfile.kubeletidentity.objectId]"
+    },
+    "workerIdentityId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))).principalId]"
     }
   }
 }

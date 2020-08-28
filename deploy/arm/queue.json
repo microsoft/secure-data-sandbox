@@ -95,6 +95,10 @@
     }
   ],
   "outputs": {
+    "runsResourceId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Storage/storageAccounts/queueServices/queues', variables('storageAccount'), 'default', variables('runsQueue'))]"
+    },
     "runsEndpoint": {
       "type": "string",
       "value": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount'))).primaryEndpoints.queue, variables('runsQueue'))]"
