@@ -45,7 +45,9 @@ QUEUE_ID="$(az storage account show -n $AZURE_STORAGE_ACCOUNT --query id -o tsv)
 az ad sp create-for-rbac --role 'Storage Queue Data Contributor' --scopes $QUEUE_ID
 ```
 
-### Environment variables
+### Laboratory 
+
+#### Environment variables
 
 Copy `.env.template` to `.env` and enter the data returned by the CLI. A translation guide for the property names is below
 
@@ -53,9 +55,24 @@ Copy `.env.template` to `.env` and enter the data returned by the CLI. A transla
 * `AZURE_CLIENT_ID`: `appId`
 * `AZURE_CLIENT_SECRET`: `password`
 
+#### Running
+
+```shell
+# Load the values into your shell
+set -o allexport; source .env; set +o allexport
+
+# Start the laboratory
+npm run laboratory
+
+# Connect to the laboratory (one-time operation)
+npm run cli connect http://localhost:3000
+```
+
 ## Kubernetes development
 
 The `Worker` component runs on Kubernetes. Follow the instructions below to set up your dev environment
+
+### Initial setup
 
 ```shell
 # Set up a local k8s cluster using kind
@@ -63,16 +80,19 @@ curl -Lo ./kind https://github.com/kubernetes-sigs/kind/releases/download/v0.8.1
 chmod +x ./kind
 sudo mv ./kind /usr/local/bin/kind
 kind cluster create
+```
 
-# Deploy Worker components to the cluster, filling in parameters for your resources
-helm install \
-  --set argoController.containerRuntimeExecutor=pns \
-  --set argoServer.enabled=true \
-  --set worker.queueEndpoint=https://<storageaccount>.queue.core.windows.net/runs \
-  --set worker.tenantId=00000000-0000-0000-0000-000000000000 \
-  --set worker.clientId=00000000-0000-0000-0000-000000000000 \
-  --set worker.clientSecret=00000000-0000-0000-0000-000000000000 \
-  sds ./charts/sds-worker
+### Configuration
+
+Update `deploy/helm/values.dev.yaml` with the values that match your environment. Specifically, you'll need
+
+* `worker.queueEndpoint`: Point to a queue in your Azure Storage Account
+* `identities.*`: Enter values for your own Service Principal(s). The `worker` identity will need the `Storage Queue Data Message Processor` (or higher) role on your queue
+
+### Install SDS
+
+```shell
+helm install sds deploy/helm --values deploy/helm/values.dev.yaml
 ```
 
 ### Iterating on the Worker

@@ -94,40 +94,69 @@ roleRef:
   name: workflow-creator
   apiGroup: rbac.authorization.k8s.io
 ---
+{{- if and .Values.identities.benchmark.tenantId .Values.identities.benchmark.clientSecret }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: benchmark-identity-sp
+  namespace: {{ .Values.runs.namespace }}
+data:
+  clientSecret: {{ .Values.identities.benchmark.clientSecret | b64enc }}
+---
 apiVersion: aadpodidentity.k8s.io/v1
 kind: AzureIdentity
 metadata:
   name: benchmark
-  namespace: runs
+  namespace: {{ .Values.runs.namespace }}
 spec:
-  type: 0
-  resourceID: {{ .Values.benchmarkIdentity.resourceId }}
-  clientID: {{ .Values.benchmarkIdentity.clientId }}
+  type: 1
+  tenantID: {{ .Values.identities.benchmark.tenantId }}
+  clientID: {{ .Values.identities.benchmark.clientId }}
+  clientPassword:
+    name: benchmark-identity-sp
 ---
-apiVersion: aadpodidentity.k8s.io/v1
-kind: AzureIdentity
-metadata:
-  name: candidate
-  namespace: runs
-spec:
-  type: 0
-  resourceID: {{ .Values.candidateIdentity.resourceId }}
-  clientID: {{ .Values.candidateIdentity.clientId }}
----
+{{- else }}
 apiVersion: aadpodidentity.k8s.io/v1
 kind: AzureIdentityBinding
 metadata:
   name: benchmark
-  namespace: runs
+  namespace: {{ .Values.runs.namespace }}
 spec:
   azureIdentity: benchmark
   selector: benchmark
 ---
+# TODO: wire SP to containers during dev
+---
+{{- end }}
+{{- if and .Values.identities.candidate.tenantId .Values.identities.candidate.clientSecret }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: candidate-identity-sp
+  namespace: {{ .Values.runs.namespace }}
+data:
+  clientSecret: {{ .Values.identities.candidate.clientSecret | b64enc }}
+---
+# TODO: wire SP to containers during dev
+---
+{{- else }}
 apiVersion: aadpodidentity.k8s.io/v1
 kind: AzureIdentityBinding
 metadata:
   name: candidate
-  namespace: runs
+  namespace: {{ .Values.runs.namespace }}
 spec:
   azureIdentity: candidate
   selector: candidate
+---
+apiVersion: aadpodidentity.k8s.io/v1
+kind: AzureIdentity
+metadata:
+  name: candidate
+  namespace: {{ .Values.runs.namespace }}
+spec:
+  type: 0
+  resourceID: {{ .Values.identities.candidate.resourceId }}
+  clientID: {{ .Values.identities.candidate.clientId }}
+---
+{{- end }}

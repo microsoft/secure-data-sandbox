@@ -42,29 +42,27 @@ spec:
         - name: QUEUE_ENDPOINT
           value: {{ .Values.worker.queueEndpoint }}
         - name: AZURE_CLIENT_ID
-          value: {{ .Values.workerIdentity.clientId }}
-        {{- if .Values.worker.tenantId }}
+          value: {{ .Values.identities.worker.clientId }}
+        {{- if and .Values.identities.worker.tenantId .Values.identities.worker.clientSecret }}
         - name: AZURE_TENANT_ID
-          value: {{ .Values.worker.tenantId }}
-        {{- end }}
-        {{- if .Values.worker.clientSecret }}
+          value: {{ .Values.identities.worker.tenantId }}
         - name: AZURE_CLIENT_SECRET
           valueFrom:
               secretKeyRef:
-                name: sds-worker-sp
+                name: worker-identity-sp
                 key: clientSecret
         {{- end }}
 ---
-apiVersion: aadpodidentity.k8s.io/v1
-kind: AzureIdentity
+{{- if and .Values.identities.worker.tenantId .Values.identities.worker.clientSecret }}
+apiVersion: v1
+kind: Secret
 metadata:
-  name: worker
+  name: worker-identity-sp
   namespace: worker
-spec:
-  type: 0
-  resourceID: {{ .Values.workerIdentity.resourceId }}
-  clientID: {{ .Values.workerIdentity.clientId }}
+data:
+  clientSecret: {{ .Values.identities.worker.clientSecret | b64enc }}
 ---
+{{- else }}
 apiVersion: aadpodidentity.k8s.io/v1
 kind: AzureIdentityBinding
 metadata:
@@ -74,3 +72,14 @@ spec:
   azureIdentity: worker
   selector: worker
 ---
+apiVersion: aadpodidentity.k8s.io/v1
+kind: AzureIdentity
+metadata:
+  name: worker
+  namespace: worker
+spec:
+  type: 0
+  resourceID: {{ .Values.identities.worker.resourceId }}
+  clientID: {{ .Values.identities.worker.clientId }}
+---
+{{- end }}
