@@ -82,6 +82,7 @@ describe('laboratory/runs', () => {
             {
               type: 'AzureBlob',
               target: '/input',
+              name: 'training',
               source: 'https://sample.blob.core.windows.net/training',
               readonly: true,
             },
@@ -94,6 +95,7 @@ describe('laboratory/runs', () => {
             {
               type: 'AzureBlob',
               target: '/reference',
+              name: 'reference',
               source: 'https://sample.blob.core.windows.net/reference',
               readonly: true,
             },

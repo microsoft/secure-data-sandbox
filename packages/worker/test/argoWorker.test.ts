@@ -165,9 +165,7 @@ describe('createWorkflow', () => {
     assert.deepEqual(actual, expected);
   });
 
-  // TODO: Refine this test stub
-  // TODO: activate this test
-  xit('handlesVolumes', () => {
+  it.only('handlesVolumes', () => {
     const run: PipelineRun = {
       name: 'run1',
       statusEndpoint: 'http://localhost:3000/status',
@@ -180,6 +178,14 @@ describe('createWorkflow', () => {
             {
               source: undefined,
               type: 'ephemeral',
+              name: 'images',
+              target: '/input',
+              readonly: true,
+            },
+            {
+              source: undefined,
+              type: 'ephemeral',
+              name: 'predictions',
               target: '/output',
               readonly: false,
             },
@@ -192,8 +198,16 @@ describe('createWorkflow', () => {
             {
               source: undefined,
               type: 'ephemeral',
+              name: 'predictions',
               target: '/input',
               readonly: true,
+            },
+            {
+              source: undefined,
+              type: 'ephemeral',
+              name: 'scores',
+              target: '/output',
+              readonly: false,
             },
           ],
         },
@@ -211,7 +225,41 @@ describe('createWorkflow', () => {
         volumeClaimTemplates: [
           {
             metadata: {
-              name: 'volume1',
+              name: 'images',
+            },
+            spec: {
+              accessModes: ['ReadWriteOnce'],
+              resources: {
+                requests: {
+                  storage: '1Gi',
+                },
+              },
+            },
+          },
+          {
+            metadata: {
+              name: 'predictions',
+            },
+            spec: {
+              accessModes: ['ReadWriteOnce'],
+              resources: {
+                requests: {
+                  storage: '1Gi',
+                },
+              },
+            },
+          },
+          {
+            metadata: {
+              name: 'scores',
+            },
+            spec: {
+              accessModes: ['ReadWriteOnce'],
+              resources: {
+                requests: {
+                  storage: '1Gi',
+                },
+              },
             },
           },
         ],
@@ -239,7 +287,12 @@ describe('createWorkflow', () => {
               image: 'candidate',
               volumeMounts: [
                 {
-                  name: 'volume1',
+                  name: 'images',
+                  mountPath: '/input',
+                  readOnly: true,
+                },
+                {
+                  name: 'predictions',
                   mountPath: '/output',
                   readOnly: false,
                 },
@@ -252,9 +305,14 @@ describe('createWorkflow', () => {
               image: 'eval',
               volumeMounts: [
                 {
-                  name: 'volume1',
+                  name: 'predictions',
                   mountPath: '/input',
                   readOnly: true,
+                },
+                {
+                  name: 'scores',
+                  mountPath: '/output',
+                  readOnly: false,
                 },
               ],
             },
@@ -264,6 +322,8 @@ describe('createWorkflow', () => {
     };
 
     const actual = createWorkflow(run);
+    console.log('Expected: ' + expected);
+    console.log('Actual: ' + actual);
     assert.deepEqual(actual, expected);
   });
 });

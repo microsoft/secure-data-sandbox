@@ -165,6 +165,7 @@ function createMessage(
         target: v.path,
         source: sourceVolume.target,
         readonly: v.readonly,
+        name: v.name,
       };
     });
 
