@@ -95,7 +95,9 @@ export function createWorkflow(run: PipelineRun): Workflow {
     for (const stage of run.stages) {
       if (stage.volumes) {
         for (const volume of stage.volumes) {
-          if (!volumeClaimTemplates.some(c => c.metadata?.name === volume.name)) {
+          if (
+            !volumeClaimTemplates.some(c => c.metadata?.name === volume.name)
+          ) {
             volumeClaimTemplates.push({
               metadata: {
                 name: volume.name,
