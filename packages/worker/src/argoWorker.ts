@@ -94,14 +94,14 @@ export function createWorkflow(run: PipelineRun): Workflow {
 
     for (const stage of run.stages) {
       if (stage.volumes) {
-        for (const a of stage.volumes) {
-          if (!volumeClaimTemplates.some(c => c.metadata?.name === a.name)) {
+        for (const volume of stage.volumes) {
+          if (!volumeClaimTemplates.some(c => c.metadata?.name === volume.name)) {
             volumeClaimTemplates.push({
               metadata: {
-                name: a.name,
+                name: volume.name,
               },
               spec: {
-                // Add storage class here
+                // TODO: Set this as a parameter
                 accessModes: ['ReadWriteOnce'],
                 resources: {
                   requests: {

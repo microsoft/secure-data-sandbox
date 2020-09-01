@@ -165,7 +165,7 @@ describe('createWorkflow', () => {
     assert.deepEqual(actual, expected);
   });
 
-  it.only('handlesVolumes', () => {
+  it('handlesVolumes', () => {
     const run: PipelineRun = {
       name: 'run1',
       statusEndpoint: 'http://localhost:3000/status',
@@ -322,8 +322,6 @@ describe('createWorkflow', () => {
     };
 
     const actual = createWorkflow(run);
-    console.log('Expected: ' + expected);
-    console.log('Actual: ' + actual);
     assert.deepEqual(actual, expected);
   });
 });
