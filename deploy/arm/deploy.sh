@@ -2,11 +2,12 @@
 set -eo pipefail
 
 show_usage() {
-  echo 'Usage: deploy.sh -g <resource_group> [--assets <assets_base_uri>] [--dev]'
+  echo 'Usage: deploy.sh -g <resource_group> [--assets <assets_base_uri>] [--sas <sas_token>] [--dev]'
 }
 
 CREATE_VNET=true
 DEV=false
+SAS=""
 
 parse_arguments() {
   PARAMS=""
@@ -22,6 +23,10 @@ parse_arguments() {
         ;;
       -a|--assets)
         ASSETS_BASE=$2
+        shift 2
+        ;;
+      --sas)
+        SAS=$2
         shift 2
         ;;
       --dev)
@@ -62,12 +67,12 @@ deploy_environment() {
     CREATE_VNET=false
   fi
 
-  az deployment group create -g $RESOURCE_GROUP -u "${ASSETS_BASE}/arm/azuredeploy.json" -p "assetsBaseUrl=$ASSETS_BASE" "createVnet=$CREATE_VNET"
+  az deployment group create -g $RESOURCE_GROUP -u "${ASSETS_BASE}/arm/azuredeploy.json?${SAS}" -p "assetsBaseUrl=$ASSETS_BASE" "createVnet=$CREATE_VNET" "deploymentSas=$SAS"
 }
 
 deploy_dev() {
   if [ "$DEV" = true ]; then
-    az deployment group create -g $RESOURCE_GROUP -u "${ASSETS_BASE}/arm/azuredeploy.dev.json" -p "sshPublicKey=$(cat ~/.ssh/id_rsa.pub)"
+    az deployment group create -g $RESOURCE_GROUP -u "${ASSETS_BASE}/arm/azuredeploy.dev.json?${SAS}" -p "sshPublicKey=$(cat ~/.ssh/id_rsa.pub)"
   fi
 }
 
