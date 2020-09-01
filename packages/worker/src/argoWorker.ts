@@ -48,9 +48,8 @@ export function createWorkflow(run: PipelineRun): Workflow {
       },
     };
 
-    // TODO: replace global volume with volumes from benchmark
     const volumeMounts = s.volumes?.map(v => ({
-      name: 'global',
+      name: v.name,
       mountPath: v.target,
       readOnly: v.readonly,
     }));
@@ -91,22 +90,32 @@ export function createWorkflow(run: PipelineRun): Workflow {
   };
 
   if (run.stages.some(s => s.volumes?.length || 0 > 0)) {
-    // TODO: replace global volume with volumes from benchmark
-    const volumeClaimTemplates: PersistentVolumeClaim[] = [
-      {
-        metadata: {
-          name: 'global',
-        },
-        spec: {
-          accessModes: ['ReadWriteOnce'],
-          resources: {
-            requests: {
-              storage: '1Gi',
-            },
-          },
-        },
-      },
-    ];
+    const volumeClaimTemplates: PersistentVolumeClaim[] = [];
+
+    for (const stage of run.stages) {
+      if (stage.volumes) {
+        for (const volume of stage.volumes) {
+          if (
+            !volumeClaimTemplates.some(c => c.metadata?.name === volume.name)
+          ) {
+            volumeClaimTemplates.push({
+              metadata: {
+                name: volume.name,
+              },
+              spec: {
+                // TODO: Set this as a parameter
+                accessModes: ['ReadWriteOnce'],
+                resources: {
+                  requests: {
+                    storage: '1Gi',
+                  },
+                },
+              },
+            });
+          }
+        }
+      }
+    }
 
     workflow.spec.volumeClaimTemplates = volumeClaimTemplates;
   }

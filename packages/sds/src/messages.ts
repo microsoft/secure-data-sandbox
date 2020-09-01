@@ -18,6 +18,7 @@ export interface PipelineRunStage {
   volumes?: ReadonlyArray<{
     type: string;
     target: string;
+    name: string;
     // TODO: allow `source` as optional for type: 'ephemeral'
     source: string | undefined;
     readonly: boolean;
