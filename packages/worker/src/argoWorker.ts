@@ -104,6 +104,7 @@ export function createWorkflow(run: PipelineRun): Workflow {
               },
               spec: {
                 // TODO: Set this as a parameter
+                storageClassName: 'azurefile-csi',
                 accessModes: ['ReadWriteOnce'],
                 resources: {
                   requests: {
