@@ -198,10 +198,18 @@ $conn.Close()
         "serverFarmId": "[resourceId('Microsoft.Web/serverFarms', variables('laboratory'))]",
         "siteConfig": {
           "alwaysOn": true,
-          "appCommandLine": "npm run laboratory",
+          "appCommandLine": "node node_modules/@microsoft/sds-laboratory/dist/main.js",
           "linuxFxVersion": "NODE|12-lts",
           "minTlsVersion": "1.2",
           "appSettings": [
+            {
+              "name": "AZURE_CLIENT_ID",
+              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))).clientId]"
+            },
+            {
+              "name": "QUEUE_MODE",
+              "value": "azure"
+            },
             {
               "name": "QUEUE_ENDPOINT",
               "value": "[parameters('queueEndpoint')]"
@@ -219,15 +227,7 @@ $conn.Close()
               "value": "[variables('laboratory')]"
             },
             {
-              "name": "WEBSITE_DNS_SERVER",
-              "value": "168.63.129.16"
-            },
-            {
               "name": "WEBSITE_RUN_FROM_PACKAGE",
-              "value": "1"
-            },
-            {
-              "name": "WEBSITE_VNET_ROUTE_ALL",
               "value": "1"
             }
           ]

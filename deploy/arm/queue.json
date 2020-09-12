@@ -28,7 +28,7 @@
       "properties": {
         "accessTier": "Hot",
         "networkAcls": {
-          "bypass": "None",
+          "bypass": "AzureServices",
           "defaultAction": "Deny",
           "virtualNetworkRules": []
         },
