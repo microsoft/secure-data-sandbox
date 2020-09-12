@@ -16,26 +16,42 @@ runs:
   namespace: runs
 
 worker:
+  namespace: worker
   image: acanthamoeba/sds-worker
   queueMode: azure
-  queueEndpoint: https://<storageaccount>.queue.core.windows.net/runs
+  # Set the queue endpoint
+  # queueEndpoint: https://<storageaccount>.queue.core.windows.net/runs
 
 identities:
-  worker:
-    resourceId: /subscriptions/<subscriptionId>/resourceGroups/<resourceGroup>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/worker
-    clientId: 00000000-0000-0000-0000-000000000000
+  worker: {}
+    # (required) Set the clientId associated with the identity
+    # clientId: 00000000-0000-0000-0000-000000000000
+    
+    # Set the following to use a Managed Identity on AKS
+    # resourceId: /subscriptions/<subscriptionId>/resourceGroups/<resourceGroup>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/worker
+    
     # Set the following to use a Service Principal during development
     # tenantId: 00000000-0000-0000-0000-000000000000
     # clientSecret: 00000000-0000-0000-0000-000000000000
-  benchmark:
-    resourceId: /subscriptions/<subscriptionId>/resourceGroups/<resourceGroup>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/benchmark
-    clientId: 00000000-0000-0000-0000-000000000000
+
+  benchmark: {}
+    # (required) Set the clientId associated with the identity
+    # clientId: 00000000-0000-0000-0000-000000000000
+    
+    # Set the following to use a Managed Identity on AKS
+    # resourceId: /subscriptions/<subscriptionId>/resourceGroups/<resourceGroup>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/worker
+    
     # Set the following to use a Service Principal during development
     # tenantId: 00000000-0000-0000-0000-000000000000
     # clientSecret: 00000000-0000-0000-0000-000000000000
-  candidate:
-    resourceId: /subscriptions/<subscriptionId>/resourceGroups/<resourceGroup>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/candidate
-    clientId: 00000000-0000-0000-0000-000000000000
+
+  candidate: {}
+    # (required) Set the clientId associated with the identity
+    # clientId: 00000000-0000-0000-0000-000000000000
+    
+    # Set the following to use a Managed Identity on AKS
+    # resourceId: /subscriptions/<subscriptionId>/resourceGroups/<resourceGroup>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/worker
+    
     # Set the following to use a Service Principal during development
     # tenantId: 00000000-0000-0000-0000-000000000000
     # clientSecret: 00000000-0000-0000-0000-000000000000
