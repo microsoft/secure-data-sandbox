@@ -11,7 +11,7 @@ import { ParseLaboratoryConfiguration } from './configuration';
 import { createApp } from './app';
 
 async function main(argv: string[]) {
-  const config = ParseLaboratoryConfiguration();
+  const config = await ParseLaboratoryConfiguration();
   const queue = GetQueue<PipelineRun>(config.queue);
 
   // initializeSequelize binds Sequelize to the models, effectively becoming a singleton / service locator

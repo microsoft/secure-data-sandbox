@@ -4,7 +4,7 @@ import { configuration, GetQueue, PipelineRun } from '@microsoft/sds';
 import { ArgoWorker } from './argoWorker';
 
 async function main() {
-  const queueConfig = configuration.ParseQueueConfiguration();
+  const queueConfig = await configuration.ParseQueueConfiguration();
   const queue = GetQueue<PipelineRun>(queueConfig);
 
   const kc = new k8s.KubeConfig();
@@ -13,6 +13,7 @@ async function main() {
   // todo: capture SIGTERM & graceful shutdown
   const worker = new ArgoWorker(queue, kc);
   worker.start();
+  console.log('Worker started');
 }
 
 main().catch(e => console.error(e));
