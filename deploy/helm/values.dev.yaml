@@ -18,6 +18,8 @@ worker:
   image: acanthamoeba/sds-worker
   queueMode: azure
   queueEndpoint: https://<storageaccount>.queue.core.windows.net/runs
+  resourceGroup: resourceGroup
+  storageAccount: storageAccount
 
 # Use Service Principals instead of Managed Identity
 identities:
