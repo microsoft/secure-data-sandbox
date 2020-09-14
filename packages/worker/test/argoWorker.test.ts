@@ -228,6 +228,7 @@ describe('createWorkflow', () => {
               name: 'images',
             },
             spec: {
+              storageClassName: 'azurefile-csi',
               accessModes: ['ReadWriteOnce'],
               resources: {
                 requests: {
@@ -241,6 +242,7 @@ describe('createWorkflow', () => {
               name: 'predictions',
             },
             spec: {
+              storageClassName: 'azurefile-csi',
               accessModes: ['ReadWriteOnce'],
               resources: {
                 requests: {
@@ -254,6 +256,7 @@ describe('createWorkflow', () => {
               name: 'scores',
             },
             spec: {
+              storageClassName: 'azurefile-csi',
               accessModes: ['ReadWriteOnce'],
               resources: {
                 requests: {
