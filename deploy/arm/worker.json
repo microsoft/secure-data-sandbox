@@ -13,7 +13,7 @@
     "aks": "aks",
     "k8sVersion": "1.17.9",
     "nodeCount": 2,
-    "nodeResourceGroup": "sds-worker",
+    "nodeResourceGroup": "[concat('sds-worker-', variables('suffix'))]",
     "nodeSize": "Standard_DS2_v2",
     "storageAccount": "[concat('runs', variables('suffix'))]",
     "fileEndpoint": "[concat(variables('storageAccount'), '-files')]",
