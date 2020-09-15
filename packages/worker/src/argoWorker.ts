@@ -21,6 +21,8 @@ export class ArgoWorker {
   }
 
   private async processRun(run: PipelineRun) {
+    console.log(`Processing run: ${run.name}`);
+
     const workflow = createWorkflow(run);
     await this.crd.createNamespacedCustomObject(
       'argoproj.io',
