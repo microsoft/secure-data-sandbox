@@ -129,3 +129,12 @@ As of Sep 2020, Lerna does not provide a command to audit packages for security 
 # Run a global `npm audit fix`
 ./scripts/dev-npm-audit-fix.sh
 ```
+
+## Updating Dependencies
+
+It can be difficult to bulk update npm packages across many projects in the monorepo. A script is provided:
+
+```shell
+# Run a global `npm update`
+./scripts/dev-npm-update.sh
+```

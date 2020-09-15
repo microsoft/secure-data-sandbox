@@ -6,7 +6,7 @@ sed -i '/"@microsoft\/sds": "*"/d' packages/*/package.json
 
 # Update the monorepo root
 npm install --ignore-scripts
-npm audit fix
+npm update
 
 # Update each package
 lerna exec -- npm install --ignore-scripts
