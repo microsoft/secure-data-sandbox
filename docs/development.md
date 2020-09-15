@@ -120,3 +120,12 @@ It can be useful to execute the samples rapidly. Scripts are provided to help yo
 
 * `scripts/sample-data.sh` - Execute the basic YAML files
 * `scripts/demo-catdetection.sh` - Run the cat detection demo (see [README](/samples/catdetection/README.md) for setup instructions)
+
+## Auditing Packages
+
+As of Sep 2020, Lerna does not provide a command to audit packages for security vulnerabilities [#1663](https://github.com/lerna/lerna/issues/1663). The `scripts` directory contains a convenience script to perform updates. From a fresh clone:
+
+```shell
+# Run a global `npm audit fix`
+./scripts/dev-npm-audit-fix.sh
+```

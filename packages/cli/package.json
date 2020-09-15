@@ -39,8 +39,8 @@
     "uuid": "^8.3.0"
   },
   "dependencies": {
-    "@azure/msal-node": "^1.0.0-alpha.3",
     "@microsoft/sds": "*",
+    "@azure/msal-node": "^1.0.0-alpha.3",
     "axios": "^0.19.2",
     "commander": "^6.0.0",
     "fp-ts": "^2.7.1",
