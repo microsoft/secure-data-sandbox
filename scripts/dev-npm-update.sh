@@ -10,7 +10,7 @@ npm audit fix
 
 # Update each package
 lerna exec -- npm install --ignore-scripts
-lerna exec npm audit fix
+lerna exec npm update
 
 # Readd monorepo package references
 sed -i 's/\("dependencies": {\)/\1\n    "@microsoft\/sds": "*",/' packages/cli/package.json
