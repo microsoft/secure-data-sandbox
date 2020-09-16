@@ -7,7 +7,7 @@ export function decodeError(e: NodeJS.ErrnoException | AxiosError): string {
     const response = axiosError.response;
     if (response) {
       if (response.data && response.data.error) {
-        // This case can be triggered by attempting to access a non-existant
+        // This case can be triggered by attempting to access a non-existent
         // benchmark, candidate, run, or suite.
         return response.status + ': ' + response.data.error.message;
       } else {

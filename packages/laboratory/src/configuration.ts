@@ -1,14 +1,14 @@
 import * as os from 'os';
-import {
-  QueueConfiguration,
-  AzureSqlDatabaseConfiguration,
-  DatabaseConfiguration,
-  DatabaseMode,
-} from '@microsoft/sds';
+import { QueueConfiguration } from '@microsoft/sds';
 import {
   AzureCredential,
   ParseQueueConfiguration,
 } from '@microsoft/sds/dist/configuration';
+import {
+  AzureSqlDatabaseConfiguration,
+  DatabaseConfiguration,
+  DatabaseMode,
+} from './database';
 
 import * as env from 'env-var';
 

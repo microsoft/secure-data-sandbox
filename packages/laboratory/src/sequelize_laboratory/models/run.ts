@@ -6,7 +6,7 @@ import {
   IRun,
   ISuite,
   RunStatus,
-} from '../../interfaces';
+} from '@microsoft/sds';
 
 import { jsonColumn } from './decorators';
 

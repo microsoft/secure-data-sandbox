@@ -1,6 +1,5 @@
 import { Benchmark, Suite } from './models';
-import { normalizeName } from './normalize';
-import { IllegalOperationError, ISuite } from '../interfaces';
+import { normalizeName, IllegalOperationError, ISuite } from '@microsoft/sds';
 
 export function normalizeSuite(suite: ISuite): ISuite {
   return {

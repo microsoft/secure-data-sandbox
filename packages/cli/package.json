@@ -1,6 +1,9 @@
 {
   "name": "@microsoft/sds-cli",
   "version": "0.1.0",
+  "repository": {
+    "url": "https://github.com/microsoft/secure-data-sandbox"
+  },
   "description": "A toolkit for conducting machine learning trials against confidential data",
   "license": "MIT",
   "main": "dist/index",

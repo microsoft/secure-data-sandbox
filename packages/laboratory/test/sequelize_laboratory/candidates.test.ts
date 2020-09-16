@@ -3,14 +3,19 @@ import { assert } from 'chai';
 import chaiAsPromised = require('chai-as-promised');
 import chaiExclude from 'chai-exclude';
 
-import { benchmark1, candidate1, candidate2, candidate3 } from '../data';
+import {
+  benchmark1,
+  candidate1,
+  candidate2,
+  candidate3,
+} from '../../../sds/test/laboratory/data';
 
 import {
   assertDeepEqual,
   initTestEnvironment,
   lab,
   resetTestEnvironment,
-} from '../shared';
+} from './shared';
 
 chai.use(chaiExclude);
 chai.use(chaiAsPromised);
@@ -20,7 +25,7 @@ describe('laboratory/candidates', () => {
   beforeEach(resetTestEnvironment);
 
   it('allCandidates()', async () => {
-    // First add benchmark referenced by canidate1 and candidate2.
+    // First add benchmark referenced by candidate1 and candidate2.
     await lab.upsertBenchmark(benchmark1);
 
     const empty = await lab.allCandidates();
@@ -36,7 +41,7 @@ describe('laboratory/candidates', () => {
   });
 
   it('oneCandidate()', async () => {
-    // First add benchmark referenced by canidate1 and candidate2.
+    // First add benchmark referenced by candidate1 and candidate2.
     await lab.upsertBenchmark(benchmark1);
     await lab.upsertCandidate(candidate1);
     await lab.upsertCandidate(candidate2);
@@ -80,7 +85,7 @@ describe('laboratory/candidates', () => {
   });
 
   it('upsertCandidate() - normalization', async () => {
-    // First add benchmark referenced by canidate1 and candidate2.
+    // First add benchmark referenced by candidate1 and candidate2.
     await lab.upsertBenchmark(benchmark1);
 
     // Throws for invalid name
@@ -108,7 +113,7 @@ describe('laboratory/candidates', () => {
     const result = await lab.oneCandidate(candidate3.name);
     assertDeepEqual(result, candidate3);
 
-    // Throws on non-existant benchmark
+    // Throws on non-existent benchmark
     const c5 = {
       ...candidate3,
       name: candidate3.name.toUpperCase(),

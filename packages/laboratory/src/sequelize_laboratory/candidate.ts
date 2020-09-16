@@ -1,6 +1,9 @@
 import { Benchmark, Candidate } from './models';
-import { normalizeName } from './normalize';
-import { ICandidate, IllegalOperationError } from '../interfaces';
+import {
+  normalizeName,
+  ICandidate,
+  IllegalOperationError,
+} from '@microsoft/sds';
 
 export function normalizeCandidate(candidate: ICandidate): ICandidate {
   return {

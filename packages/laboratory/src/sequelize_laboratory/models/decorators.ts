@@ -1,6 +1,6 @@
 import { DataType } from 'sequelize-typescript';
 
-import { ValidationError } from '../../interfaces';
+import { ValidationError } from '@microsoft/sds';
 //
 // Helper function provides a column decorator for JSON string columns
 // that are represented as POJOs of type T.

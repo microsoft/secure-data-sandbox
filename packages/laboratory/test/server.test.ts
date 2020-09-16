@@ -43,7 +43,7 @@ import {
   run1,
   suite1,
 } from '../../sds/test/laboratory/data';
-import { initTestEnvironment } from '../../sds/test/laboratory/shared';
+import { initTestEnvironment } from './sequelize_laboratory/shared';
 
 let lab: ILaboratory;
 

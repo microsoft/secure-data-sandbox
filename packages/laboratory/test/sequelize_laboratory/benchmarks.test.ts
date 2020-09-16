@@ -3,14 +3,18 @@ import { assert } from 'chai';
 import chaiAsPromised = require('chai-as-promised');
 import chaiExclude from 'chai-exclude';
 
-import { benchmark1, benchmark2, benchmark3 } from '../data';
+import {
+  benchmark1,
+  benchmark2,
+  benchmark3,
+} from '../../../sds/test/laboratory/data';
 
 import {
   assertDeepEqual,
   initTestEnvironment,
   lab,
   resetTestEnvironment,
-} from '../shared';
+} from './shared';
 
 chai.use(chaiExclude);
 chai.use(chaiAsPromised);

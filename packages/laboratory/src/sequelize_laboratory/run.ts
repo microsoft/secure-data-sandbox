@@ -13,12 +13,13 @@ import {
   RunStatus,
   BenchmarkStageKind,
   ISuite,
-} from '../interfaces';
+  PipelineRun,
+  PipelineRunStage,
+  normalizeName,
+  IQueue,
+} from '@microsoft/sds';
 
-import { PipelineRun, PipelineRunStage } from '../../../messages';
 import { Benchmark, Candidate, Suite, Run, Result } from './models';
-import { normalizeName } from './normalize';
-import { IQueue } from '../../../queue';
 
 export function normalizeRunRequest(runRequest: IRunRequest): IRunRequest {
   return {

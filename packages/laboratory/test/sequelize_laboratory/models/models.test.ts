@@ -6,17 +6,18 @@ import {
   Candidate,
   Run,
   Suite,
-} from '../../../../../src/laboratory/logic/sequelize_laboratory/models';
+} from '../../../src/sequelize_laboratory/models';
 
-import { jsonColumn } from '../../../../../src/laboratory/logic/sequelize_laboratory/models/decorators';
-
-import { benchmark1, candidate1, suite1, run1 } from '../../../data';
+import { jsonColumn } from '../../../src/sequelize_laboratory/models/decorators';
 
 import {
-  assertDeepEqual,
-  initTestEnvironment,
-  sequelize,
-} from '../../../shared';
+  benchmark1,
+  candidate1,
+  suite1,
+  run1,
+} from '../../../../sds/test/laboratory/data';
+
+import { assertDeepEqual, initTestEnvironment, sequelize } from '../shared';
 
 describe('sequelize', () => {
   before(initTestEnvironment);

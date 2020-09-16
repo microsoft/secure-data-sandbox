@@ -1,4 +1,4 @@
-import { IllegalOperationError } from '../interfaces';
+import { IllegalOperationError } from './interfaces';
 
 // Goals:
 //   Suitable blob and file paths (eliminate most special characters)

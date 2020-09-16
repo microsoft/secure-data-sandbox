@@ -1,12 +1,11 @@
 #!/usr/bin/env node
+import { PipelineRun, GetQueue } from '@microsoft/sds';
+import { ParseLaboratoryConfiguration } from './configuration';
+import { GetSequelizeOptions } from './database';
 import {
   initializeSequelize,
   SequelizeLaboratory,
-  PipelineRun,
-  GetQueue,
-  GetSequelizeOptions,
-} from '@microsoft/sds';
-import { ParseLaboratoryConfiguration } from './configuration';
+} from './sequelize_laboratory';
 
 import { createApp } from './app';
 

@@ -10,14 +10,15 @@ import {
   ISuite,
   Measures,
   RunStatus,
-} from '../interfaces';
+  PipelineRun,
+  normalizeName,
+  normalizeRunName,
+  IQueue,
+} from '@microsoft/sds';
 
 import { normalizeBenchmark, processBenchmark } from './benchmark';
 import { normalizeCandidate, processCandidate } from './candidate';
-import { PipelineRun } from '../../../messages';
 import { Benchmark, Candidate, Run, Suite, Result } from './models';
-import { normalizeName, normalizeRunName } from './normalize';
-import { IQueue } from '../../../queue';
 
 import {
   normalizeRunRequest,

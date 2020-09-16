@@ -1,11 +1,11 @@
 import { DataType, Column, Model, Table } from 'sequelize-typescript';
 
-import { ISuite, SuiteVolume } from '../../interfaces';
+import { IBenchmark, PipelineStage } from '@microsoft/sds';
 
 import { jsonColumn } from './decorators';
 
 @Table
-export class Suite extends Model<Suite> implements ISuite {
+export class Benchmark extends Model<Benchmark> implements IBenchmark {
   @Column({
     type: DataType.STRING,
     primaryKey: true,
@@ -18,10 +18,7 @@ export class Suite extends Model<Suite> implements ISuite {
   @Column(DataType.STRING)
   apiVersion!: string;
 
-  @Column(DataType.STRING)
-  benchmark!: string;
-
   // TODO: REVIEW: magic number 1024
-  @Column(jsonColumn<SuiteVolume[]>('volumes', 1024))
-  volumes!: SuiteVolume[];
+  @Column(jsonColumn<PipelineStage[]>('stages', 1024))
+  stages!: PipelineStage[];
 }

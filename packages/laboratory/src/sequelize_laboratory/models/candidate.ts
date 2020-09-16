@@ -1,11 +1,10 @@
 import { DataType, Column, Model, Table } from 'sequelize-typescript';
-
-import { IResult, Measures } from '../../interfaces';
-
 import { jsonColumn } from './decorators';
 
+import { ICandidate } from '@microsoft/sds';
+
 @Table
-export class Result extends Model<Result> implements IResult {
+export class Candidate extends Model<Candidate> implements ICandidate {
   @Column({
     type: DataType.STRING,
     primaryKey: true,
@@ -22,11 +21,13 @@ export class Result extends Model<Result> implements IResult {
   benchmark!: string;
 
   @Column(DataType.STRING)
-  suite!: string;
+  image!: string;
 
-  @Column(DataType.STRING)
-  candidate!: string;
+  // TODO: REVIEW: magic number 1024
+  @Column(jsonColumn<string[]>('cmd', 1024))
+  cmd!: string[];
 
-  @Column(jsonColumn<object>('measures', 1024))
-  measures!: Measures;
+  // TODO: REVIEW: magic number 1024
+  @Column(jsonColumn<{ [x: string]: string }>('env', 1024))
+  env!: { [x: string]: string };
 }

@@ -8,11 +8,13 @@ import { assert } from 'chai';
 import chaiExclude from 'chai-exclude';
 import { Sequelize } from 'sequelize-typescript';
 
-import { initializeSequelize, SequelizeLaboratory } from '../../src/laboratory';
-import { PipelineRun } from '../../src/messages';
-import { InMemoryQueue } from '../../src/queue';
+import {
+  initializeSequelize,
+  SequelizeLaboratory,
+} from '../../src/sequelize_laboratory';
+import { PipelineRun, InMemoryQueue } from '@microsoft/sds';
 
-import { serviceURL } from './data';
+import { serviceURL } from '../../../sds/test/laboratory/data';
 
 chai.use(chaiExclude);
 

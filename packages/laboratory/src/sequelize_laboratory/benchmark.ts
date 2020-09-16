@@ -1,6 +1,5 @@
 import { Benchmark } from './models';
-import { normalizeName } from './normalize';
-import { IBenchmark } from '../interfaces';
+import { normalizeName, IBenchmark } from '@microsoft/sds';
 
 export function normalizeBenchmark(benchmark: IBenchmark): IBenchmark {
   return {

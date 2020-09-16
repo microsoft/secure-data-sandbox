@@ -3,14 +3,19 @@ import { assert } from 'chai';
 import chaiAsPromised = require('chai-as-promised');
 import chaiExclude from 'chai-exclude';
 
-import { benchmark1, suite1, suite2, suite3 } from '../data';
+import {
+  benchmark1,
+  suite1,
+  suite2,
+  suite3,
+} from '../../../sds/test/laboratory/data';
 
 import {
   assertDeepEqual,
   initTestEnvironment,
   lab,
   resetTestEnvironment,
-} from '../shared';
+} from './shared';
 
 chai.use(chaiExclude);
 chai.use(chaiAsPromised);
@@ -108,7 +113,7 @@ describe('laboratory/suites', () => {
     const result = await lab.oneSuite(suite3.name);
     assertDeepEqual(result, suite3);
 
-    // Throws on non-existant benchmark
+    // Throws on non-existent benchmark
     const c5 = {
       ...suite3,
       name: suite3.name.toUpperCase(),

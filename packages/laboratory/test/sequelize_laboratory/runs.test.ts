@@ -4,7 +4,7 @@ import chaiAsPromised = require('chai-as-promised');
 import chaiExclude from 'chai-exclude';
 import { URL } from 'url';
 
-import { IResult, IRun, RunStatus } from '../../../src';
+import { IResult, IRun, RunStatus } from '@microsoft/sds';
 
 import {
   benchmark1,
@@ -12,9 +12,9 @@ import {
   candidate2,
   serviceURL,
   suite1,
-} from '../data';
+} from '../../../sds/test/laboratory/data';
 
-import { assertDeepEqual, initTestEnvironment, lab, queue } from '../shared';
+import { assertDeepEqual, initTestEnvironment, lab, queue } from './shared';
 
 chai.use(chaiExclude);
 chai.use(chaiAsPromised);
