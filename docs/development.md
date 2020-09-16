@@ -1,5 +1,7 @@
 # SDS Development
 
+[![codecov](https://codecov.io/gh/microsoft/secure-data-sandbox/branch/main/graph/badge.svg)](https://codecov.io/gh/microsoft/secure-data-sandbox)
+
 ## Quick Start
 
 * Create a [Visual Studio Codespaces](https://online.visualstudio.com) instance with no selected repository
