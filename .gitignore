@@ -3,5 +3,6 @@
 *.tgz
 *.tsbuildinfo
 build
+coverage
 dist
 node_modules
