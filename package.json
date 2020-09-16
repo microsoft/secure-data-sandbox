@@ -16,6 +16,7 @@
     "test": "lerna run test"
   },
   "devDependencies": {
+    "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "dotenv-cli": "^4.0.0",
     "gts": "^2.0.2",
     "lerna": "^3.22.1",
