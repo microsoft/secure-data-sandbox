@@ -41,7 +41,7 @@ describe('formatting', () => {
   describe('formatChoices', () => {
     it('throws an error on no choices', () => {
       const choices: string[] = [];
-      expect(formatChoices(choices)).to.throw(new TypeError('internal error'));
+      expect(() => formatChoices(choices)).to.throw('internal error');
     });
 
     it('handles a single choice', () => {
