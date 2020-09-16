@@ -1,4 +1,3 @@
-require('express-async-errors');
 import { Router } from 'express';
 
 import { CandidateType, ILaboratory, validate } from '@microsoft/sds';

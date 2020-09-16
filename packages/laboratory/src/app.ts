@@ -1,3 +1,4 @@
+require('express-async-errors');
 import * as express from 'express';
 import * as errorhandler from 'strong-error-handler';
 import * as passport from 'passport';
