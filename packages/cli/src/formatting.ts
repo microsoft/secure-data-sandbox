@@ -15,12 +15,11 @@ export function* formatTable(
   }
   for (const row of rows) {
     const fields = row.map((column, i) => {
-      if (alignments[i] === Alignment.LEFT) {
-        return leftJustify(row[i], widths[i]);
-      } else if (alignments[i] === Alignment.RIGHT) {
-        return rightJustify(row[i], widths[i]);
-      } else {
-        return row[i];
+      switch (alignments[i]) {
+        case Alignment.LEFT:
+          return leftJustify(row[i], widths[i]);
+        case Alignment.RIGHT:
+          return rightJustify(row[i], widths[i]);
       }
     });
 

@@ -19,13 +19,14 @@ import {
   validate,
 } from '@microsoft/sds';
 
-import { initConnection, getLabClient } from './conn';
+import { LaboratoryConnection } from './conn';
 import { decodeError } from './decode_error';
 import { configureDemo } from './demo';
 import { formatChoices, formatTable, Alignment } from './formatting';
 
 const readme =
   'https://github.com/microsoft/secure-data-sandbox/blob/main/laboratory/README.md';
+const conn = new LaboratoryConnection();
 
 function main(argv: string[]) {
   const program = new Command();
@@ -150,7 +151,7 @@ async function connect(host: string) {
     throw new Error('You must specify a host.');
   }
 
-  await initConnection(host);
+  await conn.init(host);
   console.log(`Connected to ${host}.`);
 }
 
@@ -177,7 +178,7 @@ async function createHelper<T>(ops: ISpecOps<T>, specFile: string) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 async function demo() {
-  configureDemo(await getLabClient());
+  configureDemo(await conn.getClient());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -253,7 +254,10 @@ async function listHelper<T extends IEntityBase>(
 //
 ///////////////////////////////////////////////////////////////////////////////
 async function results(benchmark: string, suite: string) {
-  const results = await (await getLabClient()).allRunResults(benchmark, suite);
+  const results = await (await conn.getClient()).allRunResults(
+    benchmark,
+    suite
+  );
 
   if (results.length === 0) {
     console.log('No matching results');
@@ -309,7 +313,7 @@ async function results(benchmark: string, suite: string) {
 //
 ///////////////////////////////////////////////////////////////////////////////
 async function run(candidate: string, suite: string) {
-  const run = await (await getLabClient()).createRunRequest({
+  const run = await (await conn.getClient()).createRunRequest({
     candidate,
     suite,
   });
@@ -363,30 +367,30 @@ const benchmarkOps: ISpecOps<IBenchmark> = {
   name: () => 'benchmark',
   load: (specFile: string) => load(BenchmarkType, specFile),
   format: (spec: IBenchmark) => formatSpec(spec),
-  all: async () => (await getLabClient()).allBenchmarks(),
-  one: async (name: string) => (await getLabClient()).oneBenchmark(name),
+  all: async () => (await conn.getClient()).allBenchmarks(),
+  one: async (name: string) => (await conn.getClient()).oneBenchmark(name),
   upsert: async (spec: IBenchmark, name?: string) =>
-    (await getLabClient()).upsertBenchmark(spec, name),
+    (await conn.getClient()).upsertBenchmark(spec, name),
 };
 
 const candidateOps: ISpecOps<ICandidate> = {
   name: () => 'candidate',
   load: (specFile: string) => load(CandidateType, specFile),
   format: (spec: ICandidate) => formatSpec(spec),
-  all: async () => (await getLabClient()).allCandidates(),
-  one: async (name: string) => (await getLabClient()).oneCandidate(name),
+  all: async () => (await conn.getClient()).allCandidates(),
+  one: async (name: string) => (await conn.getClient()).oneCandidate(name),
   upsert: async (spec: ICandidate, name?: string) =>
-    (await getLabClient()).upsertCandidate(spec, name),
+    (await conn.getClient()).upsertCandidate(spec, name),
 };
 
 const suiteOps: ISpecOps<ISuite> = {
   name: () => 'suite',
   load: (specFile: string) => load(SuiteType, specFile),
   format: (spec: ISuite) => formatSpec(spec),
-  all: async () => (await getLabClient()).allSuites(),
-  one: async (name: string) => (await getLabClient()).oneSuite(name),
+  all: async () => (await conn.getClient()).allSuites(),
+  one: async (name: string) => (await conn.getClient()).oneSuite(name),
   upsert: async (spec: ISuite, name?: string) =>
-    (await getLabClient()).upsertSuite(spec, name),
+    (await conn.getClient()).upsertSuite(spec, name),
 };
 
 const runOps: ISpecOps<IRun> = {
@@ -395,8 +399,8 @@ const runOps: ISpecOps<IRun> = {
     throw new IllegalOperationError('Load operation not supported for IRun.');
   },
   format: (spec: IRun) => formatSpec(spec),
-  all: async () => (await getLabClient()).allRuns(),
-  one: async (name: string) => (await getLabClient()).oneRun(name),
+  all: async () => (await conn.getClient()).allRuns(),
+  one: async (name: string) => (await conn.getClient()).oneRun(name),
   upsert: (spec: IRun, name?: string) => {
     throw new IllegalOperationError('Upsert operation not supported for IRun.');
   },

@@ -13,61 +13,7 @@ import {
   ClientConnectionInfoType,
 } from '@microsoft/sds';
 
-// global client
-let client: LaboratoryClient | undefined;
-
-const configDir = path.join(os.homedir(), '.sds');
-const connFilePath = 'sds.yaml';
-const tokenCachePath = 'accessTokens.json';
-
-const cachePlugin = {
-  async readFromStorage() {
-    return readConfig(tokenCachePath);
-  },
-  async writeToStorage(getMergedState: (oldState: string) => string) {
-    let oldFile = '';
-    try {
-      oldFile = await readConfig(tokenCachePath);
-    } finally {
-      const mergedState = getMergedState(oldFile);
-      await writeConfig(tokenCachePath, mergedState);
-    }
-  },
-};
-
-export async function initConnection(host: string) {
-  const labUrl = new url.URL(host);
-  const endpoint = labUrl.href;
-
-  const connectionInfo = await new LaboratoryClient(
-    endpoint
-  ).negotiateConnection();
-  const config: IConnectConfiguration = {
-    endpoint,
-    ...connectionInfo,
-  };
-  await writeConfig(connFilePath, yaml.safeDump(config));
-  const newClient = buildClient(config);
-  await newClient.validateConnection();
-  client = newClient;
-}
-
-export async function getLabClient(): Promise<LaboratoryClient> {
-  try {
-    if (client) {
-      return client;
-    }
-
-    const text = await readConfig(connFilePath);
-    const config = validate(ConnectConfigurationType, yaml.safeLoad(text));
-    client = buildClient(config);
-    return client;
-  } catch {
-    throw new IllegalOperationError(
-      'No laboratory connection. Use the "connect" command to specify a laboratory.'
-    );
-  }
-}
+const defaultConnFilePath = 'sds.yaml';
 
 const ConnectConfigurationType = t.intersection([
   t.type({
@@ -86,68 +32,138 @@ const ConnectConfigurationType = t.intersection([
 ]);
 type IConnectConfiguration = t.TypeOf<typeof ConnectConfigurationType>;
 
-function acquireAADAccessToken(config: IConnectConfiguration) {
-  if (config.type !== 'aad') {
-    throw new Error(
-      'Cannot retrieve an AAD access token for a non-AAD connection'
-    );
+export class LaboratoryConnection {
+  static configDir: string = path.join(os.homedir(), '.sds');
+
+  private client: LaboratoryClient | undefined;
+
+  connFilePath: string;
+  tokenCachePath: string;
+
+  constructor(connFilePath: string = defaultConnFilePath) {
+    this.connFilePath = connFilePath;
+    this.tokenCachePath = `${path.basename(connFilePath)}-accessTokens.json`;
   }
 
-  return async () => {
-    const pca = new msal.PublicClientApplication({
-      auth: {
-        clientId: config.clientId,
-        authority: config.authority,
-      },
-      cache: {
-        cachePlugin,
-      },
-    });
-    const cache = pca.getTokenCache();
+  async init(host: string) {
+    const labUrl = new url.URL(host);
+    const endpoint = labUrl.href;
 
+    const connectionInfo = await new LaboratoryClient(
+      endpoint
+    ).negotiateConnection();
+    const config: IConnectConfiguration = {
+      endpoint,
+      ...connectionInfo,
+    };
+    await this.writeConfig(yaml.safeDump(config));
+    const newClient = this.buildClient(config);
+    await newClient.validateConnection();
+    this.client = newClient;
+  }
+
+  async getClient(): Promise<LaboratoryClient> {
     try {
-      await cache.readFromPersistence();
-      const silentResult = await pca.acquireTokenSilent({
-        account: config.account!,
-        scopes: config.scopes,
-      });
-      cache.writeToPersistence();
-      return silentResult.accessToken;
-    } catch (e) {
-      const deviceCodeResult = await pca.acquireTokenByDeviceCode({
-        deviceCodeCallback: response => console.log(response.message),
-        scopes: config.scopes,
-      });
-      config.account = deviceCodeResult.account;
-      await writeConfig(connFilePath, yaml.safeDump(config));
-      cache.writeToPersistence();
-      return deviceCodeResult.accessToken;
+      if (this.client) {
+        return this.client;
+      }
+
+      const text = await this.readConfig();
+      const config = validate(ConnectConfigurationType, yaml.safeLoad(text));
+      this.client = this.buildClient(config);
+      return this.client;
+    } catch {
+      throw new IllegalOperationError(
+        'No laboratory connection. Use the "connect" command to specify a laboratory.'
+      );
     }
-  };
-}
-
-function buildClient(config: IConnectConfiguration): LaboratoryClient {
-  const tokenRetriever =
-    config.type === 'aad' ? acquireAADAccessToken(config) : undefined;
-  return new LaboratoryClient(config.endpoint, tokenRetriever);
-}
-
-async function readConfig(filePath: string): Promise<string> {
-  const fullPath = path.join(configDir, filePath);
-  try {
-    return await fs.readFile(fullPath, 'utf8');
-  } catch (e) {
-    const err = e as NodeJS.ErrnoException;
-    if (err.code === 'ENOENT') {
-      return '';
-    }
-
-    throw e;
   }
-}
 
-async function writeConfig(filePath: string, data: string): Promise<void> {
-  const fullPath = path.join(configDir, filePath);
-  await fs.mkdir(configDir, { recursive: true });
-  await fs.writeFile(fullPath, data);
+  private buildClient(config: IConnectConfiguration): LaboratoryClient {
+    const tokenRetriever =
+      config.type === 'aad' ? this.acquireAADAccessToken(config) : undefined;
+    return new LaboratoryClient(config.endpoint, tokenRetriever);
+  }
+
+  private async readConfig(): Promise<string> {
+    const fullPath = path.join(
+      LaboratoryConnection.configDir,
+      this.connFilePath
+    );
+    return await fs.readFile(fullPath, 'utf8');
+  }
+
+  private async writeConfig(data: string): Promise<void> {
+    const fullPath = path.join(
+      LaboratoryConnection.configDir,
+      this.connFilePath
+    );
+    await fs.mkdir(LaboratoryConnection.configDir, { recursive: true });
+    await fs.writeFile(fullPath, data);
+  }
+
+  private acquireAADAccessToken(config: IConnectConfiguration) {
+    if (config.type !== 'aad') {
+      throw new Error(
+        'Cannot retrieve an AAD access token for a non-AAD connection'
+      );
+    }
+
+    return async () => {
+      const tokenCachePath = this.tokenCachePath;
+      const pca = new msal.PublicClientApplication({
+        auth: {
+          clientId: config.clientId,
+          authority: config.authority,
+        },
+        cache: {
+          cachePlugin: {
+            async readFromStorage() {
+              const fullPath = path.join(
+                LaboratoryConnection.configDir,
+                tokenCachePath
+              );
+              return await fs.readFile(fullPath, 'utf8');
+            },
+            async writeToStorage(getMergedState: (oldState: string) => string) {
+              let oldFile = '';
+              try {
+                oldFile = await this.readFromStorage();
+              } finally {
+                const mergedState = getMergedState(oldFile);
+                const fullPath = path.join(
+                  LaboratoryConnection.configDir,
+                  tokenCachePath
+                );
+                await fs.mkdir(LaboratoryConnection.configDir, {
+                  recursive: true,
+                });
+                await fs.writeFile(fullPath, mergedState);
+              }
+            },
+          },
+        },
+      });
+      const cache = pca.getTokenCache();
+
+      try {
+        await cache.readFromPersistence();
+        const silentResult = await pca.acquireTokenSilent({
+          account: config.account!,
+          scopes: config.scopes,
+        });
+        cache.writeToPersistence();
+        return silentResult.accessToken;
+      } catch (e) {
+        const deviceCodeResult = await pca.acquireTokenByDeviceCode({
+          deviceCodeCallback: response => console.log(response.message),
+          scopes: config.scopes,
+        });
+        config.account = deviceCodeResult.account;
+        await this.writeConfig(yaml.safeDump(config));
+        cache.writeToPersistence();
+        return deviceCodeResult.accessToken;
+      }
+    };
+  }
 }

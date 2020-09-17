@@ -1,7 +1,13 @@
 import { assert, expect } from 'chai';
 import 'mocha';
 
-import { leftJustify, rightJustify, formatChoices } from '../src/formatting';
+import {
+  leftJustify,
+  rightJustify,
+  formatChoices,
+  formatTable,
+  Alignment,
+} from '../src/formatting';
 
 describe('formatting', () => {
   describe('leftJustify', () => {
@@ -54,6 +60,23 @@ describe('formatting', () => {
       const choices = ['one', 'two', 'three'];
       const result = formatChoices(choices);
       assert.equal(result, 'one, two, or three');
+    });
+  });
+
+  describe('formatTable', () => {
+    it('renders a table', () => {
+      const alignments = [Alignment.LEFT, Alignment.LEFT, Alignment.RIGHT];
+      const rows = [
+        ['candidate1', 'suite1', '100'],
+        ['candidate1', 'suite2', '200'],
+        ['some-other-candidate', 'some-other-suite', '9001'],
+      ];
+      const result = [...formatTable(alignments, rows)].join('\n');
+
+      const expected = `candidate1             suite1              100
+candidate1             suite2              200
+some-other-candidate   some-other-suite   9001`;
+      assert.equal(result, expected);
     });
   });
 });
