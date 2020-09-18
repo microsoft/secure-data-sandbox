@@ -2,12 +2,5 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "experimentalDecorators": true,
-    "outDir": "dist",
-    "baseUrl": "../",
-    "paths": {
-      "@microsoft/sds": [
-        "sds/src"
-      ]
-    }
   }
 }

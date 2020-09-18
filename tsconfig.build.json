@@ -1,0 +1,14 @@
+{
+  "extends": "./node_modules/gts/tsconfig-google.json",
+  "compilerOptions": {
+    "declarationMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@microsoft/sds/*": ["packages/sds/dist/*"]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

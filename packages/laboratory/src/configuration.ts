@@ -3,7 +3,7 @@ import { QueueConfiguration } from '@microsoft/sds';
 import {
   AzureCredential,
   ParseQueueConfiguration,
-} from '@microsoft/sds/dist/configuration';
+} from '@microsoft/sds/configuration';
 import {
   AzureSqlDatabaseConfiguration,
   DatabaseConfiguration,

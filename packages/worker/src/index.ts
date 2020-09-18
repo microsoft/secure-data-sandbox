@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import * as k8s from '@kubernetes/client-node';
-import { configuration, GetQueue, PipelineRun } from '@microsoft/sds';
+import { PipelineRun, GetQueue } from '@microsoft/sds';
+import { ParseQueueConfiguration } from '@microsoft/sds/configuration';
 import { ArgoWorker } from './argoWorker';
 
 async function main() {
