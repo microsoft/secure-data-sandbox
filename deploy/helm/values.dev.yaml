@@ -15,6 +15,7 @@ runs:
   namespace: runs
 
 worker:
+  namespace: worker
   image: acanthamoeba/sds-worker
   queueMode: azure
   queueEndpoint: https://<storageaccount>.queue.core.windows.net/runs
