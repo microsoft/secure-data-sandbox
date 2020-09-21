@@ -89,7 +89,8 @@ describe('laboratory/runs', () => {
           ],
         },
         {
-          image: benchmark1.stages[1].image!,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          image: (benchmark1.stages[1] as any).image,
           name: 'scoring',
           volumes: [
             {

@@ -23,7 +23,6 @@
     "compile": "tsc -p tsconfig.build.json",
     "fix": "gts fix",
     "prepare": "npm run compile",
-    "pretest": "npm run compile",
     "posttest": "npm run check",
     "test": "nyc ts-mocha"
   },
@@ -36,10 +35,12 @@
     "nyc": "^15.1.0",
     "source-map-support": "^0.5.19",
     "ts-mocha": "^7.0.0",
-    "typescript": "^4.0.2"
+    "typescript": "^4.0.3"
   },
   "dependencies": {
+    "@kubernetes/client-node": "^0.12.1",
     "@microsoft/sds": "*",
-    "@kubernetes/client-node": "^0.12.0"
+    "applicationinsights": "^1.8.7",
+    "stream-buffers": "^3.0.2"
   }
 }

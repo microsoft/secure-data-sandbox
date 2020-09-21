@@ -60,9 +60,6 @@ Copy `.env.template` to `.env` and enter the data returned by the CLI. A transla
 #### Running
 
 ```shell
-# Load the values into your shell
-set -o allexport; source .env; set +o allexport
-
 # Start the laboratory
 npm run laboratory
 
@@ -94,7 +91,7 @@ Update `deploy/helm/values.dev.yaml` with the values that match your environment
 ### Install SDS
 
 ```shell
-helm install sds deploy/helm --values deploy/helm/values.dev.yaml
+helm upgrade --install sds deploy/helm --values deploy/helm/values.dev.yaml
 ```
 
 ### Iterating on the Worker

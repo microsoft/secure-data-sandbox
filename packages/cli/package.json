@@ -23,7 +23,6 @@
     "compile": "tsc -p tsconfig.build.json",
     "fix": "gts fix",
     "prepare": "npm run compile",
-    "pretest": "npm run compile",
     "posttest": "npm run check",
     "start": "ts-node src/index.ts",
     "test": "nyc ts-mocha"
@@ -43,12 +42,14 @@
     "nyc": "^15.1.0",
     "source-map-support": "^0.5.19",
     "ts-mocha": "^7.0.0",
-    "typescript": "^4.0.2",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.3",
     "uuid": "^8.3.0"
   },
   "dependencies": {
-    "@microsoft/sds": "*",
     "@azure/msal-node": "^1.0.0-alpha.5",
+    "@microsoft/sds": "*",
+    "applicationinsights": "^1.8.7",
     "axios": "^0.19.2",
     "commander": "^6.1.0",
     "fp-ts": "^2.8.2",

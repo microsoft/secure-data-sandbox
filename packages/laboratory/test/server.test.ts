@@ -97,10 +97,7 @@ describe('laboratory/server', () => {
 
     it('upsertBenchmark()', async () => {
       let observed: IBenchmark;
-      lab.upsertBenchmark = async (
-        benchmark: IBenchmark,
-        name?: string
-      ): Promise<void> => {
+      lab.upsertBenchmark = async (benchmark: IBenchmark): Promise<void> => {
         observed = benchmark;
       };
 
@@ -160,10 +157,7 @@ describe('laboratory/server', () => {
 
     it('upsertCandidate()', async () => {
       let observed: ICandidate;
-      lab.upsertCandidate = async (
-        candidate: ICandidate,
-        name?: string
-      ): Promise<void> => {
+      lab.upsertCandidate = async (candidate: ICandidate): Promise<void> => {
         observed = candidate;
       };
 
@@ -223,7 +217,7 @@ describe('laboratory/server', () => {
 
     it('upsertSuite()', async () => {
       let observed: ISuite;
-      lab.upsertSuite = async (suite: ISuite, name?: string): Promise<void> => {
+      lab.upsertSuite = async (suite: ISuite): Promise<void> => {
         observed = suite;
       };
 

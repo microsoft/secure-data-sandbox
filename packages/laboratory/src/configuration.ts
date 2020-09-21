@@ -1,9 +1,9 @@
 import * as os from 'os';
-import { QueueConfiguration } from '@microsoft/sds';
 import {
+  QueueConfiguration,
   AzureCredential,
   ParseQueueConfiguration,
-} from '@microsoft/sds/configuration';
+} from '@microsoft/sds';
 import {
   AzureSqlDatabaseConfiguration,
   DatabaseConfiguration,

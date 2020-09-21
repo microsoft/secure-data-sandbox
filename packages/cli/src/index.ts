@@ -395,13 +395,13 @@ const suiteOps: ISpecOps<ISuite> = {
 
 const runOps: ISpecOps<IRun> = {
   name: () => 'run',
-  load: (specFile: string) => {
+  load: () => {
     throw new IllegalOperationError('Load operation not supported for IRun.');
   },
   format: (spec: IRun) => formatSpec(spec),
   all: async () => (await conn.getClient()).allRuns(),
   one: async (name: string) => (await conn.getClient()).oneRun(name),
-  upsert: (spec: IRun, name?: string) => {
+  upsert: () => {
     throw new IllegalOperationError('Upsert operation not supported for IRun.');
   },
 };

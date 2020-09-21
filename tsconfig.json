@@ -1,8 +1,9 @@
 {
   "extends": "./tsconfig.build.json",
   "compilerOptions": {
+    "baseUrl": ".",
     "paths": {
-      "@microsoft/sds/*": ["packages/sds/src/*"]
+      "@microsoft/sds": ["packages/sds/src"]
     }
   }
 }

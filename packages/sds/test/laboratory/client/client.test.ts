@@ -50,7 +50,7 @@ describe('laboratory/client', () => {
       let request: nock.Body;
       nock(endpoint)
         .put(`/benchmarks/${benchmark1.name}`)
-        .reply(200, (uri: string, body: nock.Body) => {
+        .reply(200, (_uri: string, body: nock.Body) => {
           request = body;
         });
 
@@ -62,12 +62,9 @@ describe('laboratory/client', () => {
 
     it('upsertBenchmark() - name mismatch', async () => {
       const badName = benchmark1.name + '123';
-      let request: nock.Body;
       nock(endpoint)
         .put(`/benchmarks/${badName}`)
-        .reply(200, (uri: string, body: nock.Body) => {
-          request = body;
-        });
+        .reply(200, () => {});
 
       const client = new LaboratoryClient(endpoint);
       await assert.isRejected(client.upsertBenchmark(benchmark1, badName));
@@ -102,7 +99,7 @@ describe('laboratory/client', () => {
       let request: nock.Body;
       nock(endpoint)
         .put(`/candidates/${candidate1.name}`)
-        .reply(200, (uri: string, body: nock.Body) => {
+        .reply(200, (_uri: string, body: nock.Body) => {
           request = body;
         });
 
@@ -114,12 +111,9 @@ describe('laboratory/client', () => {
 
     it('upsertCandidate() - name mismatch', async () => {
       const badName = candidate1.name + '123';
-      let request: nock.Body;
       nock(endpoint)
         .put(`/candidates/${badName}`)
-        .reply(200, (uri: string, body: nock.Body) => {
-          request = body;
-        });
+        .reply(200, () => {});
 
       const client = new LaboratoryClient(endpoint);
       await assert.isRejected(client.upsertCandidate(candidate1, badName));
@@ -152,7 +146,7 @@ describe('laboratory/client', () => {
       let request: nock.Body;
       nock(endpoint)
         .put(`/suites/${suite1.name}`)
-        .reply(200, (uri: string, body: nock.Body) => {
+        .reply(200, (_uri: string, body: nock.Body) => {
           request = body;
         });
 
@@ -164,12 +158,9 @@ describe('laboratory/client', () => {
 
     it('upsertSuite() - name mismatch', async () => {
       const badName = suite1.name + '123';
-      let request: nock.Body;
       nock(endpoint)
         .put(`/suites/${badName}`)
-        .reply(200, (uri: string, body: nock.Body) => {
-          request = body;
-        });
+        .reply(200, () => {});
 
       const client = new LaboratoryClient(endpoint);
       await assert.isRejected(client.upsertSuite(suite1, badName));
@@ -202,7 +193,7 @@ describe('laboratory/client', () => {
       let request: nock.Body;
       nock(endpoint)
         .post('/runs')
-        .reply(202, (uri: string, body: nock.Body) => {
+        .reply(202, (_uri: string, body: nock.Body) => {
           request = body;
           return run1;
         });
@@ -217,7 +208,7 @@ describe('laboratory/client', () => {
       let request: nock.Body;
       nock(endpoint)
         .patch(`/runs/${run1.name}`)
-        .reply(204, (uri: string, body: nock.Body) => {
+        .reply(204, (_uri: string, body: nock.Body) => {
           request = body;
         });
 
@@ -234,7 +225,7 @@ describe('laboratory/client', () => {
       let request: nock.Body;
       nock(endpoint)
         .post(`/runs/${run1.name}/results`)
-        .reply(204, (uri: string, body: nock.Body) => {
+        .reply(204, (_uri: string, body: nock.Body) => {
           request = body;
         });
 

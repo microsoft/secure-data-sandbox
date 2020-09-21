@@ -1,11 +1,19 @@
 #!/usr/bin/env node
 import * as k8s from '@kubernetes/client-node';
-import { PipelineRun, GetQueue } from '@microsoft/sds';
-import { ParseQueueConfiguration } from '@microsoft/sds/configuration';
+import {
+  PipelineRun,
+  GetQueue,
+  InitTelemetry,
+  ParseQueueConfiguration,
+} from '@microsoft/sds';
 import { ArgoWorker } from './argoWorker';
+import { defaultClient as telemetryClient } from 'applicationinsights';
+import { Events } from './telemetry';
 
 async function main() {
-  const queueConfig = await configuration.ParseQueueConfiguration();
+  InitTelemetry();
+
+  const queueConfig = await ParseQueueConfiguration();
   const queue = GetQueue<PipelineRun>(queueConfig);
 
   const kc = new k8s.KubeConfig();
@@ -15,6 +23,10 @@ async function main() {
   const worker = new ArgoWorker(queue, kc);
   worker.start();
   console.log('Worker started');
+
+  telemetryClient.trackEvent({
+    name: Events.WorkerStarted,
+  });
 }
 
 main().catch(e => console.error(e));
