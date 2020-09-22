@@ -5,6 +5,7 @@ set -euo pipefail
 
 # Azure CLI
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+az --version
 
 # kubectl
 sudo az aks install-cli
