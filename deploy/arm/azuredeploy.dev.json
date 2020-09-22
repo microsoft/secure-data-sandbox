@@ -40,7 +40,8 @@
     },
     {
       "dependsOn": [
-        "[resourceId('Microsoft.Network/applicationSecurityGroups', variables('dev'))]"
+        "[resourceId('Microsoft.Network/applicationSecurityGroups', variables('dev'))]",
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('dev'))]"
       ],
       "name": "dev",
       "type": "Microsoft.Network/networkSecurityGroups",
@@ -49,7 +50,7 @@
       "properties": {
         "securityRules": [
           {
-            "name": "ssh",
+            "name": "ssh-asg",
             "properties": {
               "description": "Allow SSH for development",
               "priority": 2000,
@@ -64,6 +65,20 @@
                   "id": "[resourceId('Microsoft.Network/applicationSecurityGroups', variables('dev'))]"
                 }
               ]
+            }
+          },
+          {
+            "name": "ssh-publicip",
+            "properties": {
+              "description": "Allow SSH for development",
+              "priority": 2010,
+              "direction": "Inbound",
+              "access": "Allow",
+              "protocol": "TCP",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "22",
+              "destinationAddressPrefix": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('dev'))).ipAddress]"
             }
           }
         ]
