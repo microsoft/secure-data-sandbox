@@ -3,6 +3,7 @@
   "all": true,
   "exclude": [
     "**/*.js",
+    "**/*.d.ts",
     "**/test/**/*.ts"
   ],
   "reporter": [
