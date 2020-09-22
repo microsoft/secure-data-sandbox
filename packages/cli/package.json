@@ -22,8 +22,7 @@
     "clean": "gts clean",
     "compile": "tsc -p tsconfig.build.json",
     "fix": "gts fix",
-    "preinstall": "npx npm-force-resolutions",
-    "prepare": "npm run compile",
+    "prepare": "npx npm-force-resolutions && npm run compile",
     "posttest": "npm run check",
     "start": "ts-node src/index.ts",
     "test": "nyc ts-mocha"
