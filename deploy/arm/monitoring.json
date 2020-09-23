@@ -1,0 +1,25 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "variables": {
+    "appInsights": "sds"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2018-05-01-preview",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('appInsights')]",
+      "properties": {
+        "Application_Type": "web"
+      }
+    }
+  ],
+  "outputs": {
+    "instrumentationKey": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsights'))).InstrumentationKey]"
+    }
+  }
+}

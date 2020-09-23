@@ -301,6 +301,30 @@
     "workerIdentityId": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))).principalId]"
+    },
+    "workerIdentityResourceId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))]"
+    },
+    "workerIdentityClientId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))).clientId]"
+    },
+    "benchmarkIdentityResourceId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('benchmarkIdentity'))]"
+    },
+    "benchmarkIdentityClientId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('benchmarkIdentity'))).clientId]"
+    },
+    "candidateIdentityResourceId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('candidateIdentity'))]"
+    },
+    "candidateIdentityClientId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('candidateIdentity'))).clientId]"
     }
   }
 }

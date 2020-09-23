@@ -43,6 +43,10 @@ spec:
           value: {{ .Values.worker.queueEndpoint }}
         - name: AZURE_CLIENT_ID
           value: {{ .Values.identities.worker.clientId }}
+        {{- if .Values.instrumentationKey }}
+        - name: APPINSIGHTS_INSTRUMENTATIONKEY
+          value: {{ .Values.instrumentationKey }}
+        {{- end }}
         {{- if and .Values.identities.worker.tenantId .Values.identities.worker.clientSecret }}
         - name: AZURE_TENANT_ID
           value: {{ .Values.identities.worker.tenantId }}

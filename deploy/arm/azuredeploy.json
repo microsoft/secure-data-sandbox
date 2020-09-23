@@ -23,6 +23,18 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2017-05-10",
+      "name": "monitoring",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(uri(variables('assetsBaseUrl'), './arm/monitoring.json'), variables('deploymentSas'))]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
       "name": "network",
       "resourceGroup": "[resourceGroup().name]",
       "properties": {
@@ -85,7 +97,8 @@
     },
     {
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'queue')]"
+        "[resourceId('Microsoft.Resources/deployments', 'queue')]",
+        "[resourceId('Microsoft.Resources/deployments', 'monitoring')]"
       ],
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2017-05-10",
@@ -94,6 +107,9 @@
       "properties": {
         "mode": "Incremental",
         "parameters": {
+          "instrumentationKey": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring')).outputs.instrumentationKey.value]"
+          },
           "queueEndpoint": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'queue')).outputs.runsEndpoint.value]"
           }
@@ -164,9 +180,37 @@
     }
   ],
   "outputs": {
-    "assetsBaseUrl": {
+    "instrumentationKey": {
       "type": "string",
-      "value": "[variables('assetsBaseUrl')]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring')).outputs.instrumentationKey.value]"
+    },
+    "runsEndpoint": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'queue')).outputs.runsEndpoint.value]"
+    },
+    "workerIdentityResourceId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.workerIdentityResourceId.value]"
+    },
+    "workerIdentityClientId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.workerIdentityClientId.value]"
+    },
+    "benchmarkIdentityResourceId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.benchmarkIdentityResourceId.value]"
+    },
+    "benchmarkIdentityClientId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.benchmarkIdentityClientId.value]"
+    },
+    "candidateIdentityResourceId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.candidateIdentityResourceId.value]"
+    },
+    "candidateIdentityClientId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.candidateIdentityClientId.value]"
     }
   }
 }

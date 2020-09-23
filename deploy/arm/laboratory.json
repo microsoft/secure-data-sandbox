@@ -2,6 +2,13 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "instrumentationKey": {
+      "type": "string"
+    },
+    "laboratoryImage": {
+      "type": "string",
+      "defaultValue": "acanthamoeba/sds-laboratory"
+    },
     "queueEndpoint": {
       "type": "string"
     },
@@ -198,10 +205,13 @@ $conn.Close()
         "serverFarmId": "[resourceId('Microsoft.Web/serverFarms', variables('laboratory'))]",
         "siteConfig": {
           "alwaysOn": true,
-          "appCommandLine": "node node_modules/@microsoft/sds-laboratory/dist/main.js",
-          "linuxFxVersion": "NODE|12-lts",
+          "linuxFxVersion": "[concat('DOCKER|', parameters('laboratoryImage'))]",
           "minTlsVersion": "1.2",
           "appSettings": [
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[parameters('instrumentationKey')]"
+            },
             {
               "name": "AZURE_CLIENT_ID",
               "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))).clientId]"
@@ -225,10 +235,6 @@ $conn.Close()
             {
               "name": "SQL_DB",
               "value": "[variables('laboratory')]"
-            },
-            {
-              "name": "WEBSITE_RUN_FROM_PACKAGE",
-              "value": "1"
             }
           ]
         }

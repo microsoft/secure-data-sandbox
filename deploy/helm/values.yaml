@@ -1,5 +1,7 @@
 # Default values for sds-worker.
 
+# instrumentationKey: 
+
 argoController:
   # Set `containerRuntimeExecutor: pns` when developing on kind
   containerRuntimeExecutor: docker
