@@ -5,11 +5,90 @@
     "createVnet": {
       "type": "bool",
       "defaultValue": true
+    },
+    "allowedExternalEndpoints": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "mode": {
+      "type": "string",
+      "defaultValue": "production",
+      "allowedValues": [
+        "development",
+        "production"
+      ]
     }
   },
   "variables": {
     "vnetAddressPrefix": "10.0.0.0/16",
     "privateLinkSubnetPrefix": "10.0.0.0/24",
+    "defaultFirewallApplicationRules": [
+      {
+        "name": "aks-required",
+        "sourceAddresses": [ "*" ],
+        "targetFqdns": [
+          "mcr.microsoft.com",
+          "*.cdn.mscr.io",
+          "*.data.mcr.microsoft.com",
+          "management.azure.com",
+          "login.microsoftonline.com",
+          "packages.microsoft.com",
+          "acs-mirror.azureedge.net"
+        ],
+        "protocols": [
+          {
+            "port": 443,
+            "protocolType": "Https"
+          }
+        ]
+      },
+      {
+        "name": "ubuntu-updates",
+        "sourceAddresses": [ "*" ],
+        "targetFqdns": [
+          "security.ubuntu.com",
+          "azure.archive.ubuntu.com",
+          "changelogs.ubuntu.com"
+        ],
+        "protocols": [
+          {
+            "port": 80,
+            "protocolType": "Http"
+          }
+        ]
+      }
+    ],
+    "devFirewallApplicationRules": [
+      {
+        "name": "dev-docker-hub",
+        "sourceAddresses": [ "*" ],
+        "targetFqdns": [
+          "*.docker.io",
+          "*.docker.com"
+        ],
+        "protocols": [
+          {
+            "port": 443,
+            "protocolType": "Https"
+          }
+        ]
+      }
+    ],
+    "benchmarkFirewallApplicationRules": [
+      {
+        "name": "benchmark",
+        "sourceAddresses": [ "*" ],
+        "targetFqdns": "[parameters('allowedExternalEndpoints')]",
+        "protocols": [
+          {
+            "port": 443,
+            "protocolType": "Https"
+          }
+        ]
+      }
+    ],
+    "baseFirewallApplicationRules": "[if(equals(parameters('mode'), 'development'), variables('defaultFirewallApplicationRules'), union(variables('defaultFirewallApplicationRules'), variables('devFirewallApplicationRules')))]",
+    "firewallApplicationRules": "[union(variables('baseFirewallApplicationRules'), variables('benchmarkFirewallApplicationRules'))]",
     "firewallSubnetPrefix": "10.0.1.0/26",
     "detonationChamberSubnetPrefix": "10.0.3.0/24",
     "detonationChamber": "detonationChamber",
@@ -117,104 +196,19 @@
         ],
         "applicationRuleCollections": [
           {
-            "name": "aks",
+            "name": "sds",
             "properties": {
               "action": {
                 "type": "Allow"
               },
               "priority": 100,
-              "rules": [
-                {
-                  "name": "aks",
-                  "sourceAddresses": [ "*" ],
-                  "targetFqdns": [
-                    "mcr.microsoft.com",
-                    "*.cdn.mscr.io",
-                    "*.data.mcr.microsoft.com",
-                    "management.azure.com",
-                    "login.microsoftonline.com",
-                    "packages.microsoft.com",
-                    "acs-mirror.azureedge.net"
-                  ],
-                  "protocols": [
-                    {
-                      "port": 443,
-                      "protocolType": "Https"
-                    }
-                  ]
-                },
-                {
-                  "name": "updates",
-                  "sourceAddresses": ["*"],
-                  "targetFqdns": [
-                    "security.ubuntu.com",
-                    "azure.archive.ubuntu.com",
-                    "changelogs.ubuntu.com"
-                  ],
-                  "protocols": [
-                    {
-                      "port": 80,
-                      "protocolType": "Http"
-                    }
-                  ]
-                }
-              ]
-            }
-          },
-          {
-            "name": "dev",
-            "properties": {
-              "action": {
-                "type": "Allow"
-              },
-              "priority": 1000,
-              "rules": [
-                {
-                  "name": "docker",
-                  "sourceAddresses": [ "*" ],
-                  "targetFqdns": [
-                    "*.docker.io",
-                    "*.docker.com"
-                  ],
-                  "protocols": [
-                    {
-                      "port": 443,
-                      "protocolType": "Https"
-                    }
-                  ]
-                }
-              ]
-            }
-          },
-          {
-            "name": "benchmarks",
-            "properties": {
-              "action": {
-                "type": "Allow"
-              },
-              "priority": 1100,
-              "rules": [
-                {
-                  "name": "catdetection",
-                  "sourceAddresses": [ "*" ],
-                  "targetFqdns": [
-                    "placekitten.com",
-                    "*.cognitiveservices.azure.com"
-                  ],
-                  "protocols": [
-                    {
-                      "port": 443,
-                      "protocolType": "Https"
-                    }
-                  ]
-                }
-              ]
+              "rules": "[variables('firewallApplicationRules')]"
             }
           }
         ],
         "networkRuleCollections": [
           {
-            "name": "aks",
+            "name": "sds",
             "properties": {
               "action": {
                 "type": "Allow"
@@ -222,25 +216,14 @@
               "priority": 100,
               "rules": [
                 {
-                  "name": "ntp",
+                  "name": "ubuntu-ntp",
                   "sourceAddresses": [ "*" ],
                   "destinationFqdns": [ "ntp.ubuntu.com" ],
                   "destinationPorts": [ "123" ],
                   "protocols": [ "UDP" ]
-                }
-              ]
-            }
-          },
-          {
-            "name": "privateEndpoints",
-            "properties": {
-              "action": {
-                "type": "Allow"
-              },
-              "priority": 200,
-              "rules": [
+                },
                 {
-                  "name": "https",
+                  "name": "privateEndpoints",
                   "sourceAddresses": [
                     "[variables('detonationChamberSubnetPrefix')]"
                   ],

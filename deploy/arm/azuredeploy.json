@@ -13,6 +13,18 @@
     "deploymentSas": {
       "type": "securestring",
       "defaultValue": ""
+    },
+    "mode": {
+      "type": "string",
+      "defaultValue": "production",
+      "allowedValues": [
+        "development",
+        "production"
+      ]
+    },
+    "allowedExternalEndpoints": {
+      "type": "array",
+      "defaultValue": []
     }
   },
   "variables": {
@@ -42,6 +54,12 @@
         "parameters": {
           "createVnet": {
             "value": "[parameters('createVnet')]"
+          },
+          "mode": {
+            "value": "[parameters('mode')]"
+          },
+          "allowedExternalEndpoints": {
+            "value": "[parameters('allowedExternalEndpoints')]"
           }
         },
         "templateLink": {

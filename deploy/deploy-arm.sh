@@ -63,11 +63,14 @@ validate_arguments() {
 }
 
 deploy_environment() {
+  PARAMS_FILE="parameters.json"
+
   if az network vnet show -g $RESOURCE_GROUP -n vnet &>/dev/null; then
     CREATE_VNET=false
+    PARAMS_FILE="parameters.dev.json"
   fi
 
-  az deployment group create -g $RESOURCE_GROUP -u "${ASSETS_BASE}/arm/azuredeploy.json?${SAS}" -p "assetsBaseUrl=$ASSETS_BASE" "createVnet=$CREATE_VNET" "deploymentSas=$SAS"
+  az deployment group create -g $RESOURCE_GROUP -p "${ASSETS_BASE}/arm/${PARAMS_FILE}" -u "${ASSETS_BASE}/arm/azuredeploy.json?${SAS}" -p "assetsBaseUrl=$ASSETS_BASE" "createVnet=$CREATE_VNET" "deploymentSas=$SAS"
 }
 
 deploy_dev() {
