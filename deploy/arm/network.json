@@ -87,7 +87,7 @@
         ]
       }
     ],
-    "baseFirewallApplicationRules": "[if(equals(parameters('mode'), 'development'), variables('defaultFirewallApplicationRules'), union(variables('defaultFirewallApplicationRules'), variables('devFirewallApplicationRules')))]",
+    "baseFirewallApplicationRules": "[if(equals(parameters('mode'), 'development'), union(variables('defaultFirewallApplicationRules'), variables('devFirewallApplicationRules')), variables('defaultFirewallApplicationRules'))]",
     "firewallApplicationRules": "[union(variables('baseFirewallApplicationRules'), variables('benchmarkFirewallApplicationRules'))]",
     "firewallSubnetPrefix": "10.0.1.0/26",
     "detonationChamberSubnetPrefix": "10.0.3.0/24",

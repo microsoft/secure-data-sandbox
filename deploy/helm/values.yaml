@@ -5,14 +5,14 @@
 argoController:
   # Set `containerRuntimeExecutor: pns` when developing on kind
   containerRuntimeExecutor: docker
-  executorImage: argoproj/argoexec:v2.9.3
-  image: argoproj/workflow-controller:v2.9.3
+  executorImage: argoproj/argoexec:v2.11.0
+  image: argoproj/workflow-controller:v2.11.0
   namespace: argo
 
 argoServer:
   # Determines whether to deploy the optional argo-server UX
   enabled: false
-  image: argoproj/argocli:v2.9.3
+  image: argoproj/argocli:v2.11.0
 
 runs:
   namespace: runs
@@ -23,6 +23,10 @@ worker:
   queueMode: azure
   # Set the queue endpoint
   # queueEndpoint: https://<storageaccount>.queue.core.windows.net/runs
+  # Transient storage for runs. The AKS kubelet identity will need Storage Account Contributor over this account
+  storage: {}
+  #   resourceGroup:
+  #   storageAccount: 
 
 identities:
   worker: {}

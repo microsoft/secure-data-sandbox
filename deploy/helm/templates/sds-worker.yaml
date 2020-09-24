@@ -31,7 +31,7 @@ spec:
       containers:
       - name: worker
         image: {{ .Values.worker.image }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         resources:
           limits:
             cpu: "1"
