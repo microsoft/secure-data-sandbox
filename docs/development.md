@@ -45,15 +45,24 @@ To deploy the ARM template, first create an SSH key on the machine you intend to
 
 #### Using local templates (optional)
 
->If you are developing changes in the ARM templates and wish to use them directly, you first need to make them available over the internet (due to limitations in the Azure CLI). The easiest way to do this is using the [ngrok](https://ngrok.com/download) tool. Once you have installed the ngrok tool, you can expose the ARM template folder by running the command:
->`ngrok http "file:///<full path to the repo>/secure-data-sandbox/deploy"`
+>If you are developing changes in the ARM templates and wish to use them directly, you first need to make them available over the internet (due to limitations in the Azure CLI). The easiest way to do this is using the [ngrok](https://ngrok.com/download) tool. 
 
->This will provide you a URL which you can use as the `assets_base_uri` in the deployment >script (as used below).
-
-Once you have created the SSH key (and optionally run ngrok), run the following Azure CLI command:
+This repository is configured to automatically configure and run ngrok by using the following command:
 
 ```bash
-# If you are using the local templates, include the --assets flag and the ngrok url
+# install dependencies
+npm install
+
+# Start the local ngrok tunnel
+npm run dev:azure
+```
+
+>This will locally run ngrok, and autopopulate the `assets_base_uri` for `deploy.sh`.
+
+Once you have created the SSH key, run the following Azure CLI command:
+
+```bash
+# If you are running ngrok manually, or using remote ARM templates, provide the assets_base_uri
 ./deploy/arm/deploy.sh -g <resource_group> [--assets <assets_base_uri>] --dev
 ```
 
@@ -146,7 +155,7 @@ Update `deploy/helm/values.dev.yaml` with the values that match your environment
 
 If this is your first time using the K8s cluster, be sure that you have installed the AAD Identity Binding on the AKS cluster within the `kube-system` namespace.
 ```shell
-kubectl apply -f https://raw.githubusercontent.com/Azure/aad-pod-identity/master/deploy/infra/deployment-rbac.yaml -n kube-system
+kubectl apply -f https://raw.githubusercontent.com/Azure/aad-pod-identity/release-v1.6.0/deploy/infra/deployment-rbac.yaml -n kube-system
 ```
 Then, install SDS:
 
@@ -179,7 +188,3 @@ It can be useful to execute the samples rapidly. Scripts are provided to help yo
 
 * `scripts/sample-data.sh` - Execute the basic YAML files
 * `scripts/demo-catdetection.sh` - Run the cat detection demo (see [README](/samples/catdetection/README.md) for setup instructions)
-
-
-
-
