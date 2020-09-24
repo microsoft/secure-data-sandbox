@@ -5,5 +5,5 @@ benchmark: catdetection
 image: acanthamoeba/sds-candidate
 # TODO: move to secrets
 env:
-  API_KEY: <your api key here>
-  SERVICE_ENDPOINT: https://<your service>.cognitiveservices.azure.com/
+  API_KEY: da2d464244304a689a551780d229a7f2
+  SERVICE_ENDPOINT: https://cat-detection-test.cognitiveservices.azure.com/

@@ -15,10 +15,14 @@ argoServer:
 runs:
   namespace: runs
 
+resourceGroup: sbux-integration-test-rg
+
+
 worker:
   image: acanthamoeba/sds-worker
   queueMode: azure
-  queueEndpoint: https://<storageaccount>.queue.core.windows.net/runs
+  queueEndpoint: https://sbuxadlstest.queue.core.windows.net/runs
+  runsTempStorageAccount: sbuxadlstest
 
 identities:
   worker:

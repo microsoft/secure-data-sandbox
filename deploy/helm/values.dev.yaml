@@ -14,22 +14,25 @@ argoServer:
 runs:
   namespace: runs
 
+resourceGroup: sbux-integration-test-rg
+
 worker:
   image: acanthamoeba/sds-worker
   queueMode: azure
-  queueEndpoint: https://<storageaccount>.queue.core.windows.net/runs
+  queueEndpoint: https://sbuxadlstest.queue.core.windows.net/runs
+  runsTempStorageAccount: sbuxadlstest
 
 # Use Service Principals instead of Managed Identity
 identities:
   worker:
-    tenantId: 00000000-0000-0000-0000-000000000000
-    clientId: 00000000-0000-0000-0000-000000000000
-    clientSecret: 00000000-0000-0000-0000-000000000000
+    tenantId: 72f988bf-86f1-41af-91ab-2d7cd011db47
+    clientId: a611e5b8-abe2-4d31-a9f5-4e913a7b111f
+    clientSecret: jd53zAxA6xt-_ZCxz4i1r8UmfkJhH.WzG~
   benchmark:
-    tenantId: 00000000-0000-0000-0000-000000000000
-    clientId: 00000000-0000-0000-0000-000000000000
-    clientSecret: 00000000-0000-0000-0000-000000000000
+    tenantId: 72f988bf-86f1-41af-91ab-2d7cd011db47
+    clientId: a611e5b8-abe2-4d31-a9f5-4e913a7b111f
+    clientSecret: jd53zAxA6xt-_ZCxz4i1r8UmfkJhH.WzG~
   candidate:
-    tenantId: 00000000-0000-0000-0000-000000000000
-    clientId: 00000000-0000-0000-0000-000000000000
-    clientSecret: 00000000-0000-0000-0000-000000000000
+    tenantId: 72f988bf-86f1-41af-91ab-2d7cd011db47
+    clientId: a611e5b8-abe2-4d31-a9f5-4e913a7b111f
+    clientSecret: jd53zAxA6xt-_ZCxz4i1r8UmfkJhH.WzG~
