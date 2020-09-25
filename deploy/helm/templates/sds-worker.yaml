@@ -56,6 +56,10 @@ spec:
                 name: worker-identity-sp
                 key: clientSecret
         {{- end }}
+        {{- if .Values.worker.storage.storageClassName }}
+        - name: STORAGE_CLASS_NAME
+          value: {{ .Values.worker.storage.storageClassName }}
+        {{- end }}
 ---
 {{- if and .Values.identities.worker.tenantId .Values.identities.worker.clientSecret }}
 apiVersion: v1
@@ -85,5 +89,18 @@ spec:
   type: 0
   resourceID: {{ .Values.identities.worker.resourceId }}
   clientID: {{ .Values.identities.worker.clientId }}
+---
+{{- end }}
+{{- if .Values.worker.storage.createStorageClass }}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ .Values.worker.storage.storageClassName }}
+provisioner: file.csi.azure.com
+parameters:
+  resourceGroup: {{ .Values.worker.storage.resourceGroup }}
+  storageAccount: {{ .Values.worker.storage.storageAccount }}
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
 ---
 {{- end }}

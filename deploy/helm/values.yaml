@@ -1,6 +1,6 @@
 # Default values for sds-worker.
 
-# instrumentationKey: 
+# instrumentationKey: <appInsights-instrumentationKey>
 
 argoController:
   # Set `containerRuntimeExecutor: pns` when developing on kind
@@ -22,11 +22,13 @@ worker:
   image: acanthamoeba/sds-worker
   queueMode: azure
   # Set the queue endpoint
-  # queueEndpoint: https://<storageaccount>.queue.core.windows.net/runs
+  # queueEndpoint: https://<queue-storageaccount>.queue.core.windows.net/runs
   # Transient storage for runs. The AKS kubelet identity will need Storage Account Contributor over this account
-  storage: {}
-  #   resourceGroup:
-  #   storageAccount: 
+  storage:
+    createStorageClass: true
+    storageClassName: runs-transient
+    # resourceGroup: <sds-resource-group>
+    # storageAccount: <files-storageaccount>
 
 identities:
   worker: {}

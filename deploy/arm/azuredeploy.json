@@ -128,8 +128,8 @@
           "instrumentationKey": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring')).outputs.instrumentationKey.value]"
           },
-          "queueEndpoint": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'queue')).outputs.runsEndpoint.value]"
+          "runsQueueEndpoint": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'queue')).outputs.runsQueueEndpoint.value]"
           }
         },
         "templateLink": {
@@ -202,9 +202,13 @@
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring')).outputs.instrumentationKey.value]"
     },
-    "runsEndpoint": {
+    "runsQueueEndpoint": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'queue')).outputs.runsEndpoint.value]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'queue')).outputs.runsQueueEndpoint.value]"
+    },
+    "runsTransientStorageAccount": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.runsTransientStorageAccount.value]"
     },
     "workerIdentityResourceId": {
       "type": "string",

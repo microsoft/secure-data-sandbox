@@ -56,6 +56,21 @@
             "protocolType": "Http"
           }
         ]
+      },
+      {
+        "name": "app-insights-telemetry",
+        "sourceAddresses": [ "*" ],
+        "targetFqdns": [
+          "dc.applicationinsights.azure.com",
+          "dc.applicationinsights.azure.com",
+          "dc.services.visualstudio.com"
+        ],
+        "protocols": [
+          {
+            "port": 443,
+            "protocolType": "Https"
+          }
+        ]
       }
     ],
     "devFirewallApplicationRules": [

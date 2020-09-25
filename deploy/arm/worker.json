@@ -15,8 +15,8 @@
     "nodeCount": 2,
     "nodeResourceGroup": "[concat('sds-worker-', variables('suffix'))]",
     "nodeSize": "Standard_DS2_v2",
-    "storageAccount": "[concat('runs', variables('suffix'))]",
-    "fileEndpoint": "[concat(variables('storageAccount'), '-files')]",
+    "runsTransientStorageAccount": "[concat('runs', variables('suffix'))]",
+    "privateEndpoint": "[concat(variables('runsTransientStorageAccount'), '-files')]",
     "suffix": "[toLower(take(uniqueString(resourceGroup().id), 6))]",
     "benchmarkIdentity": "benchmark",
     "candidateIdentity": "candidate",
@@ -156,7 +156,7 @@
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
       "location": "[resourceGroup().location]",
-      "name": "[variables('storageAccount')]",
+      "name": "[variables('runsTransientStorageAccount')]",
       "kind": "StorageV2",
       "sku": {
         "name": "Standard_LRS"
@@ -173,13 +173,13 @@
       "resources": [
         {
           "dependsOn": [
-            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount'))]",
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('runsTransientStorageAccount'))]",
             "[resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))]"
           ],
           "type": "providers/roleAssignments",
           "apiVersion": "2018-09-01-preview",
           "location": "[resourceGroup().location]",
-          "name": "[concat('Microsoft.Authorization/', guid(concat(variables('aks'), variables('storageAccount'), 'StorageAccountContributor')))]",
+          "name": "[concat('Microsoft.Authorization/', guid(concat(variables('aks'), variables('runsTransientStorageAccount'), 'StorageAccountContributor')))]",
           "properties": {
             "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))).identityProfile.kubeletidentity.objectId]",
             "roleDefinitionId": "[variables('storageAccountContributorRoleId')]"
@@ -189,21 +189,21 @@
     },
     {
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount'))]"
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('runsTransientStorageAccount'))]"
       ],
       "type": "Microsoft.Network/privateEndpoints",
       "apiVersion": "2020-05-01",
       "location": "[resourceGroup().location]",
-      "name": "[variables('fileEndpoint')]",
+      "name": "[variables('privateEndpoint')]",
       "properties": {
         "privateLinkServiceConnections": [
           {
-            "name": "[variables('fileEndpoint')]",
+            "name": "[variables('privateEndpoint')]",
             "properties": {
               "groupIds": [
                 "file"
               ],
-              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount'))]"
+              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', variables('runsTransientStorageAccount'))]"
             }
           }
         ],
@@ -214,7 +214,7 @@
       "resources": [
         {
           "dependsOn": [
-            "[resourceId('Microsoft.Network/privateEndpoints', variables('fileEndpoint'))]"
+            "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpoint'))]"
           ],
           "type": "privateDnsZoneGroups",
           "apiVersion": "2020-05-01",
@@ -294,6 +294,10 @@
     "candidateIdentityClientId": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('candidateIdentity'))).clientId]"
+    },
+    "runsTransientStorageAccount": {
+      "type": "string",
+      "value": "[variables('runsTransientStorageAccount')]"
     }
   }
 }

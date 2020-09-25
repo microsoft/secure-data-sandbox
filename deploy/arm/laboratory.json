@@ -9,7 +9,7 @@
       "type": "string",
       "defaultValue": "acanthamoeba/sds-laboratory"
     },
-    "queueEndpoint": {
+    "runsQueueEndpoint": {
       "type": "string"
     },
     "sqlAdminPassword": {
@@ -222,7 +222,7 @@ $conn.Close()
             },
             {
               "name": "QUEUE_ENDPOINT",
-              "value": "[parameters('queueEndpoint')]"
+              "value": "[parameters('runsQueueEndpoint')]"
             },
             {
               "name": "SQL_MODE",
