@@ -7,6 +7,10 @@
     },
     "subnetId": {
       "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "defaultValue": []
     }
   },
   "variables": {
@@ -25,6 +29,7 @@
       "sku": {
         "name": "Standard_LRS"
       },
+      "tags": "[parameters('tags')]",
       "properties": {
         "accessTier": "Hot",
         "networkAcls": {
@@ -55,6 +60,7 @@
       "apiVersion": "2020-05-01",
       "location": "[resourceGroup().location]",
       "name": "[variables('privateEndpoint')]",
+      "tags": "[parameters('tags')]",
       "properties": {
         "privateLinkServiceConnections": [
           {

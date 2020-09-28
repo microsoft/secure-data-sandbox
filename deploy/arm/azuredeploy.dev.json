@@ -9,6 +9,10 @@
     "vmPassword": {
       "type": "securestring",
       "defaultValue": "[newGuid()]"
+    },
+    "tags": {
+      "type": "array",
+      "defaultValue": []
     }
   },
   "variables": {
@@ -28,6 +32,7 @@
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2020-05-01",
       "location": "[resourceGroup().location]",
+      "tags": "[parameters('tags')]",
       "properties": {
         "publicIPAllocationMethod": "Static"
       }
@@ -40,6 +45,7 @@
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2020-05-01",
       "location": "[resourceGroup().location]",
+      "tags": "[parameters('tags')]",
       "properties": {
         "securityRules": [
           {
@@ -67,6 +73,7 @@
       "apiVersion": "2020-05-01",
       "location": "[resourceGroup().location]",
       "name": "[concat('vnet/', variables('dev'))]",
+      "tags": "[parameters('tags')]",
       "properties": {
         "addressPrefix": "[variables('devSubnetPrefix')]",
         "networkSecurityGroup": {
@@ -83,6 +90,7 @@
       "apiVersion": "2020-05-01",
       "location": "[resourceGroup().location]",
       "name": "[variables('dev')]",
+      "tags": "[parameters('tags')]",
       "properties": {
         "ipConfigurations": [
           {
@@ -111,6 +119,7 @@
       "identity": {
         "type": "SystemAssigned"
       },
+      "tags": "[parameters('tags')]",
       "properties": {
         "hardwareProfile": {
           "vmSize": "[variables('vmSize')]"
@@ -197,6 +206,7 @@
       "apiVersion": "2017-05-10",
       "name": "dev-aks-rbac",
       "resourceGroup": "[variables('aksNodeResourceGroup')]",
+      "tags": "[parameters('tags')]",
       "properties": {
         "mode": "Incremental",
         "template": {

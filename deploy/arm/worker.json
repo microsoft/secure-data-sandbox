@@ -7,6 +7,10 @@
     },
     "subnetId": {
       "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "defaultValue": []
     }
   },
   "variables": {
@@ -34,8 +38,7 @@
       "apiVersion": "2018-11-30",
       "location": "[resourceGroup().location]",
       "name": "[variables('workerIdentity')]",
-      "properties": {
-      },
+      "tags": "[parameters('tags')]",
       "resources": [
         {
           "dependsOn": [
@@ -58,8 +61,7 @@
       "apiVersion": "2018-11-30",
       "location": "[resourceGroup().location]",
       "name": "[variables('benchmarkIdentity')]",
-      "properties": {
-      },
+      "tags": "[parameters('tags')]",
       "resources": [
         {
           "dependsOn": [
@@ -82,8 +84,7 @@
       "apiVersion": "2018-11-30",
       "location": "[resourceGroup().location]",
       "name": "[variables('candidateIdentity')]",
-      "properties": {
-      },
+      "tags": "[parameters('tags')]",
       "resources": [
         {
           "dependsOn": [
@@ -109,6 +110,7 @@
       "identity": {
         "type": "SystemAssigned"
       },
+      "tags": "[parameters('tags')]",
       "properties": {
         "kubernetesVersion": "[variables('k8sVersion')]",
         "dnsPrefix": "[variables('aks')]",
@@ -121,6 +123,7 @@
             "mode": "System",
             "osType": "Linux",
             "storageProfile": "ManagedDisks",
+            "tags": "[parameters('tags')]",
             "type": "VirtualMachineScaleSets",
             "vmSize": "[variables('nodeSize')]",
             "vnetSubnetID": "[parameters('subnetId')]"
@@ -161,6 +164,7 @@
       "sku": {
         "name": "Standard_LRS"
       },
+      "tags": "[parameters('tags')]",
       "properties": {
         "accessTier": "Hot",
         "networkAcls": {
@@ -195,6 +199,7 @@
       "apiVersion": "2020-05-01",
       "location": "[resourceGroup().location]",
       "name": "[variables('privateEndpoint')]",
+      "tags": "[parameters('tags')]",
       "properties": {
         "privateLinkServiceConnections": [
           {
@@ -241,6 +246,7 @@
       "apiVersion": "2019-10-01",
       "name": "aks-rbac",
       "resourceGroup": "[variables('nodeResourceGroup')]",
+      "tags": "[parameters('tags')]",
       "properties": {
         "mode": "Incremental",
         "template": {

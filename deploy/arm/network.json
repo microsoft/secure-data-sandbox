@@ -17,6 +17,10 @@
         "development",
         "production"
       ]
+    },
+    "tags": {
+      "type": "array",
+      "defaultValue": []
     }
   },
   "variables": {
@@ -123,6 +127,7 @@
       "apiVersion": "2020-05-01",
       "location": "[resourceGroup().location]",
       "name": "[variables('vnet')]",
+      "tags": "[parameters('tags')]",
       "properties": {
         "addressSpace": {
           "addressPrefixes": [
@@ -139,6 +144,7 @@
       "apiVersion": "2020-05-01",
       "location": "[resourceGroup().location]",
       "name": "[concat(variables('vnet'), '/', variables('privateLink'))]",
+      "tags": "[parameters('tags')]",
       "properties": {
         "addressPrefix": "[variables('privateLinkSubnetPrefix')]",
         "privateEndpointNetworkPolicies": "Disabled"
@@ -152,6 +158,7 @@
       "apiVersion": "2020-05-01",
       "location": "[resourceGroup().location]",
       "name": "[concat(variables('vnet'), '/AzureFirewallSubnet')]",
+      "tags": "[parameters('tags')]",
       "properties": {
         "addressPrefix": "[variables('firewallSubnetPrefix')]"
       }
@@ -165,6 +172,7 @@
       "apiVersion": "2020-05-01",
       "location": "[resourceGroup().location]",
       "name": "[concat(variables('vnet'), '/', variables('detonationChamber'))]",
+      "tags": "[parameters('tags')]",
       "properties": {
         "addressPrefix": "[variables('detonationChamberSubnetPrefix')]",
         "privateEndpointNetworkPolicies": "Disabled",
@@ -181,6 +189,7 @@
       "sku": {
         "name": "Standard"
       },
+      "tags": "[parameters('tags')]",
       "properties": {
         "publicIPAllocationMethod": "Static",
         "publicIPAddressVersion": "IPv4"
@@ -195,6 +204,7 @@
       "apiVersion": "2020-05-01",
       "location": "[resourceGroup().location]",
       "name": "[variables('firewall')]",
+      "tags": "[parameters('tags')]",
       "properties": {
         "ipConfigurations": [
           {
@@ -265,6 +275,7 @@
       "apiVersion": "2020-05-01",
       "location": "[resourceGroup().location]",
       "name": "[variables('firewall')]",
+      "tags": "[parameters('tags')]",
       "properties": {
         "disableBgpRoutePropagation": false,
         "routes": [
@@ -295,6 +306,7 @@
       "apiVersion": "2018-09-01",
       "location": "global",
       "name": "[variables('privateDnsZones')[copyIndex()]]",
+      "tags": "[parameters('tags')]",
       "properties": {
       },
       "resources": [

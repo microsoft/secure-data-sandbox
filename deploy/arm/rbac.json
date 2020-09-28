@@ -19,6 +19,10 @@
     },
     "runsQueueId": {
       "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "defaultValue": []
     }
   },
   "variables": {

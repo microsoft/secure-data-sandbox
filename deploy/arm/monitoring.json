@@ -1,7 +1,12 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
-  "parameters": {},
+  "parameters": {
+    "tags": {
+      "type": "array",
+      "defaultValue": []
+    }
+  },
   "variables": {
     "appInsights": "sds"
   },
@@ -11,6 +16,7 @@
       "apiVersion": "2018-05-01-preview",
       "location": "[resourceGroup().location]",
       "name": "[variables('appInsights')]",
+      "tags": "[parameters('tags')]",
       "properties": {
         "Application_Type": "web"
       }

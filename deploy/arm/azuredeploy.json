@@ -25,6 +25,10 @@
     "allowedExternalEndpoints": {
       "type": "array",
       "defaultValue": []
+    },
+    "tags": {
+      "type": "array",
+      "defaultValue": []
     }
   },
   "variables": {
@@ -37,8 +41,14 @@
       "apiVersion": "2017-05-10",
       "name": "monitoring",
       "resourceGroup": "[resourceGroup().name]",
+      "tags": "[parameters('tags')]",
       "properties": {
         "mode": "Incremental",
+        "parameters": {
+          "tags": {
+            "value": "[parameters('tags')]"
+          }
+        },
         "templateLink": {
           "uri": "[concat(uri(variables('assetsBaseUrl'), './arm/monitoring.json'), variables('deploymentSas'))]"
         }
@@ -49,6 +59,7 @@
       "apiVersion": "2017-05-10",
       "name": "network",
       "resourceGroup": "[resourceGroup().name]",
+      "tags": "[parameters('tags')]",
       "properties": {
         "mode": "Incremental",
         "parameters": {
@@ -60,6 +71,9 @@
           },
           "allowedExternalEndpoints": {
             "value": "[parameters('allowedExternalEndpoints')]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
           }
         },
         "templateLink": {
@@ -75,6 +89,7 @@
       "apiVersion": "2017-05-10",
       "name": "queue",
       "resourceGroup": "[resourceGroup().name]",
+      "tags": "[parameters('tags')]",
       "properties": {
         "mode": "Incremental",
         "parameters": {
@@ -83,6 +98,9 @@
           },
           "subnetId": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'network')).outputs.privateLinkSubnetId.value]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
           }
         },
         "templateLink": {
@@ -98,6 +116,7 @@
       "apiVersion": "2017-05-10",
       "name": "acr",
       "resourceGroup": "[resourceGroup().name]",
+      "tags": "[parameters('tags')]",
       "properties": {
         "mode": "Incremental",
         "parameters": {
@@ -106,6 +125,9 @@
           },
           "subnetId": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'network')).outputs.privateLinkSubnetId.value]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
           }
         },
         "templateLink": {
@@ -122,6 +144,7 @@
       "apiVersion": "2017-05-10",
       "name": "laboratory",
       "resourceGroup": "[resourceGroup().name]",
+      "tags": "[parameters('tags')]",
       "properties": {
         "mode": "Incremental",
         "parameters": {
@@ -130,6 +153,9 @@
           },
           "runsQueueEndpoint": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'queue')).outputs.runsQueueEndpoint.value]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
           }
         },
         "templateLink": {
@@ -145,6 +171,7 @@
       "apiVersion": "2017-05-10",
       "name": "worker",
       "resourceGroup": "[resourceGroup().name]",
+      "tags": "[parameters('tags')]",
       "properties": {
         "mode": "Incremental",
         "parameters": {
@@ -153,6 +180,9 @@
           },
           "subnetId": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'network')).outputs.detonationChamberSubnetId.value]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
           }
         },
         "templateLink": {
@@ -169,6 +199,7 @@
       "apiVersion": "2017-05-10",
       "name": "rbac",
       "resourceGroup": "[resourceGroup().name]",
+      "tags": "[parameters('tags')]",
       "properties": {
         "mode": "Incremental",
         "parameters": {
@@ -189,6 +220,9 @@
           },
           "runsQueueId": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'queue')).outputs.runsResourceId.value]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
           }
         },
         "templateLink": {

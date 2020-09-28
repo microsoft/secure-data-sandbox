@@ -15,6 +15,10 @@
     "sqlAdminPassword": {
       "type": "securestring",
       "defaultValue": "[newGuid()]"
+    },
+    "tags": {
+      "type": "array",
+      "defaultValue": []
     }
   },
   "variables": {
@@ -31,19 +35,22 @@
       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
       "apiVersion": "2018-11-30",
       "location": "[resourceGroup().location]",
-      "name": "[variables('bootstrap')]"
+      "name": "[variables('bootstrap')]",
+      "tags": "[parameters('tags')]"
     },
     {
       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
       "apiVersion": "2018-11-30",
       "location": "[resourceGroup().location]",
-      "name": "[variables('laboratory')]"
+      "name": "[variables('laboratory')]",
+      "tags": "[parameters('tags')]"
     },
     {
       "type": "Microsoft.Sql/servers",
       "apiVersion": "2019-06-01-preview",
       "location": "[resourceGroup().location]",
       "name": "[variables('sqlServer')]",
+      "tags": "[parameters('tags')]",
       "properties": {
         "administratorLogin": "[variables('sqlAdminUsername')]",
         "administratorLoginPassword": "[parameters('sqlAdminPassword')]",
@@ -71,6 +78,7 @@
           "apiVersion": "2019-06-01-preview",
           "location": "[resourceGroup().location]",
           "name": "[variables('laboratory')]",
+          "tags": "[parameters('tags')]",
           "sku": {
             "name": "Standard",
             "tier": "Standard"
@@ -127,6 +135,7 @@
         }
       },
       "kind": "AzurePowerShell",
+      "tags": "[parameters('tags')]",
       "properties": {
         "azPowerShellVersion": "4.5",
         "retentionInterval": "P1D",
@@ -179,6 +188,7 @@ $conn.Close()
       "sku": {
         "name": "S1"
       },
+      "tags": "[parameters('tags')]",
       "properties": {
         "reserved": true
       }
@@ -200,6 +210,7 @@ $conn.Close()
           "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))]": {}
         }
       },
+      "tags": "[parameters('tags')]",
       "properties": {
         "httpsOnly": true,
         "serverFarmId": "[resourceId('Microsoft.Web/serverFarms', variables('laboratory'))]",
