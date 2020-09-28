@@ -152,9 +152,6 @@ const EphemeralSuiteVolumeType = t.intersection([
   t.type({
     name: t.string,
     type: t.literal('ephemeral'),
-    options: t.type({
-      dataset: t.string,
-    }),
   }),
   t.partial({
     target: t.undefined,
@@ -164,15 +161,14 @@ const EphemeralSuiteVolumeType = t.intersection([
 const TargetedSuiteVolumeType = t.type({
   name: t.string,
   type: t.string,
-  options: t.type({
-    dataset: t.string,
-  }),
   target: t.string,
 });
 
-const SuiteVolumeType = t.union([
-  TargetedSuiteVolumeType,
-  EphemeralSuiteVolumeType,
+const SuiteVolumeType = t.intersection([
+  t.union([TargetedSuiteVolumeType, EphemeralSuiteVolumeType]),
+  t.partial({
+    properties: t.record(t.string, t.string),
+  }),
 ]);
 export type SuiteVolume = t.TypeOf<typeof SuiteVolumeType>;
 

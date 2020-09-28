@@ -60,17 +60,14 @@ const suite1: ISuite = {
       name: 'training',
       type: 'AzureBlob',
       target: 'https://sample.blob.core.windows.net/training',
-      options: { 
-        dataset: 'datasetId-0000-0000-0000'
+      properties: {
+        datasetId: 'dataset-0000-0000-0000',
       },
     },
     {
       name: 'reference',
       type: 'AzureBlob',
       target: 'https://sample.blob.core.windows.net/reference',
-      options: { 
-        dataset: 'datasetId-0000-0000-0000'
-      },
     },
   ],
 };

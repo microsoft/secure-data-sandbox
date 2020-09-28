@@ -159,6 +159,9 @@ export const suite1: ISuite = {
       name: 'training',
       type: 'AzureBlob',
       target: 'https://sample.blob.core.windows.net/training',
+      properties: {
+        datasetId: 'dataset-0000-0000-0001',
+      },
     },
     {
       name: 'reference',
@@ -179,6 +182,9 @@ export const suite2: ISuite = {
       name: 'training',
       type: 'AzureBlob',
       target: 'https://sample.blob.core.windows.net/training',
+      properties: {
+        datasetId: 'dataset-0000-0000-0002',
+      },
     },
     {
       name: 'reference',
@@ -199,6 +205,9 @@ export const suite3: ISuite = {
       name: 'training',
       type: 'AzureBlob',
       target: 'https://sample.blob.core.windows.net/training',
+      properties: {
+        datasetId: 'dataset-0000-0000-0003',
+      },
     },
     {
       name: 'reference',
