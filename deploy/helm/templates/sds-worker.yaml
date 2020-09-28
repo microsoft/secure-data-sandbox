@@ -1,19 +1,19 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: worker
+  name: {{ .Values.worker.namespace }}
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: worker
-  namespace: worker
+  namespace: {{ .Values.worker.namespace }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: worker
-  namespace: worker
+  namespace: {{ .Values.worker.namespace }}
   labels:
     app: worker
 spec:
@@ -31,7 +31,7 @@ spec:
       containers:
       - name: worker
         image: {{ .Values.worker.image }}
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         resources:
           limits:
             cpu: "1"
@@ -43,6 +43,10 @@ spec:
           value: {{ .Values.worker.queueEndpoint }}
         - name: AZURE_CLIENT_ID
           value: {{ .Values.identities.worker.clientId }}
+        {{- if .Values.instrumentationKey }}
+        - name: APPINSIGHTS_INSTRUMENTATIONKEY
+          value: {{ .Values.instrumentationKey }}
+        {{- end }}
         {{- if and .Values.identities.worker.tenantId .Values.identities.worker.clientSecret }}
         - name: AZURE_TENANT_ID
           value: {{ .Values.identities.worker.tenantId }}
@@ -51,6 +55,10 @@ spec:
               secretKeyRef:
                 name: worker-identity-sp
                 key: clientSecret
+        {{- end }}
+        {{- if .Values.worker.storage.storageClassName }}
+        - name: STORAGE_CLASS_NAME
+          value: {{ .Values.worker.storage.storageClassName }}
         {{- end }}
 ---
 {{- if and .Values.identities.worker.tenantId .Values.identities.worker.clientSecret }}
@@ -62,12 +70,12 @@ metadata:
 data:
   clientSecret: {{ .Values.identities.worker.clientSecret | b64enc }}
 ---
-{{- else }}
+{{ else if .Values.identities.worker.resourceId }}
 apiVersion: aadpodidentity.k8s.io/v1
 kind: AzureIdentityBinding
 metadata:
   name: worker
-  namespace: worker
+  namespace: {{ .Values.worker.namespace }}
 spec:
   azureIdentity: worker
   selector: worker
@@ -76,10 +84,23 @@ apiVersion: aadpodidentity.k8s.io/v1
 kind: AzureIdentity
 metadata:
   name: worker
-  namespace: worker
+  namespace: {{ .Values.worker.namespace }}
 spec:
   type: 0
   resourceID: {{ .Values.identities.worker.resourceId }}
   clientID: {{ .Values.identities.worker.clientId }}
+---
+{{- end }}
+{{- if .Values.worker.storage.createStorageClass }}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ .Values.worker.storage.storageClassName }}
+provisioner: file.csi.azure.com
+parameters:
+  resourceGroup: {{ .Values.worker.storage.resourceGroup }}
+  storageAccount: {{ .Values.worker.storage.storageAccount }}
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
 ---
 {{- end }}

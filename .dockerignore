@@ -5,6 +5,11 @@
 docs
 scripts
 
+**/.coverage
+**/.nyc_output
 **/dist
-**/*Dockerfile*
 **/node_modules
+
+*Dockerfile*
+*.tgz
+*.tsbuildinfo

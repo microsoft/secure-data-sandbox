@@ -13,10 +13,10 @@
     "aks": "aks",
     "k8sVersion": "1.17.9",
     "nodeCount": 2,
-    "nodeResourceGroup": "sds-worker",
+    "nodeResourceGroup": "[concat('sds-worker-', variables('suffix'))]",
     "nodeSize": "Standard_DS2_v2",
-    "storageAccount": "[concat('runs', variables('suffix'))]",
-    "fileEndpoint": "[concat(variables('storageAccount'), '-files')]",
+    "runsTransientStorageAccount": "[concat('runs', variables('suffix'))]",
+    "privateEndpoint": "[concat(variables('runsTransientStorageAccount'), '-files')]",
     "suffix": "[toLower(take(uniqueString(resourceGroup().id), 6))]",
     "benchmarkIdentity": "benchmark",
     "candidateIdentity": "candidate",
@@ -26,7 +26,6 @@
     "dnsServiceIp": "172.16.0.10",
     "managedIdentityOperatorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'f1a07417-d97a-45cb-824c-7a7467783830')]",
     "storageAccountContributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '17d1049b-9a84-46fb-8f53-869881c3d3ab')]",
-    "storageFileDataSMBContributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '0c867c2a-1d8c-454a-a3db-ab2ea1bdc8bb')]",
     "virtualMachineContributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '9980e02c-c2be-4d73-94e8-173b1dc7cf3c')]"
   },
   "resources": [
@@ -157,7 +156,7 @@
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
       "location": "[resourceGroup().location]",
-      "name": "[variables('storageAccount')]",
+      "name": "[variables('runsTransientStorageAccount')]",
       "kind": "StorageV2",
       "sku": {
         "name": "Standard_LRS"
@@ -174,67 +173,37 @@
       "resources": [
         {
           "dependsOn": [
-            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount'))]",
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('runsTransientStorageAccount'))]",
             "[resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))]"
           ],
           "type": "providers/roleAssignments",
           "apiVersion": "2018-09-01-preview",
           "location": "[resourceGroup().location]",
-          "name": "[concat('Microsoft.Authorization/', guid(concat(variables('aks'), variables('storageAccount'), 'StorageAccountContributor')))]",
+          "name": "[concat('Microsoft.Authorization/', guid(concat(variables('aks'), variables('runsTransientStorageAccount'), 'StorageAccountContributor')))]",
           "properties": {
-            "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks')), '2020-06-01', 'Full').identity.principalId]",
+            "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))).identityProfile.kubeletidentity.objectId]",
             "roleDefinitionId": "[variables('storageAccountContributorRoleId')]"
-          }
-        },
-        {
-          "dependsOn": [
-            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount'))]",
-            "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('benchmarkIdentity'))]"
-          ],
-          "type": "providers/roleAssignments",
-          "apiVersion": "2018-09-01-preview",
-          "location": "[resourceGroup().location]",
-          "name": "[concat('Microsoft.Authorization/', guid(concat(variables('benchmarkIdentity'), variables('storageAccount'), 'StorageAccountContributor')))]",
-          "properties": {
-            "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('benchmarkIdentity'))).principalId]",
-            "roleDefinitionId": "[variables('storageFileDataSMBContributorRoleId')]",
-            "principalType": "ServicePrincipal"
-          }
-        },
-        {
-          "dependsOn": [
-            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount'))]",
-            "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('candidateIdentity'))]"
-          ],
-          "type": "providers/roleAssignments",
-          "apiVersion": "2018-09-01-preview",
-          "location": "[resourceGroup().location]",
-          "name": "[concat('Microsoft.Authorization/', guid(concat(variables('candidateIdentity'), variables('storageAccount'), 'StorageAccountContributor')))]",
-          "properties": {
-            "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('candidateIdentity'))).principalId]",
-            "roleDefinitionId": "[variables('storageFileDataSMBContributorRoleId')]",
-            "principalType": "ServicePrincipal"
           }
         }
       ]
     },
     {
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount'))]"
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('runsTransientStorageAccount'))]"
       ],
       "type": "Microsoft.Network/privateEndpoints",
       "apiVersion": "2020-05-01",
       "location": "[resourceGroup().location]",
-      "name": "[variables('fileEndpoint')]",
+      "name": "[variables('privateEndpoint')]",
       "properties": {
         "privateLinkServiceConnections": [
           {
-            "name": "[variables('fileEndpoint')]",
+            "name": "[variables('privateEndpoint')]",
             "properties": {
               "groupIds": [
                 "file"
               ],
-              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount'))]"
+              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', variables('runsTransientStorageAccount'))]"
             }
           }
         ],
@@ -245,7 +214,7 @@
       "resources": [
         {
           "dependsOn": [
-            "[resourceId('Microsoft.Network/privateEndpoints', variables('fileEndpoint'))]"
+            "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpoint'))]"
           ],
           "type": "privateDnsZoneGroups",
           "apiVersion": "2020-05-01",
@@ -301,6 +270,34 @@
     "workerIdentityId": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))).principalId]"
+    },
+    "workerIdentityResourceId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))]"
+    },
+    "workerIdentityClientId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))).clientId]"
+    },
+    "benchmarkIdentityResourceId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('benchmarkIdentity'))]"
+    },
+    "benchmarkIdentityClientId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('benchmarkIdentity'))).clientId]"
+    },
+    "candidateIdentityResourceId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('candidateIdentity'))]"
+    },
+    "candidateIdentityClientId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('candidateIdentity'))).clientId]"
+    },
+    "runsTransientStorageAccount": {
+      "type": "string",
+      "value": "[variables('runsTransientStorageAccount')]"
     }
   }
 }

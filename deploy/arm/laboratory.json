@@ -2,7 +2,14 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "queueEndpoint": {
+    "instrumentationKey": {
+      "type": "string"
+    },
+    "laboratoryImage": {
+      "type": "string",
+      "defaultValue": "acanthamoeba/sds-laboratory"
+    },
+    "runsQueueEndpoint": {
       "type": "string"
     },
     "sqlAdminPassword": {
@@ -198,13 +205,24 @@ $conn.Close()
         "serverFarmId": "[resourceId('Microsoft.Web/serverFarms', variables('laboratory'))]",
         "siteConfig": {
           "alwaysOn": true,
-          "appCommandLine": "npm run laboratory",
-          "linuxFxVersion": "NODE|12-lts",
+          "linuxFxVersion": "[concat('DOCKER|', parameters('laboratoryImage'))]",
           "minTlsVersion": "1.2",
           "appSettings": [
             {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[parameters('instrumentationKey')]"
+            },
+            {
+              "name": "AZURE_CLIENT_ID",
+              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))).clientId]"
+            },
+            {
+              "name": "QUEUE_MODE",
+              "value": "azure"
+            },
+            {
               "name": "QUEUE_ENDPOINT",
-              "value": "[parameters('queueEndpoint')]"
+              "value": "[parameters('runsQueueEndpoint')]"
             },
             {
               "name": "SQL_MODE",
@@ -217,18 +235,6 @@ $conn.Close()
             {
               "name": "SQL_DB",
               "value": "[variables('laboratory')]"
-            },
-            {
-              "name": "WEBSITE_DNS_SERVER",
-              "value": "168.63.129.16"
-            },
-            {
-              "name": "WEBSITE_RUN_FROM_PACKAGE",
-              "value": "1"
-            },
-            {
-              "name": "WEBSITE_VNET_ROUTE_ALL",
-              "value": "1"
             }
           ]
         }

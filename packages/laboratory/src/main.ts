@@ -1,17 +1,20 @@
 #!/usr/bin/env node
+import { PipelineRun, GetQueue, InitTelemetry } from '@microsoft/sds';
+import { ParseLaboratoryConfiguration } from './configuration';
+import { GetSequelizeOptions } from './database';
 import {
   initializeSequelize,
   SequelizeLaboratory,
-  PipelineRun,
-  GetQueue,
-  GetSequelizeOptions,
-} from '@microsoft/sds';
-import { ParseLaboratoryConfiguration } from './configuration';
+} from './sequelize_laboratory';
+import { defaultClient as telemetryClient } from 'applicationinsights';
+import { Events } from './telemetry';
 
 import { createApp } from './app';
 
-async function main(argv: string[]) {
-  const config = ParseLaboratoryConfiguration();
+async function main() {
+  InitTelemetry();
+
+  const config = await ParseLaboratoryConfiguration();
   const queue = GetQueue<PipelineRun>(config.queue);
 
   // initializeSequelize binds Sequelize to the models, effectively becoming a singleton / service locator
@@ -25,7 +28,11 @@ async function main(argv: string[]) {
     console.log('Starting SDS laboratory service.');
     console.log(`Service url is ${config.endpointBaseUrl}.`);
     console.info(`Laboratory service listening on port ${config.port}.`);
+
+    telemetryClient.trackEvent({
+      name: Events.LaboratoryStarted,
+    });
   });
 }
 
-main(process.argv).catch(e => console.error(e));
+main().catch(e => console.error(e));

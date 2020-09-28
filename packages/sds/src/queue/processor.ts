@@ -1,4 +1,6 @@
 import { IQueue } from '.';
+import { TelemetryClient, defaultClient } from 'applicationinsights';
+import { Events } from '../telemetry';
 
 export interface QueueProcessorOptions {
   receiveBatchSize: number;
@@ -19,10 +21,16 @@ export class QueueProcessor<T> {
   private readonly queue: IQueue<T>;
   private readonly options: Readonly<QueueProcessorOptions>;
   private interval?: NodeJS.Timeout;
+  private readonly telemetryClient: TelemetryClient;
 
-  constructor(queue: IQueue<T>, options?: Partial<QueueProcessorOptions>) {
+  constructor(
+    queue: IQueue<T>,
+    options?: Partial<QueueProcessorOptions>,
+    telemetryClient: TelemetryClient = defaultClient
+  ) {
     this.queue = queue;
     this.options = { ...defaultQueueProcessorOptions, ...options };
+    this.telemetryClient = telemetryClient;
   }
 
   /**
@@ -58,6 +66,13 @@ export class QueueProcessor<T> {
           //TODO: dead letter
           console.warn(`could not process ${JSON.stringify(message)}`);
           await message.complete();
+
+          this.telemetryClient.trackEvent({
+            name: Events.QueueMessageUnprocessable,
+            properties: {
+              attempts: message.dequeueCount,
+            },
+          });
           continue;
         }
 

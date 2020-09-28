@@ -12,35 +12,29 @@
     }
   },
   "variables": {
+    "aksNodeResourceGroup": "[concat('sds-worker-', variables('suffix'))]",
     "autoShutdownTime": "0200",
     "autoShutdownTimeZone": "UTC",
     "dev": "dev",
     "devSubnetPrefix": "10.0.255.0/24",
-    "vmSize": "Standard_DS2_v2",
+    "vmSize": "Standard_D4s_v3",
     "vnet": "vnet",
-    "ownerRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]"
+    "ownerRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]",
+    "suffix": "[toLower(take(uniqueString(resourceGroup().id), 6))]"
   },
   "resources": [
-    {
-      "type": "Microsoft.Network/applicationSecurityGroups",
-      "apiVersion": "2020-05-01",
-      "location": "[resourceGroup().location]",
-      "name": "[variables('dev')]",
-      "properties": {
-      }
-    },
     {
       "name": "[variables('dev')]",
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2020-05-01",
       "location": "[resourceGroup().location]",
       "properties": {
-        "publicIPAllocationMethod": "Dynamic"
+        "publicIPAllocationMethod": "Static"
       }
     },
     {
       "dependsOn": [
-        "[resourceId('Microsoft.Network/applicationSecurityGroups', variables('dev'))]"
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('dev'))]"
       ],
       "name": "dev",
       "type": "Microsoft.Network/networkSecurityGroups",
@@ -58,12 +52,8 @@
               "protocol": "TCP",
               "sourceAddressPrefix": "*",
               "sourcePortRange": "*",
-              "destinationPortRange": "22",
-              "destinationApplicationSecurityGroups": [
-                {
-                  "id": "[resourceId('Microsoft.Network/applicationSecurityGroups', variables('dev'))]"
-                }
-              ]
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "22"
             }
           }
         ]
@@ -86,7 +76,6 @@
     },
     {
       "dependsOn": [
-        "[resourceId('Microsoft.Network/applicationSecurityGroups', variables('dev'))]",
         "[resourceId('Microsoft.Network/publicIPAddresses', variables('dev'))]",
         "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet'), variables('dev'))]"
       ],
@@ -99,11 +88,6 @@
           {
             "name": "default",
             "properties": {
-              "applicationSecurityGroups": [
-                {
-                  "id": "[resourceId('Microsoft.Network/applicationSecurityGroups', variables('dev'))]"
-                }
-              ],
               "privateIPAllocationMethod": "Dynamic",
               "publicIPAddress": {
                 "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('dev'))]"
@@ -202,10 +186,35 @@
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2018-09-01-preview",
       "location": "[resourceGroup().location]",
-      "name": "[guid(concat('dev', 'Owner'))]",
+      "name": "[guid(concat(resourceGroup().name, 'dev', 'Owner'))]",
       "properties": {
         "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachines', variables('dev')), '2019-07-01', 'Full').identity.principalId]",
         "roleDefinitionId": "[variables('ownerRoleId')]"
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
+      "name": "dev-aks-rbac",
+      "resourceGroup": "[variables('aksNodeResourceGroup')]",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": [
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2018-09-01-preview",
+              "location": "[resourceGroup().location]",
+              "name": "[guid(concat(variables('aksNodeResourceGroup'), 'dev', 'Owner'))]",
+              "properties": {
+                "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachines', variables('dev')), '2019-07-01', 'Full').identity.principalId]",
+                "roleDefinitionId": "[variables('ownerRoleId')]"
+              }
+            }
+          ]
+        }
       }
     }
   ],

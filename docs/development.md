@@ -1,5 +1,7 @@
 # SDS Development
 
+[![codecov](https://codecov.io/gh/microsoft/secure-data-sandbox/branch/main/graph/badge.svg)](https://codecov.io/gh/microsoft/secure-data-sandbox)
+
 ## Quick Start
 
 * Create a [Visual Studio Codespaces](https://online.visualstudio.com) instance with no selected repository
@@ -102,9 +104,6 @@ Copy `.env.template` to `.env` and enter the data returned by the CLI. A transla
 #### Running
 
 ```shell
-# Load the values into your shell
-set -o allexport; source .env; set +o allexport
-
 # Start the laboratory
 npm run laboratory
 
@@ -160,7 +159,7 @@ kubectl apply -f https://raw.githubusercontent.com/Azure/aad-pod-identity/releas
 Then, install SDS:
 
 ```shell
-helm install sds deploy/helm --values deploy/helm/values.dev.yaml
+helm upgrade --install sds deploy/helm --values deploy/helm/values.dev.yaml
 ```
 
 ### Iterating on the Worker
@@ -188,3 +187,21 @@ It can be useful to execute the samples rapidly. Scripts are provided to help yo
 
 * `scripts/sample-data.sh` - Execute the basic YAML files
 * `scripts/demo-catdetection.sh` - Run the cat detection demo (see [README](/samples/catdetection/README.md) for setup instructions)
+
+## Auditing Packages
+
+As of Sep 2020, Lerna does not provide a command to audit packages for security vulnerabilities [#1663](https://github.com/lerna/lerna/issues/1663). The `scripts` directory contains a convenience script to perform updates. From a fresh clone:
+
+```shell
+# Run a global `npm audit fix`
+./scripts/dev-npm-audit-fix.sh
+```
+
+## Updating Dependencies
+
+It can be difficult to bulk update npm packages across many projects in the monorepo. A script is provided:
+
+```shell
+# Run a global `npm update`
+./scripts/dev-npm-update.sh
+```

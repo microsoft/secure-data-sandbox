@@ -3,14 +3,18 @@ import { assert } from 'chai';
 import { Workflow } from '../src/argo';
 import { ArgoWorker, createWorkflow } from '../src/argoWorker';
 import { InMemoryQueue, PipelineRun } from '@microsoft/sds';
+import { ArgoWorkerConfiguration } from '../src/configuration';
 
 describe('worker', () => {
   it('initializes', () => {
     const queue = new InMemoryQueue<PipelineRun>();
     const kc = new k8s.KubeConfig();
     kc.loadFromDefault();
+    const config: ArgoWorkerConfiguration = {
+      successfulRunGCSeconds: 300,
+    };
 
-    const worker = new ArgoWorker(queue, kc);
+    const worker = new ArgoWorker(queue, kc, config);
 
     assert.isNotNull(worker);
   });
@@ -32,6 +36,10 @@ describe('createWorkflow', () => {
           image: 'eval',
         },
       ],
+    };
+
+    const config: ArgoWorkerConfiguration = {
+      successfulRunGCSeconds: 300,
     };
 
     const expected: Workflow = {
@@ -73,10 +81,13 @@ describe('createWorkflow', () => {
             },
           },
         ],
+        ttlStrategy: {
+          secondsAfterSuccess: 300,
+        },
       },
     };
 
-    const actual = createWorkflow(run);
+    const actual = createWorkflow(run, config);
     assert.deepEqual(actual, expected);
   });
 
@@ -103,6 +114,10 @@ describe('createWorkflow', () => {
           },
         },
       ],
+    };
+
+    const config: ArgoWorkerConfiguration = {
+      successfulRunGCSeconds: 300,
     };
 
     const expected: Workflow = {
@@ -158,10 +173,13 @@ describe('createWorkflow', () => {
             },
           },
         ],
+        ttlStrategy: {
+          secondsAfterSuccess: 300,
+        },
       },
     };
 
-    const actual = createWorkflow(run);
+    const actual = createWorkflow(run, config);
     assert.deepEqual(actual, expected);
   });
 
@@ -212,6 +230,10 @@ describe('createWorkflow', () => {
           ],
         },
       ],
+    };
+
+    const config: ArgoWorkerConfiguration = {
+      successfulRunGCSeconds: 300,
     };
 
     const expected: Workflow = {
@@ -318,10 +340,100 @@ describe('createWorkflow', () => {
             },
           },
         ],
+        ttlStrategy: {
+          secondsAfterSuccess: 300,
+        },
       },
     };
 
-    const actual = createWorkflow(run);
+    const actual = createWorkflow(run, config);
+    assert.deepEqual(actual, expected);
+  });
+
+  it('handlesVolumesWithStorageClass', () => {
+    const run: PipelineRun = {
+      name: 'run1',
+      statusEndpoint: 'http://localhost:3000/status',
+      resultsEndpoint: 'http://localhost:3000/results',
+      stages: [
+        {
+          name: 'candidate',
+          image: 'candidate',
+          volumes: [
+            {
+              source: undefined,
+              type: 'ephemeral',
+              name: 'images',
+              target: '/input',
+              readonly: true,
+            },
+          ],
+        },
+      ],
+    };
+
+    const config: ArgoWorkerConfiguration = {
+      successfulRunGCSeconds: 300,
+      storageClassName: 'runs-transient',
+    };
+
+    const expected: Workflow = {
+      apiVersion: 'argoproj.io/v1alpha1',
+      kind: 'Workflow',
+      metadata: {
+        generateName: 'run1',
+      },
+      spec: {
+        entrypoint: 'run',
+        volumeClaimTemplates: [
+          {
+            metadata: {
+              name: 'images',
+            },
+            spec: {
+              storageClassName: 'runs-transient',
+              accessModes: ['ReadWriteOnce'],
+              resources: {
+                requests: {
+                  storage: '1Gi',
+                },
+              },
+            },
+          },
+        ],
+        templates: [
+          {
+            name: 'run',
+            steps: [
+              [
+                {
+                  name: 'candidate',
+                  template: 'candidate',
+                },
+              ],
+            ],
+          },
+          {
+            name: 'candidate',
+            container: {
+              image: 'candidate',
+              volumeMounts: [
+                {
+                  name: 'images',
+                  mountPath: '/input',
+                  readOnly: true,
+                },
+              ],
+            },
+          },
+        ],
+        ttlStrategy: {
+          secondsAfterSuccess: 300,
+        },
+      },
+    };
+
+    const actual = createWorkflow(run, config);
     assert.deepEqual(actual, expected);
   });
 });

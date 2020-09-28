@@ -9,19 +9,24 @@
     "dev:azure": "ngrok start -config .ngrok.yml arm",
     "postdev:azure": "kill $(lsof -t -i:9001)",
     "fix": "lerna run fix",
-    "laboratory": "npm run start --silent --prefix packages/laboratory",
+    "laboratory": "dotenv -- npm run start --silent --prefix packages/laboratory",
     "pack": "lerna bootstrap --ignore-scripts && lerna exec npm pack",
     "pack:laboratory:appservice": "rimraf ./dist/laboratory && mkdir -p ./dist/laboratory && npm run pack && cd ./dist/laboratory && npm init -y && npm install --only=prod ../../packages/sds/*.tgz ../../packages/laboratory/*.tgz && zip -r sds-laboratory.zip package*.json node_modules",
     "postinstall": "lerna bootstrap",
     "test": "lerna run test"
   },
   "devDependencies": {
+    "@istanbuljs/nyc-config-typescript": "^1.0.1",
+    "dotenv-cli": "^4.0.0",
     "gts": "^2.0.2",
     "lerna": "^3.22.1",
-    "ngrok": "^3.2.7",
+    "ngrok": "^3.3.0",
+    "nyc": "^15.1.0",
     "rimraf": "^3.0.2",
     "serve": "^11.3.2",
-    "typescript": "^3.9.7"
+    "source-map-support": "^0.5.19",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.3"
   },
   "dependencies": {}
 }

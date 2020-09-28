@@ -30,7 +30,7 @@ describe('processor', () => {
       queue.enqueue('msg 3'),
     ]);
 
-    processor.start(async msg => {
+    processor.start(async () => {
       // no-op
     });
 
@@ -54,7 +54,7 @@ describe('processor', () => {
       queue.enqueue('msg 3'),
     ]);
 
-    processor.start(async msg => {
+    processor.start(async () => {
       // no-op
     });
 
@@ -78,7 +78,7 @@ describe('processor', () => {
     await queue.enqueue('msg 1');
 
     let attempts = 0;
-    processor.start(async msg => {
+    processor.start(async () => {
       attempts++;
       throw new Error('simulated failure');
     });
@@ -107,7 +107,7 @@ describe('processor', () => {
     ]);
 
     let messageCount = 0;
-    processor.start(async msg => {
+    processor.start(async () => {
       messageCount++;
     });
 
@@ -131,7 +131,7 @@ describe('processor', () => {
       queue.enqueue('msg 3'),
     ]);
 
-    processor.start(async msg => {
+    processor.start(async () => {
       // no-op
     });
 

@@ -11,7 +11,7 @@
   },
   "variables": {
     "runsQueue": "runs",
-    "queueEndpoint": "[concat(variables('storageAccount'), '-queue')]",
+    "privateEndpoint": "[concat(variables('storageAccount'), '-queue')]",
     "storageAccount": "[concat('queue', variables('suffix'))]",
     "suffix": "[toLower(take(uniqueString(resourceGroup().id), 6))]"
   },
@@ -28,7 +28,7 @@
       "properties": {
         "accessTier": "Hot",
         "networkAcls": {
-          "bypass": "None",
+          "bypass": "AzureServices",
           "defaultAction": "Deny",
           "virtualNetworkRules": []
         },
@@ -54,11 +54,11 @@
       "type": "Microsoft.Network/privateEndpoints",
       "apiVersion": "2020-05-01",
       "location": "[resourceGroup().location]",
-      "name": "[variables('queueEndpoint')]",
+      "name": "[variables('privateEndpoint')]",
       "properties": {
         "privateLinkServiceConnections": [
           {
-            "name": "[variables('queueEndpoint')]",
+            "name": "[variables('privateEndpoint')]",
             "properties": {
               "groupIds": [
                 "queue"
@@ -74,7 +74,7 @@
       "resources": [
         {
           "dependsOn": [
-            "[resourceId('Microsoft.Network/privateEndpoints', variables('queueEndpoint'))]"
+            "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpoint'))]"
           ],
           "type": "privateDnsZoneGroups",
           "apiVersion": "2020-05-01",
@@ -99,7 +99,7 @@
       "type": "string",
       "value": "[resourceId('Microsoft.Storage/storageAccounts/queueServices/queues', variables('storageAccount'), 'default', variables('runsQueue'))]"
     },
-    "runsEndpoint": {
+    "runsQueueEndpoint": {
       "type": "string",
       "value": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount'))).primaryEndpoints.queue, variables('runsQueue'))]"
     }

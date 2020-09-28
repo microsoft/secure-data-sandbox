@@ -13,6 +13,18 @@
     "deploymentSas": {
       "type": "securestring",
       "defaultValue": ""
+    },
+    "mode": {
+      "type": "string",
+      "defaultValue": "production",
+      "allowedValues": [
+        "development",
+        "production"
+      ]
+    },
+    "allowedExternalEndpoints": {
+      "type": "array",
+      "defaultValue": []
     }
   },
   "variables": {
@@ -23,6 +35,18 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2017-05-10",
+      "name": "monitoring",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(uri(variables('assetsBaseUrl'), './arm/monitoring.json'), variables('deploymentSas'))]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2017-05-10",
       "name": "network",
       "resourceGroup": "[resourceGroup().name]",
       "properties": {
@@ -30,6 +54,12 @@
         "parameters": {
           "createVnet": {
             "value": "[parameters('createVnet')]"
+          },
+          "mode": {
+            "value": "[parameters('mode')]"
+          },
+          "allowedExternalEndpoints": {
+            "value": "[parameters('allowedExternalEndpoints')]"
           }
         },
         "templateLink": {
@@ -85,7 +115,8 @@
     },
     {
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'queue')]"
+        "[resourceId('Microsoft.Resources/deployments', 'queue')]",
+        "[resourceId('Microsoft.Resources/deployments', 'monitoring')]"
       ],
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2017-05-10",
@@ -94,8 +125,11 @@
       "properties": {
         "mode": "Incremental",
         "parameters": {
-          "queueEndpoint": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'queue')).outputs.runsEndpoint.value]"
+          "instrumentationKey": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring')).outputs.instrumentationKey.value]"
+          },
+          "runsQueueEndpoint": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'queue')).outputs.runsQueueEndpoint.value]"
           }
         },
         "templateLink": {
@@ -164,9 +198,41 @@
     }
   ],
   "outputs": {
-    "assetsBaseUrl": {
+    "instrumentationKey": {
       "type": "string",
-      "value": "[variables('assetsBaseUrl')]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring')).outputs.instrumentationKey.value]"
+    },
+    "runsQueueEndpoint": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'queue')).outputs.runsQueueEndpoint.value]"
+    },
+    "runsTransientStorageAccount": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.runsTransientStorageAccount.value]"
+    },
+    "workerIdentityResourceId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.workerIdentityResourceId.value]"
+    },
+    "workerIdentityClientId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.workerIdentityClientId.value]"
+    },
+    "benchmarkIdentityResourceId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.benchmarkIdentityResourceId.value]"
+    },
+    "benchmarkIdentityClientId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.benchmarkIdentityClientId.value]"
+    },
+    "candidateIdentityResourceId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.candidateIdentityResourceId.value]"
+    },
+    "candidateIdentityClientId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.candidateIdentityClientId.value]"
     }
   }
 }

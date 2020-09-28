@@ -1,23 +1,28 @@
 # Default values for sds-worker development.
 
+instrumentationKey: 00000000-0000-0000-0000-000000000000
+
 argoController:
   containerRuntimeExecutor: pns
-  executorImage: argoproj/argoexec:v2.9.3
-  image: argoproj/workflow-controller:v2.9.3
+  executorImage: argoproj/argoexec:v2.11.0
+  image: argoproj/workflow-controller:v2.11.0
   namespace: argo
 
 # Deploy argo-server
 argoServer:
   enabled: true
-  image: argoproj/argocli:v2.9.3
+  image: argoproj/argocli:v2.11.0
 
 runs:
   namespace: runs
 
 worker:
-  image: acanthamoeba/sds-worker
+  namespace: worker
+  image: acanthamoeba/sds-worker:dev
   queueMode: azure
-  queueEndpoint: https://<storageaccount>.queue.core.windows.net/runs
+  storage:
+    storageClassName: null
+    createStorageClass: false
 
 # Use Service Principals instead of Managed Identity
 identities:

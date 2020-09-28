@@ -3,8 +3,6 @@
 // Data for tests in this directory.
 //
 ///////////////////////////////////////////////////////////////////////////////
-import { URL } from 'url';
-
 import {
   IBenchmark,
   ICandidate,

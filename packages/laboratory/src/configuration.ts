@@ -1,14 +1,14 @@
 import * as os from 'os';
 import {
   QueueConfiguration,
+  AzureCredential,
+  ParseQueueConfiguration,
+} from '@microsoft/sds';
+import {
   AzureSqlDatabaseConfiguration,
   DatabaseConfiguration,
   DatabaseMode,
-} from '@microsoft/sds';
-import {
-  AzureCredential,
-  ParseQueueConfiguration,
-} from '@microsoft/sds/dist/configuration';
+} from './database';
 
 import * as env from 'env-var';
 
@@ -44,7 +44,9 @@ export interface LaboratoryConfiguration {
 /**
  * Retrieve a DatabaseConfiguration from the current execution environment.
  */
-export function ParseDatabaseConfiguration(): DatabaseConfiguration {
+export async function ParseDatabaseConfiguration(): Promise<
+  DatabaseConfiguration
+> {
   const mode = env
     .get('SQL_MODE')
     .default(DatabaseMode.InMemory)
@@ -61,7 +63,7 @@ export function ParseDatabaseConfiguration(): DatabaseConfiguration {
         mode,
         host,
         database: env.get('SQL_DB').required().asString(),
-        credential: AzureCredential.getInstance(),
+        credential: await AzureCredential.getInstance(),
       } as AzureSqlDatabaseConfiguration;
     case DatabaseMode.InMemory:
       return {
@@ -103,7 +105,9 @@ function ParseAuthConfiguration(): AuthConfiguration {
   }
 }
 
-export function ParseLaboratoryConfiguration(): LaboratoryConfiguration {
+export async function ParseLaboratoryConfiguration(): Promise<
+  LaboratoryConfiguration
+> {
   const port = env.get('PORT').default(3000).asPortNumber();
 
   let endpointBaseUrl = env.get('LABORATORY_ENDPOINT').asUrlString();
@@ -122,8 +126,8 @@ export function ParseLaboratoryConfiguration(): LaboratoryConfiguration {
   return {
     endpointBaseUrl,
     port,
-    queue: ParseQueueConfiguration(),
-    database: ParseDatabaseConfiguration(),
+    queue: await ParseQueueConfiguration(),
+    database: await ParseDatabaseConfiguration(),
     auth: ParseAuthConfiguration(),
   };
 }

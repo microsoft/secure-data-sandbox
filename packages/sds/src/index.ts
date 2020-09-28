@@ -1,5 +1,5 @@
 export * from './laboratory';
 export * from './queue';
 export * from './messages';
-export * from './database';
-export * as configuration from './configuration';
+export * from './telemetry';
+export * from './configuration';

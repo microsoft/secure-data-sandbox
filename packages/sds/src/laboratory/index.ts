@@ -1,2 +1,4 @@
 export * from './client';
-export * from './logic';
+export * from './interfaces';
+export * from './normalize';
+export * from './validate';

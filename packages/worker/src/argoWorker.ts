@@ -1,15 +1,22 @@
 import * as k8s from '@kubernetes/client-node';
 import { IQueue, QueueProcessor, PipelineRun } from '@microsoft/sds';
 import { Workflow, Template, PersistentVolumeClaim } from './argo';
+import { ArgoWorkerConfiguration } from './configuration';
 
 // Executes Runs by creating an Argo workflow
 export class ArgoWorker {
   private readonly processor: QueueProcessor<PipelineRun>;
   private readonly crd: k8s.CustomObjectsApi;
+  private readonly config: ArgoWorkerConfiguration;
 
-  constructor(queue: IQueue<PipelineRun>, kc: k8s.KubeConfig) {
+  constructor(
+    queue: IQueue<PipelineRun>,
+    kc: k8s.KubeConfig,
+    config: ArgoWorkerConfiguration
+  ) {
     this.processor = new QueueProcessor(queue);
     this.crd = kc.makeApiClient(k8s.CustomObjectsApi);
+    this.config = config;
   }
 
   start() {
@@ -21,7 +28,9 @@ export class ArgoWorker {
   }
 
   private async processRun(run: PipelineRun) {
-    const workflow = createWorkflow(run);
+    console.log(`Processing run: ${run.name}`);
+
+    const workflow = createWorkflow(run, this.config);
     await this.crd.createNamespacedCustomObject(
       'argoproj.io',
       'v1alpha1',
@@ -32,7 +41,10 @@ export class ArgoWorker {
   }
 }
 
-export function createWorkflow(run: PipelineRun): Workflow {
+export function createWorkflow(
+  run: PipelineRun,
+  config: ArgoWorkerConfiguration
+): Workflow {
   const steps = run.stages.map(s => [
     {
       name: s.name,
@@ -86,6 +98,9 @@ export function createWorkflow(run: PipelineRun): Workflow {
         },
         ...templates,
       ],
+      ttlStrategy: {
+        secondsAfterSuccess: config.successfulRunGCSeconds,
+      },
     },
   };
 
@@ -93,26 +108,25 @@ export function createWorkflow(run: PipelineRun): Workflow {
     const volumeClaimTemplates: PersistentVolumeClaim[] = [];
 
     for (const stage of run.stages) {
-      if (stage.volumes) {
-        for (const volume of stage.volumes) {
-          if (
-            !volumeClaimTemplates.some(c => c.metadata?.name === volume.name)
-          ) {
-            volumeClaimTemplates.push({
-              metadata: {
-                name: volume.name,
-              },
-              spec: {
-                // TODO: Set this as a parameter
-                accessModes: ['ReadWriteOnce'],
-                resources: {
-                  requests: {
-                    storage: '1Gi',
-                  },
+      for (const volume of stage.volumes || []) {
+        if (!volumeClaimTemplates.some(c => c.metadata?.name === volume.name)) {
+          const pvc: PersistentVolumeClaim = {
+            metadata: {
+              name: volume.name,
+            },
+            spec: {
+              accessModes: ['ReadWriteOnce'],
+              resources: {
+                requests: {
+                  storage: '1Gi',
                 },
               },
-            });
+            },
+          };
+          if (config.storageClassName) {
+            pvc.spec!.storageClassName = config.storageClassName;
           }
+          volumeClaimTemplates.push(pvc);
         }
       }
     }

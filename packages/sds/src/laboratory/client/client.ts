@@ -19,16 +19,15 @@ import {
   ISuite,
   IUpdateRunStatus,
   Measures,
-  normalizeName,
-  normalizeRunName,
   ResultArrayType,
   RunArrayType,
   RunStatus,
   RunType,
   SuiteArrayType,
   SuiteType,
-  validate,
-} from '../logic';
+} from '../interfaces';
+import { normalizeName, normalizeRunName } from '../normalize';
+import { validate } from '../validate';
 
 // A TokenRetriever should return a valid OAuth2 Bearer token
 type TokenRetriever = () => Promise<string>;
