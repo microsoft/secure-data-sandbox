@@ -9,8 +9,8 @@
       "type": "string"
     },
     "tags": {
-      "type": "array",
-      "defaultValue": []
+      "type": "object",
+      "defaultValue": {}
     }
   },
   "variables": {
@@ -29,12 +29,7 @@
       },
       "tags": "[parameters('tags')]",
       "properties": {
-        "adminUserEnabled": false,
-        "networkRuleSet": {
-          "defaultAction": "Deny",
-          "virtualNetworkRules": []
-        },
-        "publicNetworkAccess": "Disabled"
+        "adminUserEnabled": false
       }
     },
     {
@@ -150,9 +145,17 @@
       "type": "string",
       "value": "[resourceId('Microsoft.ContainerRegistry/registries', variables('infraAcr'))]"
     },
+    "infraAcrLoginServer": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ContainerRegistry/registries', variables('infraAcr'))).loginServer]"
+    },
     "userAcrId": {
       "type": "string",
       "value": "[resourceId('Microsoft.ContainerRegistry/registries', variables('userAcr'))]"
+    },
+    "userAcrLoginServer": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ContainerRegistry/registries', variables('userAcr'))).loginServer]"
     }
   }
 }

@@ -2,10 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "createVnet": {
-      "type": "bool",
-      "defaultValue": true
-    },
     "allowedExternalEndpoints": {
       "type": "array",
       "defaultValue": []
@@ -19,11 +15,24 @@
       ]
     },
     "tags": {
-      "type": "array",
-      "defaultValue": []
+      "type": "object",
+      "defaultValue": {}
+    },
+    "monitoringEventHub": {
+      "type": "string"
+    },
+    "monitoringEventHubsNamespace": {
+      "type": "string"
     }
   },
   "variables": {
+    "defaultTags": {
+      "vnetExists": false
+    },
+    "updatedTags": {
+      "vnetExists": true
+    },
+    "vnetExists": "[bool(union(variables('defaultTags'), resourceGroup().tags)['vnetExists'])]",
     "vnetAddressPrefix": "10.0.0.0/16",
     "privateLinkSubnetPrefix": "10.0.0.0/24",
     "defaultFirewallApplicationRules": [
@@ -122,7 +131,7 @@
   },
   "resources": [
     {
-      "condition": "[parameters('createVnet')]",
+      "condition": "[not(variables('vnetExists'))]",
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-05-01",
       "location": "[resourceGroup().location]",
@@ -140,13 +149,68 @@
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet'))]"
       ],
+      "type": "Microsoft.Resources/tags",
+      "apiVersion": "2019-10-01",
+      "name": "default",
+      "properties": {
+        "tags": "[union(resourceGroup().tags, variables('updatedTags'))]"
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('privateLink')]",
+      "properties": {
+        "securityRules": []
+      },
+      "resources": [
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Network/networkSecurityGroups', variables('privateLink'))]"
+          ],
+          "type": "providers/diagnosticSettings",
+          "apiVersion": "2017-05-01-preview",
+          "name": "[concat('Microsoft.Insights/diagnostics')]",
+          "properties": {
+            "eventHubName": "[parameters('monitoringEventHub')]",
+            "eventHubAuthorizationRuleId": "[resourceId('Microsoft.EventHub/namespaces/authorizationrules', parameters('monitoringEventHubsNamespace'), 'RootManageSharedAccessKey')]",
+            "logs": [
+              {
+                "category": "NetworkSecurityGroupEvent",
+                "enabled": true,
+                "retentionPolicy": {
+                  "days": 365,
+                  "enabled": true
+                }
+              },
+              {
+                "category": "NetworkSecurityGroupRuleCounter",
+                "enabled": true,
+                "retentionPolicy": {
+                  "days": 365,
+                  "enabled": true
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('privateLink'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet'))]"
+      ],
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-05-01",
       "location": "[resourceGroup().location]",
       "name": "[concat(variables('vnet'), '/', variables('privateLink'))]",
-      "tags": "[parameters('tags')]",
       "properties": {
         "addressPrefix": "[variables('privateLinkSubnetPrefix')]",
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('privateLink'))]"
+        },
         "privateEndpointNetworkPolicies": "Disabled"
       }
     },
@@ -158,13 +222,22 @@
       "apiVersion": "2020-05-01",
       "location": "[resourceGroup().location]",
       "name": "[concat(variables('vnet'), '/AzureFirewallSubnet')]",
-      "tags": "[parameters('tags')]",
       "properties": {
         "addressPrefix": "[variables('firewallSubnetPrefix')]"
       }
     },
     {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('detonationChamber')]",
+      "properties": {
+        "securityRules": []
+      }
+    },
+    {
       "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('detonationChamber'))]",
         "[resourceId('Microsoft.Network/routeTables', variables('firewall'))]",
         "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet'))]"
       ],
@@ -172,10 +245,13 @@
       "apiVersion": "2020-05-01",
       "location": "[resourceGroup().location]",
       "name": "[concat(variables('vnet'), '/', variables('detonationChamber'))]",
-      "tags": "[parameters('tags')]",
       "properties": {
         "addressPrefix": "[variables('detonationChamberSubnetPrefix')]",
         "privateEndpointNetworkPolicies": "Disabled",
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('detonationChamber'))]"
+
+        },
         "routeTable": {
           "id": "[resourceId('Microsoft.Network/routeTables', variables('firewall'))]"
         }

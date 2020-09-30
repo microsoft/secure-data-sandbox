@@ -6,10 +6,6 @@
       "type": "string",
       "defaultValue": ""
     },
-    "createVnet": {
-      "type": "bool",
-      "defaultValue": true
-    },
     "deploymentSas": {
       "type": "securestring",
       "defaultValue": ""
@@ -27,8 +23,8 @@
       "defaultValue": []
     },
     "tags": {
-      "type": "array",
-      "defaultValue": []
+      "type": "object",
+      "defaultValue": {}
     }
   },
   "variables": {
@@ -38,7 +34,7 @@
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2017-05-10",
+      "apiVersion": "2019-10-01",
       "name": "monitoring",
       "resourceGroup": "[resourceGroup().name]",
       "tags": "[parameters('tags')]",
@@ -56,16 +52,34 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2017-05-10",
+      "apiVersion": "2019-10-01",
+      "name": "keyvault",
+      "resourceGroup": "[resourceGroup().name]",
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "tags": {
+            "value": "[parameters('tags')]"
+          }
+        },
+        "templateLink": {
+          "uri": "[concat(uri(variables('assetsBaseUrl'), './arm/keyvault.json'), variables('deploymentSas'))]"
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'monitoring')]"
+      ],
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
       "name": "network",
       "resourceGroup": "[resourceGroup().name]",
       "tags": "[parameters('tags')]",
       "properties": {
         "mode": "Incremental",
         "parameters": {
-          "createVnet": {
-            "value": "[parameters('createVnet')]"
-          },
           "mode": {
             "value": "[parameters('mode')]"
           },
@@ -74,6 +88,12 @@
           },
           "tags": {
             "value": "[parameters('tags')]"
+          },
+          "monitoringEventHub": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring')).outputs.eventHub.value]"
+          },
+          "monitoringEventHubsNamespace": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring')).outputs.eventHubsNamespace.value]"
           }
         },
         "templateLink": {
@@ -86,7 +106,7 @@
         "[resourceId('Microsoft.Resources/deployments', 'network')]"
       ],
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2017-05-10",
+      "apiVersion": "2019-10-01",
       "name": "queue",
       "resourceGroup": "[resourceGroup().name]",
       "tags": "[parameters('tags')]",
@@ -113,7 +133,7 @@
         "[resourceId('Microsoft.Resources/deployments', 'network')]"
       ],
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2017-05-10",
+      "apiVersion": "2019-10-01",
       "name": "acr",
       "resourceGroup": "[resourceGroup().name]",
       "tags": "[parameters('tags')]",
@@ -137,11 +157,13 @@
     },
     {
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'queue')]",
-        "[resourceId('Microsoft.Resources/deployments', 'monitoring')]"
+        "[resourceId('Microsoft.Resources/deployments', 'acr')]",
+        "[resourceId('Microsoft.Resources/deployments', 'keyvault')]",
+        "[resourceId('Microsoft.Resources/deployments', 'monitoring')]",
+        "[resourceId('Microsoft.Resources/deployments', 'queue')]"
       ],
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2017-05-10",
+      "apiVersion": "2019-10-01",
       "name": "laboratory",
       "resourceGroup": "[resourceGroup().name]",
       "tags": "[parameters('tags')]",
@@ -151,11 +173,32 @@
           "instrumentationKey": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring')).outputs.instrumentationKey.value]"
           },
+          "infraAcrId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'acr')).outputs.infraAcrId.value]"
+          },
+          "infraAcrLoginServer": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'acr')).outputs.infraAcrLoginServer.value]"
+          },
+          "laboratoryImage": {
+            "value": "[concat(reference(resourceId('Microsoft.Resources/deployments', 'acr')).outputs.infraAcrLoginServer.value, '/sds-laboratory')]"
+          },
           "runsQueueEndpoint": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'queue')).outputs.runsQueueEndpoint.value]"
           },
           "tags": {
             "value": "[parameters('tags')]"
+          },
+          "keyVault": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'keyvault')).outputs.keyVault.value]"
+          },
+          "monitoringStorageAccount": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring')).outputs.storageAccount.value]"
+          },
+          "monitoringEventHub": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring')).outputs.eventHub.value]"
+          },
+          "monitoringEventHubsNamespace": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring')).outputs.eventHubsNamespace.value]"
           }
         },
         "templateLink": {
@@ -165,10 +208,11 @@
     },
     {
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'network')]"
+        "[resourceId('Microsoft.Resources/deployments', 'network')]",
+        "[resourceId('Microsoft.Resources/deployments', 'monitoring')]"
       ],
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2017-05-10",
+      "apiVersion": "2019-10-01",
       "name": "worker",
       "resourceGroup": "[resourceGroup().name]",
       "tags": "[parameters('tags')]",
@@ -183,6 +227,9 @@
           },
           "tags": {
             "value": "[parameters('tags')]"
+          },
+          "logAnalyticsWorkspace": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring')).outputs.logAnalyticsWorkspace.value]"
           }
         },
         "templateLink": {
@@ -196,7 +243,7 @@
         "[resourceId('Microsoft.Resources/deployments', 'worker')]"
       ],
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2017-05-10",
+      "apiVersion": "2019-10-01",
       "name": "rbac",
       "resourceGroup": "[resourceGroup().name]",
       "tags": "[parameters('tags')]",
@@ -232,6 +279,14 @@
     }
   ],
   "outputs": {
+    "infraAcrLoginServer": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'acr')).outputs.infraAcrLoginServer.value]"
+    },
+    "userAcrLoginServer": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'acr')).outputs.userAcrLoginServer.value]"
+    },
     "instrumentationKey": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring')).outputs.instrumentationKey.value]"

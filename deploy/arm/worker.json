@@ -9,8 +9,11 @@
       "type": "string"
     },
     "tags": {
-      "type": "array",
-      "defaultValue": []
+      "type": "object",
+      "defaultValue": {}
+    },
+    "logAnalyticsWorkspace": {
+      "type": "string"
     }
   },
   "variables": {
@@ -151,6 +154,12 @@
         "addonProfiles": {
           "kubeDashboard": {
             "enabled": false
+          },
+          "omsagent": {
+            "enabled": true,
+            "config": {
+              "logAnalyticsWorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspace'))]"
+            }
           }
         }
       }

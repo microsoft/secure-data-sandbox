@@ -21,8 +21,8 @@
       "type": "string"
     },
     "tags": {
-      "type": "array",
-      "defaultValue": []
+      "type": "object",
+      "defaultValue": {}
     }
   },
   "variables": {

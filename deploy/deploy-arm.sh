@@ -5,7 +5,6 @@ show_usage() {
   echo 'Usage: deploy.sh -g <resource_group> [--assets <assets_base_uri>] [--sas <sas_token>] [--dev]'
 }
 
-CREATE_VNET=true
 DEV=false
 SAS=""
 
@@ -65,12 +64,11 @@ validate_arguments() {
 deploy_environment() {
   PARAMS_FILE="parameters.json"
 
-  if az network vnet show -g $RESOURCE_GROUP -n vnet &>/dev/null; then
-    CREATE_VNET=false
+  if [ "$DEV" = true ]; then
     PARAMS_FILE="parameters.dev.json"
   fi
 
-  az deployment group create -g $RESOURCE_GROUP -p "${ASSETS_BASE}/arm/${PARAMS_FILE}" -u "${ASSETS_BASE}/arm/azuredeploy.json?${SAS}" -p "assetsBaseUrl=$ASSETS_BASE" "createVnet=$CREATE_VNET" "deploymentSas=$SAS"
+  az deployment group create -g $RESOURCE_GROUP -p "${ASSETS_BASE}/arm/${PARAMS_FILE}" -u "${ASSETS_BASE}/arm/azuredeploy.json?${SAS}" -p "assetsBaseUrl=$ASSETS_BASE" "deploymentSas=$SAS"
 }
 
 deploy_dev() {
