@@ -41,13 +41,14 @@ function configureAADAuth(app: express.Express, config: AADConfiguration) {
         clientId: config.cliClientId,
         authority: `https://login.microsoftonline.com/${config.tenantId}`,
         scopes: config.scopes,
+        // scopes: [],
       };
       res.json(connectionInfo);
     })
 
     // require all endpoints to be authenticated
     .use(passport.initialize())
-    .all('*', passport.authenticate('oauth-bearer', { session: false }));
+    // .all('*', passport.authenticate('oauth-bearer', { session: true }));
 }
 
 export async function createApp(
@@ -60,6 +61,7 @@ export async function createApp(
   switch (auth.mode) {
     case AuthMode.AAD:
       configureAADAuth(app, auth as AADConfiguration);
+      console.log("after-config");
       break;
     case AuthMode.None:
     default:
@@ -94,4 +96,16 @@ export async function createApp(
     );
 
   return app;
+}
+
+export function RetrieveUserFromAuthToken(req: any) : string {
+  if (req.headers && req.headers.authorization) {
+    var authToken: any = req.headers.authorization?.toString();
+    var authInfo = authToken.split('.')[1];
+    var authInfoString = Buffer.from(authInfo, 'base64').toString('ascii');
+    // console.log(JSON.parse(authInfoString));
+    var username = JSON.parse(authInfoString)['unique_name'] || JSON.parse(authInfoString)['upn'];
+    return username; 
+  }
+  return "Unauthorized User";
 }
