@@ -12,6 +12,9 @@ import {
 
 import * as env from 'env-var';
 
+// import appInsights
+import * as appInsights from 'applicationinsights';
+
 export enum AuthMode {
   AAD = 'AAD',
   None = 'none',
@@ -73,7 +76,7 @@ export function ParseDatabaseConfiguration(): DatabaseConfiguration {
 
 function ParseAuthConfiguration(): AuthConfiguration {
   const authMode = env.get('AUTH_MODE').asString();
-
+  console.log(authMode);
   if (authMode === 'aad') {
     const tenantId = env.get('AUTH_TENANT_ID').required().asString();
     const laboratoryClientId = env
@@ -118,6 +121,12 @@ export function ParseLaboratoryConfiguration(): LaboratoryConfiguration {
       ? `https://${hostname}`
       : `http://${os.hostname()}:${port}`;
   }
+
+  // setup automated request & expection tracking (require APPINSIGHTS_INSTRUMENTATIONKEY to be declared in the environment)
+  appInsights.setup();
+  const key = appInsights.defaultClient.context.keys.cloudRole;
+  appInsights.defaultClient.context.tags[key] = 'codespace_sds';
+  appInsights.start();
 
   return {
     endpointBaseUrl,
