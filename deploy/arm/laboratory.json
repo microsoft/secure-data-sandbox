@@ -36,6 +36,22 @@
     },
     "monitoringEventHubsNamespace": {
       "type": "string"
+    },
+    "authMode": {
+      "type": "string",
+      "defaultValue": "none"
+    },
+    "authTenantId": {
+      "type": "string",
+      "defaultValue": "[subscription().tenantId]"
+    },
+    "authLaboratoryClientId": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "authCliClientId": {
+      "type": "string",
+      "defaultValue": ""
     }
   },
   "variables": {
@@ -600,6 +616,10 @@ $DeploymentScriptOutputs['keyUrl'] = $key.Id
           "name": "appsettings",
           "properties": {
             "APPINSIGHTS_INSTRUMENTATIONKEY": "[parameters('instrumentationKey')]",
+            "AUTH_MODE": "[parameters('authMode')]",
+            "AUTH_TENANT_ID": "[parameters('authTenantId')]",
+            "AUTH_LABORATORY_CLIENT_ID": "[parameters('authLaboratoryClientId')]",
+            "AUTH_CLI_CLIENT_ID": "[parameters('authCliClientId')]",
             "AZURE_CLIENT_ID": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))).clientId]",
             "QUEUE_MODE": "azure",
             "QUEUE_ENDPOINT": "[parameters('runsQueueEndpoint')]",

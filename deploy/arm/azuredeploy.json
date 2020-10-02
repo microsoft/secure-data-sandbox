@@ -25,6 +25,22 @@
     "tags": {
       "type": "object",
       "defaultValue": {}
+    },
+    "authMode": {
+      "type": "string",
+      "defaultValue": "none"
+    },
+    "authTenantId": {
+      "type": "string",
+      "defaultValue": "[subscription().tenantId]"
+    },
+    "authLaboratoryClientId": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "authCliClientId": {
+      "type": "string",
+      "defaultValue": ""
     }
   },
   "variables": {
@@ -199,6 +215,18 @@
           },
           "monitoringEventHubsNamespace": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring')).outputs.eventHubsNamespace.value]"
+          },
+          "authMode": {
+            "value": "[parameters('authMode')]"
+          },
+          "authTenantId": {
+            "value": "[parameters('authTenantId')]"
+          },
+          "authLaboratoryClientId": {
+            "value": "[parameters('authLaboratoryClientId')]"
+          },
+          "authCliClientId": {
+            "value": "[parameters('authCliClientId')]"
           }
         },
         "templateLink": {
