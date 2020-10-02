@@ -108,7 +108,7 @@ function ParseAuthConfiguration(): AuthConfiguration {
 export async function ParseLaboratoryConfiguration(): Promise<
   LaboratoryConfiguration
 > {
-  const port = env.get('PORT').default(3000).asPortNumber();
+  const port = env.get('WEBSITES_PORT').default(3000).asPortNumber();
 
   let endpointBaseUrl = env.get('LABORATORY_ENDPOINT').asUrlString();
 

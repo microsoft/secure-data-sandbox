@@ -32,11 +32,6 @@
       "tags": "[parameters('tags')]",
       "properties": {
         "accessTier": "Hot",
-        "networkAcls": {
-          "bypass": "AzureServices",
-          "defaultAction": "Deny",
-          "virtualNetworkRules": []
-        },
         "supportsHttpsTrafficOnly": true
       },
       "resources": [

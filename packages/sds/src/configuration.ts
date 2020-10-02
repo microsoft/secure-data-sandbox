@@ -1,6 +1,10 @@
 import { promisify } from 'util';
 import * as env from 'env-var';
-import { DefaultAzureCredential, TokenCredential } from '@azure/identity';
+import {
+  DefaultAzureCredential,
+  ManagedIdentityCredential,
+  TokenCredential,
+} from '@azure/identity';
 
 import {
   QueueMode,
@@ -25,14 +29,13 @@ export class AzureCredential {
 
     const clientId = env.get('AZURE_CLIENT_ID').asString();
     const errors = [];
+
+    // Retry loop is a workaround for usage with aad-pod-identity, where the identity is not
+    // mounted to the VMSS within 500ms, triggering a lockout that renders the credential
+    // object unable to be used. We keep trying until we get a valid token or timeout
     for (let i = 0; i < AzureCredential.tokenRetryLimit; i++) {
       try {
-        const cred = new DefaultAzureCredential({
-          managedIdentityClientId: clientId,
-        });
-        await cred.getToken('https://management.azure.com/.default');
-        AzureCredential.instance = cred;
-        return AzureCredential.instance;
+        return await AzureCredential.initCredential(clientId);
       } catch (err) {
         errors.push(err);
         console.log(
@@ -46,6 +49,32 @@ export class AzureCredential {
       `Unable to acquire AzureCredential after ${AzureCredential.tokenRetryLimit} attempts`
     );
     throw errors;
+  }
+
+  private static async initCredential(clientId?: string) {
+    // DefaultAzureCredential currently fails when trying to get tokens for a User-Assigned Identity when deployed
+    // to Azure App Service. https://github.com/Azure/azure-sdk-for-js/issues/11595
+    // When this Issue is resolved, we should remove the try/catch and only use DefaultAzureCredential
+    try {
+      const cred = new DefaultAzureCredential({
+        managedIdentityClientId: clientId,
+      });
+      await cred.getToken('https://management.azure.com/.default');
+      AzureCredential.instance = cred;
+      return AzureCredential.instance;
+    } catch (err) {
+      // If DefaultAzureCredential has failed and there's no clientId - throw the original error
+      if (!clientId) {
+        throw err;
+      }
+
+      // Workaround for https://github.com/Azure/azure-sdk-for-js/issues/11595
+      // Exceptions here should be allowed to throw
+      const cred = new ManagedIdentityCredential(clientId);
+      await cred.getToken('https://management.azure.com/.default');
+      AzureCredential.instance = cred;
+      return AzureCredential.instance;
+    }
   }
 }
 

@@ -553,11 +553,11 @@ $DeploymentScriptOutputs['keyUrl'] = $key.Id
         "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]"
       ],
       "type": "Microsoft.Web/sites",
-      "apiVersion": "2018-11-01",
+      "apiVersion": "2019-08-01",
       "location": "[resourceGroup().location]",
       "name": "[variables('webApp')]",
       "identity": {
-        "type": "SystemAssigned, UserAssigned",
+        "type": "UserAssigned",
         "userAssignedIdentities": {
           "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))]": {}
         }
@@ -570,70 +570,55 @@ $DeploymentScriptOutputs['keyUrl'] = $key.Id
         "siteConfig": {
           "alwaysOn": true,
           "minTlsVersion": "1.2",
-          "appSettings": [
-            {
-              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-              "value": "[parameters('instrumentationKey')]"
-            },
-            {
-              "name": "AZURE_CLIENT_ID",
-              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))).clientId]"
-            },
-            {
-              "name": "QUEUE_MODE",
-              "value": "azure"
-            },
-            {
-              "name": "QUEUE_ENDPOINT",
-              "value": "[parameters('runsQueueEndpoint')]"
-            },
-            {
-              "name": "SQL_MODE",
-              "value": "azuresql"
-            },
-            {
-              "name": "SQL_HOST",
-              "value": "[reference(resourceId('Microsoft.Sql/servers', variables('sqlServer'))).fullyQualifiedDomainName]"
-            },
-            {
-              "name": "SQL_DB",
-              "value": "[variables('laboratory')]"
-            },
-            {
-              "name": "DOCKER_REGISTRY_SERVER_URL",
-              "value": "[parameters('infraAcrLoginServer')]"
-            },
-            {
-              "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
-              "value": "false"
-            },
-            {
-              "name": "WEBSITES_PORT",
-              "value": "3000"
-            }
-          ]
+          "linuxFxVersion": "DOCKER|nginx"
         }
       },
       "resources": [
         {
           "dependsOn": [
             "[resourceId('Microsoft.Web/sites', variables('webApp'))]",
-            "[extensionResourceId(parameters('infraAcrId'), 'Microsoft.Authorization/roleAssignments', guid(concat(variables('webApp'), parameters('infraAcrId'), 'AcrPull')))]"
+            "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))]",
+            "[extensionResourceId(parameters('infraAcrId'), 'Microsoft.Authorization/roleAssignments', guid(concat(variables('laboratory'), parameters('infraAcrId'), 'AcrPull')))]"
           ],
           "type": "config",
-          "apiVersion": "2018-11-01",
+          "apiVersion": "2019-08-01",
           "name": "web",
           "properties": {
+            "acrUseManagedIdentityCreds": true,
+            "acrUserManagedIdentityID": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))).clientId]",
             "linuxFxVersion": "[concat('DOCKER|', parameters('laboratoryImage'))]"
           }
         },
         {
           "dependsOn": [
             "[resourceId('Microsoft.Web/sites', variables('webApp'))]",
+            "[resourceId('Microsoft.Web/sites/config', variables('webApp'), 'web')]",
+            "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))]"
+          ],
+          "type": "config",
+          "apiVersion": "2019-08-01",
+          "name": "appsettings",
+          "properties": {
+            "APPINSIGHTS_INSTRUMENTATIONKEY": "[parameters('instrumentationKey')]",
+            "AZURE_CLIENT_ID": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))).clientId]",
+            "QUEUE_MODE": "azure",
+            "QUEUE_ENDPOINT": "[parameters('runsQueueEndpoint')]",
+            "SQL_MODE": "azuresql",
+            "SQL_HOST": "[reference(resourceId('Microsoft.Sql/servers', variables('sqlServer'))).fullyQualifiedDomainName]",
+            "SQL_DB": "[variables('laboratory')]",
+            "DOCKER_REGISTRY_SERVER_URL": "[concat('https://', parameters('infraAcrLoginServer'))]",
+            "WEBSITES_ENABLE_APP_SERVICE_STORAGE": "false",
+            "WEBSITES_PORT": "3000"
+          }
+        },
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/sites', variables('webApp'))]",
+            "[resourceId('Microsoft.Web/sites/config', variables('webApp'), 'appsettings')]",
             "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', parameters('monitoringStorageAccount'), 'default', variables('diagnosticsLogs'))]"
           ],
           "type": "config",
-          "apiVersion": "2018-11-01",
+          "apiVersion": "2019-08-01",
           "location": "[resourceGroup().location]",
           "name": "logs",
           "properties": {
@@ -765,14 +750,14 @@ $DeploymentScriptOutputs['keyUrl'] = $key.Id
     },
     {
       "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', variables('webApp'))]"
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))]"
       ],
       "type": "Microsoft.ContainerRegistry/registries/providers/roleAssignments",
       "apiVersion": "2018-09-01-preview",
       "location": "[resourceGroup().location]",
-      "name": "[concat(variables('infraAcrName'), '/Microsoft.Authorization/', guid(concat(variables('webApp'), parameters('infraAcrId'), 'AcrPull')))]",
+      "name": "[concat(variables('infraAcrName'), '/Microsoft.Authorization/', guid(concat(variables('laboratory'), parameters('infraAcrId'), 'AcrPull')))]",
       "properties": {
-        "principalId": "[reference(resourceId('Microsoft.Web/sites', variables('webApp')), '2018-11-01', 'Full').identity.principalId]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))).principalId]",
         "roleDefinitionId": "[variables('acrPullRoleId')]",
         "type": "ServicePrincipal"
       }
