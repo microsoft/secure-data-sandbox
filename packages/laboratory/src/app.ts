@@ -47,7 +47,7 @@ function configureAADAuth(app: express.Express, config: AADConfiguration) {
 
     // require all endpoints to be authenticated
     .use(passport.initialize())
-    .all('*', passport.authenticate('oauth-bearer', { session: true }));
+    .all('*', passport.authenticate('oauth-bearer', { session: false }));
 }
 
 export async function createApp(
