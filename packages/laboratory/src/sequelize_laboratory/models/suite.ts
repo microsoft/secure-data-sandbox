@@ -1,6 +1,6 @@
 import { DataType, Column, Model, Table } from 'sequelize-typescript';
 
-import { ISuite, SuiteVolume } from '@microsoft/sds';
+import { ISuite, Properties, SuiteVolume } from '@microsoft/sds';
 
 import { jsonColumn } from './decorators';
 
@@ -24,4 +24,7 @@ export class Suite extends Model<Suite> implements ISuite {
   // TODO: REVIEW: magic number 1024
   @Column(jsonColumn<SuiteVolume[]>('volumes', 1024))
   volumes!: SuiteVolume[];
+
+  @Column(jsonColumn<object>('properties', 1024))
+  properties!: Properties;
 }

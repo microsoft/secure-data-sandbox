@@ -22,5 +22,8 @@ export interface PipelineRunStage {
     // TODO: allow `source` as optional for type: 'ephemeral'
     source: string | undefined;
     readonly: boolean;
+    properties?: Readonly<{
+      [key: string]: string;
+    }>;
   }>;
 }
