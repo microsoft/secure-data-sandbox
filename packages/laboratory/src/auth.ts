@@ -8,12 +8,10 @@ export function RetrieveUserFromAuthToken(accessToken: string): string {
     const decoded = jwt.decode(accessToken, { complete: true });
     if (decoded && Object(decoded).payload && Object(decoded).payload.sub) {
       return Object(decoded).payload.sub;
-    } else if (!Object(decoded).payload) {
-      return 'AccessToken no user payload';
-    } else if (!Object(decoded).payload.sub) {
-      return 'AccessToken no user sub';
+    } else if (!Object(decoded) || !Object(decoded).payload) {
+      return 'AccessToken is invalid to decode (invalid format)';
     } else {
-      return 'AccessToken is invalid to decode';
+      return 'AccessToken no user sub';
     }
   } else {
     return 'No AccessToken';

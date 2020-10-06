@@ -1,5 +1,6 @@
 import { assert } from 'chai';
 import { RetrieveUserFromAuthToken } from '.././src/auth';
+import * as jwtBuilder from 'jwt-builder';
 
 // define the accessToken here
 // This is the dummy accessToken from this doc: https://docs.microsoft.com/en-us/azure/active-directory/develop/access-tokens
@@ -14,6 +15,7 @@ describe('Retrieve User Info From AuthToken', () => {
       'HKZpfaHyWadeOouYlitjrI-KffTm222X5rrV3xDqfKQ'
     );
   });
+
   it('result in valid accessToken from aad with "Bearer " string', async () => {
     assert.equal(
       RetrieveUserFromAuthToken('Bearer ' + sampleAccessToken).length,
@@ -24,10 +26,27 @@ describe('Retrieve User Info From AuthToken', () => {
       'HKZpfaHyWadeOouYlitjrI-KffTm222X5rrV3xDqfKQ'
     );
   });
+
   it('result in no accessToken ', async () => {
     assert.equal(RetrieveUserFromAuthToken(null), 'No AccessToken');
   });
+
   it('result in uncorrect accessToken form', async () => {
     assert.equal(RetrieveUserFromAuthToken(''), 'No AccessToken');
+  });
+
+  it('result in accessToken no user sub', async () => {
+    const token = jwtBuilder({
+      secret: 'super-secret',
+      headers: {
+        kid: '2000-00-00',
+      },
+    });
+    assert.equal(RetrieveUserFromAuthToken(token), 'AccessToken no user sub');
+  });
+
+  it('result in invalid accessToken', async () => {
+    const invalidToken = '0000'
+    assert.equal(RetrieveUserFromAuthToken(invalidToken), 'AccessToken is invalid to decode (invalid format)');
   });
 });
