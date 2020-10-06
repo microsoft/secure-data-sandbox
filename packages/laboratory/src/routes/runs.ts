@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import * as appInsights from 'applicationinsights';
-import { RetrieveUserFromAuthToken } from '../app';
+import { Contracts } from 'applicationinsights';
+import { RetrieveUserFromAuthToken } from '../auth';
+import { telemetryClient } from '../main';
 
 import {
   ILaboratory,
@@ -22,13 +23,19 @@ export function createRunRouter(lab: ILaboratory): Router {
     .post(async (req, res) => {
       const runRequest = validate(RunRequestType, req.body);
       const run = await lab.createRunRequest(runRequest);
+
       // log who initiates the run in appinsight
-      var client = appInsights.defaultClient;
-      client.trackTrace({message: `${RetrieveUserFromAuthToken(req)} initiates the run with candidate '${req.body.candidate}' and suite '${req.body.suite}'`,
-        severity: appInsights.Contracts.SeverityLevel.Information});
+      const accessToken = req.headers.authorization!;
+      telemetryClient.trackTrace({
+        message: `sub:'${RetrieveUserFromAuthToken(
+          accessToken
+        )}' initiated the run '${run.name}' using candidate '${
+          req.body.candidate
+        }' and suite '${req.body.suite}'`,
+        severity: Contracts.SeverityLevel.Information,
+      });
       res.status(202);
       res.json(run);
-      console.log(run);
     });
 
   router.get('/runs/results', async (req, res) => {
@@ -54,6 +61,12 @@ export function createRunRouter(lab: ILaboratory): Router {
     .patch(async (req, res) => {
       const { status } = validate(UpdateRunStatusType, req.body);
       await lab.updateRunStatus(req.params['name'], status);
+
+      // log run status into appInsights
+      telemetryClient.trackTrace({
+        message: `Run: the run status of '${req.params['name']}' is '${status}'. '${req.params['name']}' runs using candidate '${req.body.candidate}' and suite '${req.body.suite}' `,
+        severity: Contracts.SeverityLevel.Information,
+      });
       res.status(204);
       res.end();
     });
