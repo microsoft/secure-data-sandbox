@@ -278,6 +278,9 @@
       "properties": {
         "mode": "Incremental",
         "parameters": {
+          "nodeResourceGroup": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.nodeResourceGroup.value]"
+          },
           "kubeletIdentityId": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.kubeletIdentityId.value]"
           },

@@ -75,8 +75,20 @@
         "sourceAddresses": [ "*" ],
         "targetFqdns": [
           "dc.applicationinsights.azure.com",
-          "dc.applicationinsights.azure.com",
           "dc.services.visualstudio.com"
+        ],
+        "protocols": [
+          {
+            "port": 443,
+            "protocolType": "Https"
+          }
+        ]
+      },
+      {
+        "name": "aad-pod-identity",
+        "sourceAddresses": ["*"],
+        "targetFqdns": [
+          "management.azure.com"
         ],
         "protocols": [
           {
@@ -162,7 +174,47 @@
       "location": "[resourceGroup().location]",
       "name": "[variables('privateLink')]",
       "properties": {
-        "securityRules": []
+        "securityRules": [
+          {
+            "name": "all-inbound-deny",
+            "properties": {
+              "priority": 4096,
+              "direction": "Inbound",
+              "access": "Deny",
+              "protocol": "*",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "*"
+            }
+          },
+          {
+            "name": "detonationChamber-inbound-allow",
+            "properties": {
+              "priority": 1000,
+              "direction": "Inbound",
+              "access": "Allow",
+              "protocol": "TCP",
+              "sourceAddressPrefix": "[variables('detonationChamberSubnetPrefix')]",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "[variables('privateLinkSubnetPrefix')]",
+              "destinationPortRange": "443"
+            }
+          },
+          {
+            "name": "all-outbound-deny",
+            "properties": {
+              "priority": 4096,
+              "direction": "Outbound",
+              "access": "Deny",
+              "protocol": "*",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "*"
+            }
+          }
+        ]
       },
       "resources": [
         {
@@ -232,7 +284,114 @@
       "location": "[resourceGroup().location]",
       "name": "[variables('detonationChamber')]",
       "properties": {
-        "securityRules": []
+        "securityRules": [
+          {
+            "name": "intra-subnet-inbound-allow",
+            "description": "Allow k8s apiserver->node communication",
+            "properties": {
+              "priority": 1000,
+              "direction": "Inbound",
+              "access": "Allow",
+              "protocol": "*",
+              "sourceAddressPrefix": "[variables('detonationChamberSubnetPrefix')]",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "[variables('detonationChamberSubnetPrefix')]",
+              "destinationPortRange": "*"
+            }
+          },
+          {
+            "name": "all-inbound-deny",
+            "properties": {
+              "priority": 4096,
+              "direction": "Inbound",
+              "access": "Deny",
+              "protocol": "*",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "*"
+            }
+          },
+          {
+            "name": "intra-subnet-outbound-allow",
+            "description": "Allow k8s apiserver->node communication",
+            "properties": {
+              "priority": 1000,
+              "direction": "Outbound",
+              "access": "Allow",
+              "protocol": "TCP",
+              "sourceAddressPrefix": "[variables('detonationChamberSubnetPrefix')]",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "[variables('detonationChamberSubnetPrefix')]",
+              "destinationPortRange": "*"
+            }
+          },
+          // {
+          //   "name": "private-endpoints-outbound-allow",
+          //   "properties": {
+          //     "priority": 1100,
+          //     "direction": "Outbound",
+          //     "access": "Allow",
+          //     "protocol": "TCP",
+          //     "sourceAddressPrefix": "[variables('detonationChamberSubnetPrefix')]",
+          //     "sourcePortRange": "*",
+          //     "destinationAddressPrefix": "[variables('privateLinkSubnetPrefix')]",
+          //     "destinationPortRange": "443"
+          //   }
+          // },
+          // {
+          //   "name": "firewall-outbound-allow",
+          //   "properties": {
+          //     "priority": 1200,
+          //     "direction": "Outbound",
+          //     "access": "Allow",
+          //     "protocol": "TCP",
+          //     "sourceAddressPrefix": "[variables('detonationChamberSubnetPrefix')]",
+          //     "sourcePortRange": "*",
+          //     "destinationAddressPrefix": "[variables('firewallSubnetPrefix')]",
+          //     "destinationPortRange": "*"
+          //   }
+          // },
+          // {
+          //   "name": "allow-internet-via-firewall",
+          //   "properties": {
+          //     "priority": 1300,
+          //     "direction": "Outbound",
+          //     "access": "Allow",
+          //     "protocol": "TCP",
+          //     "sourceAddressPrefix": "[variables('detonationChamberSubnetPrefix')]",
+          //     "sourcePortRange": "*",
+          //     "destinationAddressPrefix": "Internet",
+          //     "destinationPortRange": "*"
+          //   }
+          // },
+          // {
+          //   "name": "dns-outbound-allow",
+          //   "properties": {
+          //     "priority": 1400,
+          //     "direction": "Outbound",
+          //     "access": "Allow",
+          //     "protocol": "UDP",
+          //     "sourceAddressPrefix": "[variables('detonationChamberSubnetPrefix')]",
+          //     "sourcePortRange": "*",
+          //     "destinationAddressPrefix": "*",
+          //     "destinationPortRange": "53"
+          //   }
+          // },
+          {
+            "name": "all-outbound-deny",
+            "properties": {
+              "priority": 4096,
+              "direction": "Outbound",
+              "access": "Deny",
+              "protocol": "*",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "*"
+            }
+          }
+        ]
       }
     },
     {
@@ -341,7 +500,7 @@
         "additionalProperties": {
           "Network.DNS.EnableProxy": true
         }
-      }
+      }F
     },
     {
       "dependsOn": [

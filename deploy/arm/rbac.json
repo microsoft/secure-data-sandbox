@@ -20,6 +20,9 @@
     "runsQueueId": {
       "type": "string"
     },
+    "nodeResourceGroup": {
+      "type": "string"
+    },
     "tags": {
       "type": "object",
       "defaultValue": {}
@@ -32,7 +35,8 @@
     "runsQueueName": "[split(parameters('runsQueueId'), '/')[12]]",
     "acrPullRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
     "storageQueueDataMessageSenderRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'c6a89b2d-59bc-44d0-9896-0f6e12d7b80a')]",
-    "storageQueueDataMessageProcessorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8a0f0c08-91a1-4084-bc3d-661d67233fed')]"
+    "storageQueueDataMessageProcessorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8a0f0c08-91a1-4084-bc3d-661d67233fed')]",
+    "virtualMachineContributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '9980e02c-c2be-4d73-94e8-173b1dc7cf3c')]"
   },
   "resources": [
     {
@@ -75,6 +79,33 @@
         "principalId": "[parameters('laboratoryIdentityId')]",
         "roleDefinitionId": "[variables('storageQueueDataMessageSenderRoleId')]",
         "type": "ServicePrincipal"
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[parameters('nodeResourceGroup')]",
+      "resourceGroup": "[parameters('nodeResourceGroup')]",
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": [
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2018-09-01-preview",
+              "location": "[resourceGroup().location]",
+              "name": "[guid(concat(parameters('kubeletIdentityId'), 'VirtualMachineContributor'))]",
+              "properties": {
+                "principalId": "[parameters('kubeletIdentityId')]",
+                "roleDefinitionId": "[variables('virtualMachineContributorRoleId')]",
+                "type": "ServicePrincipal"
+              }
+            }
+          ]
+        }
       }
     }
   ],
