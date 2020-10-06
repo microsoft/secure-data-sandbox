@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { Contracts } from 'applicationinsights';
 import { RetrieveUserFromAuthToken } from '../auth';
-import { telemetryClient } from '../main';
+import { defaultClient as telemetryClient } from 'applicationinsights';
 
 import {
   ILaboratory,

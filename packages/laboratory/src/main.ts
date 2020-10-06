@@ -6,13 +6,15 @@ import {
   initializeSequelize,
   SequelizeLaboratory,
 } from './sequelize_laboratory';
+import { defaultClient as telemetryClient, setup } from 'applicationinsights';
 import { Events } from './telemetry';
 
 import { createApp } from './app';
-import { TelemetryClient } from 'applicationinsights';
-export const telemetryClient: TelemetryClient = InitTelemetry();
 
 async function main() {
+  InitTelemetry();
+  setup();
+
   const config = await ParseLaboratoryConfiguration();
   const queue = GetQueue<PipelineRun>(config.queue);
 

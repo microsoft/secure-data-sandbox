@@ -46,7 +46,10 @@ describe('Retrieve User Info From AuthToken', () => {
   });
 
   it('result in invalid accessToken', async () => {
-    const invalidToken = '0000'
-    assert.equal(RetrieveUserFromAuthToken(invalidToken), 'AccessToken is invalid to decode (invalid format)');
+    const invalidToken = '0000';
+    assert.equal(
+      RetrieveUserFromAuthToken(invalidToken),
+      'AccessToken is invalid to decode (invalid format)'
+    );
   });
 });
