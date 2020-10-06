@@ -71,20 +71,6 @@
         ]
       },
       {
-        "name": "app-insights-telemetry",
-        "sourceAddresses": [ "*" ],
-        "targetFqdns": [
-          "dc.applicationinsights.azure.com",
-          "dc.services.visualstudio.com"
-        ],
-        "protocols": [
-          {
-            "port": 443,
-            "protocolType": "Https"
-          }
-        ]
-      },
-      {
         "name": "aad-pod-identity",
         "sourceAddresses": ["*"],
         "targetFqdns": [
@@ -287,8 +273,8 @@
         "securityRules": [
           {
             "name": "intra-subnet-inbound-allow",
-            "description": "Allow k8s apiserver->node communication",
             "properties": {
+              "description": "Allow k8s apiserver->node communication",
               "priority": 1000,
               "direction": "Inbound",
               "access": "Allow",
@@ -314,8 +300,8 @@
           },
           {
             "name": "intra-subnet-outbound-allow",
-            "description": "Allow k8s apiserver->node communication",
             "properties": {
+              "description": "Allow k8s apiserver->node communication",
               "priority": 1000,
               "direction": "Outbound",
               "access": "Allow",
@@ -326,58 +312,58 @@
               "destinationPortRange": "*"
             }
           },
-          // {
-          //   "name": "private-endpoints-outbound-allow",
-          //   "properties": {
-          //     "priority": 1100,
-          //     "direction": "Outbound",
-          //     "access": "Allow",
-          //     "protocol": "TCP",
-          //     "sourceAddressPrefix": "[variables('detonationChamberSubnetPrefix')]",
-          //     "sourcePortRange": "*",
-          //     "destinationAddressPrefix": "[variables('privateLinkSubnetPrefix')]",
-          //     "destinationPortRange": "443"
-          //   }
-          // },
-          // {
-          //   "name": "firewall-outbound-allow",
-          //   "properties": {
-          //     "priority": 1200,
-          //     "direction": "Outbound",
-          //     "access": "Allow",
-          //     "protocol": "TCP",
-          //     "sourceAddressPrefix": "[variables('detonationChamberSubnetPrefix')]",
-          //     "sourcePortRange": "*",
-          //     "destinationAddressPrefix": "[variables('firewallSubnetPrefix')]",
-          //     "destinationPortRange": "*"
-          //   }
-          // },
-          // {
-          //   "name": "allow-internet-via-firewall",
-          //   "properties": {
-          //     "priority": 1300,
-          //     "direction": "Outbound",
-          //     "access": "Allow",
-          //     "protocol": "TCP",
-          //     "sourceAddressPrefix": "[variables('detonationChamberSubnetPrefix')]",
-          //     "sourcePortRange": "*",
-          //     "destinationAddressPrefix": "Internet",
-          //     "destinationPortRange": "*"
-          //   }
-          // },
-          // {
-          //   "name": "dns-outbound-allow",
-          //   "properties": {
-          //     "priority": 1400,
-          //     "direction": "Outbound",
-          //     "access": "Allow",
-          //     "protocol": "UDP",
-          //     "sourceAddressPrefix": "[variables('detonationChamberSubnetPrefix')]",
-          //     "sourcePortRange": "*",
-          //     "destinationAddressPrefix": "*",
-          //     "destinationPortRange": "53"
-          //   }
-          // },
+          {
+            "name": "private-endpoints-outbound-allow",
+            "properties": {
+              "priority": 1100,
+              "direction": "Outbound",
+              "access": "Allow",
+              "protocol": "TCP",
+              "sourceAddressPrefix": "[variables('detonationChamberSubnetPrefix')]",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "[variables('privateLinkSubnetPrefix')]",
+              "destinationPortRange": "443"
+            }
+          },
+          {
+            "name": "firewall-outbound-allow",
+            "properties": {
+              "priority": 1200,
+              "direction": "Outbound",
+              "access": "Allow",
+              "protocol": "TCP",
+              "sourceAddressPrefix": "[variables('detonationChamberSubnetPrefix')]",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "[variables('firewallSubnetPrefix')]",
+              "destinationPortRange": "*"
+            }
+          },
+          {
+            "name": "internet-via-firewall-allow",
+            "properties": {
+              "priority": 1300,
+              "direction": "Outbound",
+              "access": "Allow",
+              "protocol": "TCP",
+              "sourceAddressPrefix": "[variables('detonationChamberSubnetPrefix')]",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "Internet",
+              "destinationPortRange": "*"
+            }
+          },
+          {
+            "name": "dns-outbound-allow",
+            "properties": {
+              "priority": 1400,
+              "direction": "Outbound",
+              "access": "Allow",
+              "protocol": "UDP",
+              "sourceAddressPrefix": "[variables('detonationChamberSubnetPrefix')]",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "VirtualNetwork",
+              "destinationPortRange": "53"
+            }
+          },
           {
             "name": "all-outbound-deny",
             "properties": {
@@ -483,13 +469,9 @@
                   "protocols": [ "UDP" ]
                 },
                 {
-                  "name": "privateEndpoints",
-                  "sourceAddresses": [
-                    "[variables('detonationChamberSubnetPrefix')]"
-                  ],
-                  "destinationAddresses": [
-                    "[variables('privateLinkSubnetPrefix')]"
-                  ],
+                  "name": "azure-monitor",
+                  "sourceAddresses": [ "*" ],
+                  "destinationAddresses": [ "AzureMonitor" ],
                   "destinationPorts": [ "443" ],
                   "protocols": [ "TCP" ]
                 }
@@ -500,7 +482,7 @@
         "additionalProperties": {
           "Network.DNS.EnableProxy": true
         }
-      }F
+      }
     },
     {
       "dependsOn": [
