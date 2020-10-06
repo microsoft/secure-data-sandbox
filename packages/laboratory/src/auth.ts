@@ -1,5 +1,11 @@
 import * as jwt from 'jsonwebtoken';
-
+/**
+ * Retrieve User's sub information from aad accesstoken
+ * 
+ * @param {string} accessToken the jwt token from req.header.authorization after aad authentication
+ * 
+ * @return {string} the authenticated user's sub or error message
+ */
 export function RetrieveUserFromAuthToken(accessToken: string): string {
   if (accessToken) {
     if (accessToken.substring(0, 7) === 'Bearer ') {
