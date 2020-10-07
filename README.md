@@ -22,10 +22,13 @@ In order to use `SDS` you must have
 [Node](https://nodejs.org/en/download/) installed on your machine.
 `SDS` has been tested with Node version [12.16.3](https://nodejs.org/download/release/v12.16.3/).
 
+You will need [Lerna](https://lerna.js.org/) as a prerequisite.
+
 Here are the steps for cloning and building `SDS`:
 ~~~
 % git clone https://github.com/microsoft/secure-data-sandbox.git
 % npm install
+% lerna bootstrap
 % npm run compile
 ~~~
 
