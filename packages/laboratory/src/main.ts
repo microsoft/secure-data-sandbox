@@ -13,7 +13,6 @@ import { createApp } from './app';
 
 async function main() {
   InitTelemetry();
-  setup();
 
   const config = await ParseLaboratoryConfiguration();
   const queue = GetQueue<PipelineRun>(config.queue);

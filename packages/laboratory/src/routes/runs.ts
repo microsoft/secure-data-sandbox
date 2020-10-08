@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { Contracts } from 'applicationinsights';
 import { RetrieveUserFromAuthToken } from '../auth';
 import { defaultClient as telemetryClient } from 'applicationinsights';
+import { ITokenPayload } from 'passport-azure-ad';
 
 import {
   ILaboratory,
@@ -25,11 +26,10 @@ export function createRunRouter(lab: ILaboratory): Router {
       const run = await lab.createRunRequest(runRequest);
 
       // log who initiates the run in appinsight
-      const accessToken = req.headers.authorization!;
+      const user = req.user as ITokenPayload;
       telemetryClient.trackTrace({
-        message: `sub:'${RetrieveUserFromAuthToken(
-          accessToken
-        )}' initiated the run '${run.name}' using candidate '${
+        message: `user sub:'${user ? user.sub : undefined
+        }' initiated the run '${run.name}' using candidate '${
           req.body.candidate
         }' and suite '${req.body.suite}'`,
         severity: Contracts.SeverityLevel.Information,
@@ -64,7 +64,7 @@ export function createRunRouter(lab: ILaboratory): Router {
 
       // log run status into appInsights
       telemetryClient.trackTrace({
-        message: `Run: the run status of '${req.params['name']}' is '${status}'. '${req.params['name']}' runs using candidate '${req.body.candidate}' and suite '${req.body.suite}' `,
+        message: `Run: the run status of '${req.params['name']}' is '${status}'`,
         severity: Contracts.SeverityLevel.Information,
       });
       res.status(204);
