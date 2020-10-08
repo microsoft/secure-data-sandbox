@@ -6,7 +6,7 @@ import {
   initializeSequelize,
   SequelizeLaboratory,
 } from './sequelize_laboratory';
-import { defaultClient as telemetryClient, setup } from 'applicationinsights';
+import { defaultClient as telemetryClient } from 'applicationinsights';
 import { Events } from './telemetry';
 
 import { createApp } from './app';

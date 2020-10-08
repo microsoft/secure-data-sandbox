@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import { Contracts } from 'applicationinsights';
-import { RetrieveUserFromAuthToken } from '../auth';
 import { defaultClient as telemetryClient } from 'applicationinsights';
 import { ITokenPayload } from 'passport-azure-ad';
 
@@ -28,7 +27,8 @@ export function createRunRouter(lab: ILaboratory): Router {
       // log who initiates the run in appinsight
       const user = req.user as ITokenPayload;
       telemetryClient.trackTrace({
-        message: `user sub:'${user ? user.sub : undefined
+        message: `user sub:'${
+          user ? user.sub : undefined
         }' initiated the run '${run.name}' using candidate '${
           req.body.candidate
         }' and suite '${req.body.suite}'`,
