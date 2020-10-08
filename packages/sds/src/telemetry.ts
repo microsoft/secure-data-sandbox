@@ -8,10 +8,9 @@ export enum Events {
   QueueMessageUnprocessable = 'queueMessageUnprocessable',
 }
 
-export function InitTelemetry(): appInsights.TelemetryClient {
+export function InitTelemetry() {
   try {
     appInsights.setup().start();
-    return appInsights.defaultClient;
   } catch (err) {
     console.warn('Warning: Could not initialize telemetry');
     appInsights.setup('00000000-0000-0000-0000-000000000000').start();
@@ -19,6 +18,5 @@ export function InitTelemetry(): appInsights.TelemetryClient {
     if (err.message) {
       console.warn(`Warning: ${err.message}`);
     }
-    return appInsights.defaultClient;
   }
 }
