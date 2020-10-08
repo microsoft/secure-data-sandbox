@@ -17,7 +17,7 @@
     "laboratory": "dotenv -- npm run start --silent --prefix packages/laboratory",
     "pack": "lerna bootstrap --ignore-scripts && lerna exec npm pack",
     "pack:laboratory:appservice": "rimraf ./dist/laboratory && mkdir -p ./dist/laboratory && npm run pack && cd ./dist/laboratory && npm init -y && npm install --only=prod ../../packages/sds/*.tgz ../../packages/laboratory/*.tgz && zip -r sds-laboratory.zip package*.json node_modules",
-    "postinstall": "lerna bootstrap",
+    "postinstall": "lerna bootstrap --hoist --nohoist=eslint",
     "test": "lerna run test"
   },
   "devDependencies": {
