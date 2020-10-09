@@ -52,6 +52,10 @@
     "authCliClientId": {
       "type": "string",
       "defaultValue": ""
+    },
+    "authAllowedClientIds": {
+      "type": "string",
+      "defaultValue": ""
     }
   },
   "variables": {
@@ -620,6 +624,7 @@ $DeploymentScriptOutputs['keyUrl'] = $key.Id
             "AUTH_TENANT_ID": "[parameters('authTenantId')]",
             "AUTH_LABORATORY_CLIENT_ID": "[parameters('authLaboratoryClientId')]",
             "AUTH_CLI_CLIENT_ID": "[parameters('authCliClientId')]",
+            "AUTH_ALLOWED_APPLICATION_CLIENT_IDS": "[parameters('authAllowedClientIds')]",
             "AZURE_CLIENT_ID": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))).clientId]",
             "QUEUE_MODE": "azure",
             "QUEUE_ENDPOINT": "[parameters('runsQueueEndpoint')]",

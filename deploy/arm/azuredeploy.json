@@ -41,6 +41,10 @@
     "authCliClientId": {
       "type": "string",
       "defaultValue": ""
+    },
+    "authAllowedClientIds": {
+      "type": "string",
+      "defaultValue": ""
     }
   },
   "variables": {
@@ -227,6 +231,9 @@
           },
           "authCliClientId": {
             "value": "[parameters('authCliClientId')]"
+          },
+          "authAllowedClientIds": {
+            "value": "[parameters('authAllowedClientIds')]"
           }
         },
         "templateLink": {
