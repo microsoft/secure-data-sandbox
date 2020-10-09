@@ -1,5 +1,4 @@
 import { v1 } from 'uuid';
-import { URL } from 'url';
 
 import {
   EntityNotFoundError,
@@ -172,6 +171,7 @@ function createMessage(
 
     const runStage: PipelineRunStage = {
       name: stage.name,
+      kind: stage.kind,
       image,
       volumes,
     };
@@ -191,13 +191,9 @@ function createMessage(
     return runStage;
   });
 
-  const statusEndpoint = new URL(`runs/${name}`, server);
-  const resultsEndpoint = new URL(`runs/${name}/results`, server);
-
   const message: PipelineRun = {
     name,
-    statusEndpoint: statusEndpoint.toString(),
-    resultsEndpoint: resultsEndpoint.toString(),
+    laboratoryEndpoint: server,
     stages,
   };
   return message;

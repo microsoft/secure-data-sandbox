@@ -1,5 +1,10 @@
 import * as k8s from '@kubernetes/client-node';
-import { IQueue, QueueProcessor, PipelineRun } from '@microsoft/sds';
+import {
+  IQueue,
+  QueueProcessor,
+  PipelineRun,
+  BenchmarkStageKind,
+} from '@microsoft/sds';
 import { Workflow, Template, PersistentVolumeClaim } from './argo';
 import { ArgoWorkerConfiguration } from './configuration';
 
@@ -55,6 +60,11 @@ export function createWorkflow(
   const templates = run.stages.map(s => {
     const template: Template = {
       name: s.name,
+      metadata: {
+        labels: {
+          aadpodidbinding: getIdentity(s.kind),
+        },
+      },
       container: {
         image: s.image,
       },
@@ -135,4 +145,15 @@ export function createWorkflow(
   }
 
   return workflow;
+}
+
+function getIdentity(kind: string) {
+  switch (kind) {
+    case BenchmarkStageKind.CANDIDATE:
+      return 'candidate';
+    case BenchmarkStageKind.CONTAINER:
+      return 'benchmark';
+    default:
+      return 'none';
+  }
 }

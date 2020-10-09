@@ -2,14 +2,14 @@
 
 export type PipelineRun = Readonly<{
   name: string;
-  statusEndpoint: string;
-  resultsEndpoint: string;
+  laboratoryEndpoint: string;
   stages: ReadonlyArray<PipelineRunStage>;
   // TODO: consider elevating volumes to top-level property
 }>;
 
 export interface PipelineRunStage {
   name: string;
+  kind: string;
   image: string;
   cmd?: string[];
   env?: Readonly<{

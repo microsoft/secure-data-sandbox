@@ -24,16 +24,17 @@ describe('createWorkflow', () => {
   it('works', () => {
     const run: PipelineRun = {
       name: 'run1',
-      statusEndpoint: 'http://localhost:3000/status',
-      resultsEndpoint: 'http://localhost:3000/results',
+      laboratoryEndpoint: 'http://localhost:3000',
       stages: [
         {
           name: 'candidate',
           image: 'candidate',
+          kind: 'candidate',
         },
         {
           name: 'eval',
           image: 'eval',
+          kind: 'container',
         },
       ],
     };
@@ -70,12 +71,22 @@ describe('createWorkflow', () => {
           },
           {
             name: 'candidate',
+            metadata: {
+              labels: {
+                aadpodidbinding: 'candidate',
+              },
+            },
             container: {
               image: 'candidate',
             },
           },
           {
             name: 'eval',
+            metadata: {
+              labels: {
+                aadpodidbinding: 'benchmark',
+              },
+            },
             container: {
               image: 'eval',
             },
@@ -94,12 +105,12 @@ describe('createWorkflow', () => {
   it('handlesOptions', () => {
     const run: PipelineRun = {
       name: 'run1',
-      statusEndpoint: 'http://localhost:3000/status',
-      resultsEndpoint: 'http://localhost:3000/results',
+      laboratoryEndpoint: 'http://localhost:3000',
       stages: [
         {
           name: 'candidate',
           image: 'candidate',
+          kind: 'candidate',
           cmd: ['echo', 'I am a candidate'],
           env: {
             SOME_CONFIG: 'active',
@@ -108,6 +119,7 @@ describe('createWorkflow', () => {
         {
           name: 'eval',
           image: 'eval',
+          kind: 'container',
           cmd: ['echo', 'I am an evaluator'],
           env: {
             MODE: 'evaluation',
@@ -148,6 +160,11 @@ describe('createWorkflow', () => {
           },
           {
             name: 'candidate',
+            metadata: {
+              labels: {
+                aadpodidbinding: 'candidate',
+              },
+            },
             container: {
               image: 'candidate',
               command: ['echo', 'I am a candidate'],
@@ -161,6 +178,11 @@ describe('createWorkflow', () => {
           },
           {
             name: 'eval',
+            metadata: {
+              labels: {
+                aadpodidbinding: 'benchmark',
+              },
+            },
             container: {
               image: 'eval',
               command: ['echo', 'I am an evaluator'],
@@ -186,12 +208,12 @@ describe('createWorkflow', () => {
   it('handlesVolumes', () => {
     const run: PipelineRun = {
       name: 'run1',
-      statusEndpoint: 'http://localhost:3000/status',
-      resultsEndpoint: 'http://localhost:3000/results',
+      laboratoryEndpoint: 'http://localhost:3000',
       stages: [
         {
           name: 'candidate',
           image: 'candidate',
+          kind: 'candidate',
           volumes: [
             {
               source: undefined,
@@ -212,6 +234,7 @@ describe('createWorkflow', () => {
         {
           name: 'eval',
           image: 'eval',
+          kind: 'container',
           volumes: [
             {
               source: undefined,
@@ -305,6 +328,11 @@ describe('createWorkflow', () => {
           },
           {
             name: 'candidate',
+            metadata: {
+              labels: {
+                aadpodidbinding: 'candidate',
+              },
+            },
             container: {
               image: 'candidate',
               volumeMounts: [
@@ -323,6 +351,11 @@ describe('createWorkflow', () => {
           },
           {
             name: 'eval',
+            metadata: {
+              labels: {
+                aadpodidbinding: 'benchmark',
+              },
+            },
             container: {
               image: 'eval',
               volumeMounts: [
@@ -353,12 +386,12 @@ describe('createWorkflow', () => {
   it('handlesVolumesWithStorageClass', () => {
     const run: PipelineRun = {
       name: 'run1',
-      statusEndpoint: 'http://localhost:3000/status',
-      resultsEndpoint: 'http://localhost:3000/results',
+      laboratoryEndpoint: 'http://localhost:3000',
       stages: [
         {
           name: 'candidate',
           image: 'candidate',
+          kind: 'candidate',
           volumes: [
             {
               source: undefined,
@@ -415,6 +448,11 @@ describe('createWorkflow', () => {
           },
           {
             name: 'candidate',
+            metadata: {
+              labels: {
+                aadpodidbinding: 'candidate',
+              },
+            },
             container: {
               image: 'candidate',
               volumeMounts: [

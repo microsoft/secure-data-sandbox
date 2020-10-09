@@ -2,7 +2,6 @@ import * as chai from 'chai';
 import { assert } from 'chai';
 import chaiAsPromised = require('chai-as-promised');
 import chaiExclude from 'chai-exclude';
-import { URL } from 'url';
 
 import {
   ILaboratory,
@@ -83,14 +82,11 @@ describe('laboratory/runs', () => {
 
     const expectedMessage = {
       name: run1.name,
-      resultsEndpoint: new URL(
-        `runs/${run1.name}/results`,
-        serviceURL
-      ).toString(),
       stages: [
         {
           image: candidate1.image,
           name: 'candidate',
+          kind: 'candidate',
           volumes: [
             {
               type: 'AzureBlob',
@@ -105,6 +101,7 @@ describe('laboratory/runs', () => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           image: (benchmark1.stages[1] as any).image,
           name: 'scoring',
+          kind: 'container',
           volumes: [
             {
               type: 'AzureBlob',
@@ -116,7 +113,7 @@ describe('laboratory/runs', () => {
           ],
         },
       ],
-      statusEndpoint: new URL(`runs/${run1.name}`, serviceURL).toString(),
+      laboratoryEndpoint: serviceURL,
     };
     assert.deepEqual(messages[0].value, expectedMessage);
 
