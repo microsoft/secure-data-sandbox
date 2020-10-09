@@ -154,6 +154,10 @@ export const suite1: ISuite = {
   author: 'author1',
   apiVersion: 'v1alpha1',
   benchmark: 'benchmark1',
+  properties: {
+    dataCatalogUrl: 'https://datacatalog.azurewebsites.net/',
+    datasetId: 'dataset-0000-0000-0001',
+  },
   volumes: [
     {
       name: 'training',
@@ -174,6 +178,10 @@ export const suite2: ISuite = {
   author: 'author2',
   apiVersion: 'v1alpha1',
   benchmark: 'benchmark1',
+  properties: {
+    dataCatalogUrl: 'https://datacatalog.azurewebsites.net/',
+    datasetId: 'dataset-0000-0000-0002',
+  },
   volumes: [
     {
       name: 'training',
@@ -194,6 +202,10 @@ export const suite3: ISuite = {
   author: 'author3',
   apiVersion: 'v1alpha1',
   benchmark: 'benchmark1',
+  properties: {
+    dataCatalogUrl: 'https://datacatalog.azurewebsites.net/',
+    datasetId: 'dataset-0000-0000-0003',
+  },
   volumes: [
     {
       name: 'training',

@@ -176,6 +176,9 @@ export const SuiteType = t.intersection([
     benchmark: t.string,
     volumes: t.array(SuiteVolumeType),
   }),
+  t.interface({
+    properties: t.record(t.string, t.string),
+  })
 ]);
 export type ISuite = t.TypeOf<typeof SuiteType>;
 
@@ -240,6 +243,17 @@ export type IUpdateRunStatus = t.TypeOf<typeof UpdateRunStatusType>;
 
 export const MeasuresType = t.UnknownRecord;
 export type Measures = t.TypeOf<typeof MeasuresType>;
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Poperties
+//
+///////////////////////////////////////////////////////////////////////////////
+
+export const PropertiesType = t.type({
+  properties: t.record(t.string, t.string),
+});
+export type Properties = t.TypeOf<typeof MeasuresType>;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
