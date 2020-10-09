@@ -804,6 +804,10 @@ $DeploymentScriptOutputs['keyUrl'] = $key.Id
     "laboratoryWebApp": {
       "type": "string",
       "value": "[variables('laboratory')]"
+    },
+    "laboratoryEndpoint": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Web/sites', variables('webApp'))).defaultHostName]"
     }
   }
 }

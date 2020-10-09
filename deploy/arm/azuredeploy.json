@@ -100,12 +100,6 @@
       "properties": {
         "mode": "Incremental",
         "parameters": {
-          "mode": {
-            "value": "[parameters('mode')]"
-          },
-          "allowedExternalEndpoints": {
-            "value": "[parameters('allowedExternalEndpoints')]"
-          },
           "tags": {
             "value": "[parameters('tags')]"
           },
@@ -244,7 +238,45 @@
     {
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'network')]",
-        "[resourceId('Microsoft.Resources/deployments', 'monitoring')]"
+        "[resourceId('Microsoft.Resources/deployments', 'laboratory')]"
+      ],
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "firewall",
+      "resourceGroup": "[resourceGroup().name]",
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "mode": "Incremental",
+        "parameters": {
+          "mode": {
+            "value": "[parameters('mode')]"
+          },
+          "allowedExternalEndpoints": {
+            "value": "[parameters('allowedExternalEndpoints')]"
+          },
+          "subnetId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'network')).outputs.firewallSubnetId.value]"
+          },
+          "tags": {
+            "value": "[parameters('tags')]"
+          },
+          "routeTable": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'network')).outputs.routeTable.value]"
+          },
+          "laboratoryEndpoint": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'laboratory')).outputs.laboratoryEndpoint.value]"
+          }
+        },
+        "templateLink": {
+          "uri": "[concat(uri(variables('assetsBaseUrl'), './arm/firewall.json'), variables('deploymentSas'))]"
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'network')]",
+        "[resourceId('Microsoft.Resources/deployments', 'monitoring')]",
+        "[resourceId('Microsoft.Resources/deployments', 'firewall')]"
       ],
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",

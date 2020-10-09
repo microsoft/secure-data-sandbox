@@ -2,18 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "allowedExternalEndpoints": {
-      "type": "array",
-      "defaultValue": []
-    },
-    "mode": {
-      "type": "string",
-      "defaultValue": "production",
-      "allowedValues": [
-        "development",
-        "production"
-      ]
-    },
     "tags": {
       "type": "object",
       "defaultValue": {}
@@ -35,90 +23,10 @@
     "vnetExists": "[bool(union(variables('defaultTags'), resourceGroup().tags)['vnetExists'])]",
     "vnetAddressPrefix": "10.0.0.0/16",
     "privateLinkSubnetPrefix": "10.0.0.0/24",
-    "defaultFirewallApplicationRules": [
-      {
-        "name": "aks-required",
-        "sourceAddresses": [ "*" ],
-        "targetFqdns": [
-          "mcr.microsoft.com",
-          "*.cdn.mscr.io",
-          "*.data.mcr.microsoft.com",
-          "management.azure.com",
-          "login.microsoftonline.com",
-          "packages.microsoft.com",
-          "acs-mirror.azureedge.net"
-        ],
-        "protocols": [
-          {
-            "port": 443,
-            "protocolType": "Https"
-          }
-        ]
-      },
-      {
-        "name": "ubuntu-updates",
-        "sourceAddresses": [ "*" ],
-        "targetFqdns": [
-          "security.ubuntu.com",
-          "azure.archive.ubuntu.com",
-          "changelogs.ubuntu.com"
-        ],
-        "protocols": [
-          {
-            "port": 80,
-            "protocolType": "Http"
-          }
-        ]
-      },
-      {
-        "name": "aad-pod-identity",
-        "sourceAddresses": ["*"],
-        "targetFqdns": [
-          "management.azure.com"
-        ],
-        "protocols": [
-          {
-            "port": 443,
-            "protocolType": "Https"
-          }
-        ]
-      }
-    ],
-    "devFirewallApplicationRules": [
-      {
-        "name": "dev-docker-hub",
-        "sourceAddresses": [ "*" ],
-        "targetFqdns": [
-          "*.docker.io",
-          "*.docker.com"
-        ],
-        "protocols": [
-          {
-            "port": 443,
-            "protocolType": "Https"
-          }
-        ]
-      }
-    ],
-    "benchmarkFirewallApplicationRules": [
-      {
-        "name": "benchmark",
-        "sourceAddresses": [ "*" ],
-        "targetFqdns": "[parameters('allowedExternalEndpoints')]",
-        "protocols": [
-          {
-            "port": 443,
-            "protocolType": "Https"
-          }
-        ]
-      }
-    ],
-    "baseFirewallApplicationRules": "[if(equals(parameters('mode'), 'development'), union(variables('defaultFirewallApplicationRules'), variables('devFirewallApplicationRules')), variables('defaultFirewallApplicationRules'))]",
-    "firewallApplicationRules": "[union(variables('baseFirewallApplicationRules'), variables('benchmarkFirewallApplicationRules'))]",
     "firewallSubnetPrefix": "10.0.1.0/26",
+    "forceTunnel": "firewall",
     "detonationChamberSubnetPrefix": "10.0.3.0/24",
     "detonationChamber": "detonationChamber",
-    "firewall": "firewall",
     "privateDnsZones": [
       "privatelink.file.core.windows.net",
       "privatelink.queue.core.windows.net",
@@ -383,7 +291,7 @@
     {
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkSecurityGroups', variables('detonationChamber'))]",
-        "[resourceId('Microsoft.Network/routeTables', variables('firewall'))]",
+        "[resourceId('Microsoft.Network/routeTables', variables('forceTunnel'))]",
         "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet'))]"
       ],
       "type": "Microsoft.Network/virtualNetworks/subnets",
@@ -398,120 +306,19 @@
 
         },
         "routeTable": {
-          "id": "[resourceId('Microsoft.Network/routeTables', variables('firewall'))]"
+          "id": "[resourceId('Microsoft.Network/routeTables', variables('forceTunnel'))]"
         }
       }
     },
     {
-      "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2020-05-01",
-      "location": "[resourceGroup().location]",
-      "name": "[variables('firewall')]",
-      "sku": {
-        "name": "Standard"
-      },
-      "tags": "[parameters('tags')]",
-      "properties": {
-        "publicIPAllocationMethod": "Static",
-        "publicIPAddressVersion": "IPv4"
-      }
-    },
-    {
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses', variables('firewall'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet'))]"
-      ],
-      "type": "Microsoft.Network/azureFirewalls",
-      "apiVersion": "2020-05-01",
-      "location": "[resourceGroup().location]",
-      "name": "[variables('firewall')]",
-      "tags": "[parameters('tags')]",
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "egress",
-            "properties": {
-              "subnet": {
-                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet'), 'AzureFirewallSubnet')]"
-              },
-              "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('firewall'))]"
-              }
-            }
-          }
-        ],
-        "applicationRuleCollections": [
-          {
-            "name": "sds",
-            "properties": {
-              "action": {
-                "type": "Allow"
-              },
-              "priority": 100,
-              "rules": "[variables('firewallApplicationRules')]"
-            }
-          }
-        ],
-        "networkRuleCollections": [
-          {
-            "name": "sds",
-            "properties": {
-              "action": {
-                "type": "Allow"
-              },
-              "priority": 100,
-              "rules": [
-                {
-                  "name": "ubuntu-ntp",
-                  "sourceAddresses": [ "*" ],
-                  "destinationFqdns": [ "ntp.ubuntu.com" ],
-                  "destinationPorts": [ "123" ],
-                  "protocols": [ "UDP" ]
-                },
-                {
-                  "name": "azure-monitor",
-                  "sourceAddresses": [ "*" ],
-                  "destinationAddresses": [ "AzureMonitor" ],
-                  "destinationPorts": [ "443" ],
-                  "protocols": [ "TCP" ]
-                }
-              ]
-            }
-          }
-        ],
-        "additionalProperties": {
-          "Network.DNS.EnableProxy": true
-        }
-      }
-    },
-    {
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/azureFirewalls', variables('firewall'))]"
-      ],
+      "condition": "[not(variables('vnetExists'))]",
       "type": "Microsoft.Network/routeTables",
       "apiVersion": "2020-05-01",
       "location": "[resourceGroup().location]",
-      "name": "[variables('firewall')]",
+      "name": "[variables('forceTunnel')]",
       "tags": "[parameters('tags')]",
       "properties": {
-        "disableBgpRoutePropagation": false,
-        "routes": [
-          {
-            "name": "default",
-            "properties": {
-              "addressPrefix": "0.0.0.0/0",
-              "nextHopType": "VirtualAppliance",
-              "nextHopIpAddress": "[reference(resourceId('Microsoft.Network/azureFirewalls', variables('firewall'))).ipConfigurations[0].properties.privateIPAddress]"
-            }
-          },
-          {
-            "name": "internet",
-            "properties": {
-              "addressPrefix": "[concat(reference(resourceId('Microsoft.Network/publicIPAddresses', variables('firewall'))).ipAddress, '/32')]",
-              "nextHopType": "Internet"
-            }
-          }
-        ]
+        "disableBgpRoutePropagation": false
       }
     },
     {
@@ -579,6 +386,10 @@
       "type": "string",
       "value": "[resourceId('Microsoft.Network/privateDnsZones', 'privatelink.file.core.windows.net')]"
     },
+    "firewallSubnetId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet'), 'AzureFirewallSubnet')]"
+    },
     "privateLinkSubnetId": {
       "type": "string",
       "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet'), variables('privateLink'))]"
@@ -590,6 +401,10 @@
     "vnetId": {
       "type": "string",
       "value": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet'))]"
+    },
+    "routeTable": {
+      "type": "string",
+      "value": "[variables('forceTunnel')]"
     }
   }
 }
