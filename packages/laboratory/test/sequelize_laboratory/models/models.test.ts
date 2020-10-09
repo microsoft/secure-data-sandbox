@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import { Column, Model, Table } from 'sequelize-typescript';
+import { Column, Model, Table, Sequelize } from 'sequelize-typescript';
 
 import {
   Benchmark,
@@ -17,10 +17,19 @@ import {
   run1,
 } from '../../../../sds/test/laboratory/data';
 
-import { assertDeepEqual, initTestEnvironment, sequelize } from '../shared';
+import { assertDeepEqual } from '../shared';
+import { initializeSequelize } from '../../../src/sequelize_laboratory';
 
 describe('sequelize', () => {
-  before(initTestEnvironment);
+  let sequelize: Sequelize;
+
+  before(async () => {
+    sequelize = await initializeSequelize({
+      dialect: 'sqlite',
+      storage: ':memory:',
+      logging: false,
+    });
+  });
 
   describe('decorators', () => {
     it('jsonColumn length overflow', async () => {

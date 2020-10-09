@@ -27,6 +27,8 @@ export interface AADConfiguration extends AuthConfiguration {
   laboratoryClientId: string;
   cliClientId: string;
   scopes: string[];
+  allowedApplicationClientIds: string[];
+  ignoreExpiration: boolean;
 }
 
 export const NoAuthConfiguration = {
@@ -85,9 +87,13 @@ function ParseAuthConfiguration(): AuthConfiguration {
     const cliClientId = env.get('AUTH_CLI_CLIENT_ID').required().asString();
     const scopes = env
       .get('AUTH_SCOPES')
-      .default('laboratory')
+      .default('.default')
       .asArray(' ')
       .map(s => `api://${laboratoryClientId}/${s}`);
+    const allowedApplicationClientIds = env
+      .get('AUTH_ALLOWED_APPLICATION_CLIENT_IDS')
+      .default('')
+      .asArray(' ');
 
     // offline_access is required to use refresh tokens
     scopes.push('offline_access');
@@ -98,6 +104,8 @@ function ParseAuthConfiguration(): AuthConfiguration {
       laboratoryClientId,
       cliClientId,
       scopes,
+      allowedApplicationClientIds,
+      ignoreExpiration: false,
     };
     return config;
   } else {

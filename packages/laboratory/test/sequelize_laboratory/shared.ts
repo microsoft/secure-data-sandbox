@@ -6,13 +6,12 @@
 import * as chai from 'chai';
 import { assert } from 'chai';
 import chaiExclude from 'chai-exclude';
-import { Sequelize } from 'sequelize-typescript';
 
 import {
   initializeSequelize,
   SequelizeLaboratory,
 } from '../../src/sequelize_laboratory';
-import { PipelineRun, InMemoryQueue } from '@microsoft/sds';
+import { PipelineRun, InMemoryQueue, IQueue } from '@microsoft/sds';
 
 import { serviceURL } from '../../../sds/test/laboratory/data';
 
@@ -23,25 +22,16 @@ chai.use(chaiExclude);
 // Test environment setup
 //
 ///////////////////////////////////////////////////////////////////////////////
-export let lab: SequelizeLaboratory;
-export let queue: InMemoryQueue<PipelineRun>;
-export let sequelize: Sequelize;
 
-export async function initTestEnvironment() {
-  sequelize = await initializeSequelize({
+export async function initTestEnvironment(
+  queue: IQueue<PipelineRun> = new InMemoryQueue<PipelineRun>()
+) {
+  await initializeSequelize({
     dialect: 'sqlite',
     storage: ':memory:',
     logging: false,
   });
-  await sequelize.sync();
   return new SequelizeLaboratory(serviceURL, queue);
-}
-
-export async function resetTestEnvironment() {
-  await sequelize.drop();
-  await sequelize.sync();
-  queue = new InMemoryQueue<PipelineRun>();
-  lab = new SequelizeLaboratory(serviceURL, queue);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

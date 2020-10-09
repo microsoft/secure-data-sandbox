@@ -4,7 +4,14 @@ import chaiAsPromised = require('chai-as-promised');
 import chaiExclude from 'chai-exclude';
 import { URL } from 'url';
 
-import { IResult, IRun, RunStatus } from '@microsoft/sds';
+import {
+  ILaboratory,
+  InMemoryQueue,
+  IResult,
+  IRun,
+  PipelineRun,
+  RunStatus,
+} from '@microsoft/sds';
 
 import {
   benchmark1,
@@ -14,7 +21,7 @@ import {
   suite1,
 } from '../../../sds/test/laboratory/data';
 
-import { assertDeepEqual, initTestEnvironment, lab, queue } from './shared';
+import { assertDeepEqual, initTestEnvironment } from './shared';
 
 chai.use(chaiExclude);
 chai.use(chaiAsPromised);
@@ -23,7 +30,13 @@ chai.use(chaiAsPromised);
 // Test declarations
 //
 describe('laboratory/runs', () => {
-  before(initTestEnvironment);
+  let lab: ILaboratory;
+  let queue: InMemoryQueue<PipelineRun>;
+
+  beforeEach(async () => {
+    queue = new InMemoryQueue<PipelineRun>();
+    lab = await initTestEnvironment(queue);
+  });
 
   it('end-to-end scenario', async () => {
     // Initially, there should be no runs.
