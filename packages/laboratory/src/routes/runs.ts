@@ -1,4 +1,7 @@
 import { Router } from 'express';
+import { Contracts } from 'applicationinsights';
+import { defaultClient as telemetryClient } from 'applicationinsights';
+import { ITokenPayload } from 'passport-azure-ad';
 
 import {
   ILaboratory,
@@ -20,6 +23,17 @@ export function createRunRouter(lab: ILaboratory): Router {
     .post(async (req, res) => {
       const runRequest = validate(RunRequestType, req.body);
       const run = await lab.createRunRequest(runRequest);
+
+      // log who initiates the run in appinsight
+      const user = req.user as ITokenPayload;
+      telemetryClient.trackTrace({
+        message: `user sub:'${
+          user ? user.sub : undefined
+        }' initiated the run '${run.name}' using candidate '${
+          req.body.candidate
+        }' and suite '${req.body.suite}'`,
+        severity: Contracts.SeverityLevel.Information,
+      });
       res.status(202);
       res.json(run);
     });
@@ -47,6 +61,12 @@ export function createRunRouter(lab: ILaboratory): Router {
     .patch(async (req, res) => {
       const { status } = validate(UpdateRunStatusType, req.body);
       await lab.updateRunStatus(req.params['name'], status);
+
+      // log run status into appInsights
+      telemetryClient.trackTrace({
+        message: `Run: the run status of '${req.params['name']}' is '${status}'`,
+        severity: Contracts.SeverityLevel.Information,
+      });
       res.status(204);
       res.end();
     });
