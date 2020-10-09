@@ -77,7 +77,6 @@ export async function ParseDatabaseConfiguration(): Promise<
 
 function ParseAuthConfiguration(): AuthConfiguration {
   const authMode = env.get('AUTH_MODE').asString();
-
   if (authMode === 'aad') {
     const tenantId = env.get('AUTH_TENANT_ID').required().asString();
     const laboratoryClientId = env
