@@ -12,15 +12,15 @@ export interface PipelineRunStage {
   kind: string;
   image: string;
   cmd?: string[];
-  env?: Readonly<{
-    [key: string]: string;
-  }>;
-  volumes?: ReadonlyArray<{
-    type: string;
-    target: string;
-    name: string;
-    // TODO: allow `source` as optional for type: 'ephemeral'
-    source: string | undefined;
-    readonly: boolean;
-  }>;
+  env?: Readonly<Record<string, string>>;
+  volumes?: ReadonlyArray<PipelineRunStageVolume>;
+}
+
+export interface PipelineRunStageVolume {
+  type: string;
+  target: string;
+  name: string;
+  // TODO: allow `source` as optional for type: 'ephemeral'
+  source: string | undefined;
+  readonly: boolean;
 }

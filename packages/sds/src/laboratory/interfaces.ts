@@ -174,6 +174,9 @@ export const SuiteType = t.intersection([
   EntityBaseType,
   t.interface({
     benchmark: t.string,
+  }),
+  t.partial({
+    properties: t.record(t.string, t.string),
     volumes: t.array(SuiteVolumeType),
   }),
 ]);
