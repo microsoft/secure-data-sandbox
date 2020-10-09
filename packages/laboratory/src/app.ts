@@ -94,6 +94,7 @@ export async function createApp(
     .use(
       errorhandler({
         debug: process.env.NODE_ENV === 'development',
+        log: process.env.NODE_ENV !== 'test',
         negotiateContentType: false,
       })
     );
