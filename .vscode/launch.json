@@ -5,22 +5,17 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "command": "set -o allexport; source .env.template; set +o allexport; npm run laboratory",
-      "name": "Run npm start",
+      "name": "laboratory",
       "request": "launch",
-      "type": "node-terminal"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Launch Program",
+      "runtimeArgs": [
+        "run",
+        "laboratory"
+      ],
+      "runtimeExecutable": "npm",
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "program": "${file}",
-      "outFiles": [
-        "${workspaceFolder}/**/*.js"
-      ]
+      "type": "pwa-node"
     }
   ]
 }

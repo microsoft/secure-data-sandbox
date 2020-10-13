@@ -1,0 +1,236 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "allowedExternalEndpoints": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "mode": {
+      "type": "string",
+      "defaultValue": "production",
+      "allowedValues": [
+        "development",
+        "production"
+      ]
+    },
+    "subnetId": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {}
+    },
+    "routeTable": {
+      "type": "string"
+    },
+    "laboratoryEndpoint": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "firewall": "firewall",
+    "firewallApplicationRules": "[union(variables('baseFirewallApplicationRules'), variables('benchmarkFirewallApplicationRules'))]",
+    "baseFirewallApplicationRules": "[if(equals(parameters('mode'), 'development'), union(variables('defaultFirewallApplicationRules'), variables('devFirewallApplicationRules')), variables('defaultFirewallApplicationRules'))]",
+    "defaultFirewallApplicationRules": [
+      {
+        "name": "aks-required",
+        "sourceAddresses": [ "*" ],
+        "targetFqdns": [
+          "mcr.microsoft.com",
+          "*.cdn.mscr.io",
+          "*.data.mcr.microsoft.com",
+          "management.azure.com",
+          "login.microsoftonline.com",
+          "packages.microsoft.com",
+          "acs-mirror.azureedge.net"
+        ],
+        "protocols": [
+          {
+            "port": 443,
+            "protocolType": "Https"
+          }
+        ]
+      },
+      {
+        "name": "ubuntu-updates",
+        "sourceAddresses": [ "*" ],
+        "targetFqdns": [
+          "security.ubuntu.com",
+          "azure.archive.ubuntu.com",
+          "changelogs.ubuntu.com"
+        ],
+        "protocols": [
+          {
+            "port": 80,
+            "protocolType": "Http"
+          }
+        ]
+      },
+      {
+        "name": "aad-pod-identity",
+        "sourceAddresses": ["*"],
+        "targetFqdns": [
+          "management.azure.com"
+        ],
+        "protocols": [
+          {
+            "port": 443,
+            "protocolType": "Https"
+          }
+        ]
+      },
+      {
+        "name": "sds-laboratory",
+        "sourceAddresses": ["*"],
+        "targetFqdns": [
+          "[parameters('laboratoryEndpoint')]"
+        ],
+        "protocols": [
+          {
+            "port": 443,
+            "protocolType": "Https"
+          }
+        ]
+      }
+    ],
+    "benchmarkFirewallApplicationRules": [
+      {
+        "name": "benchmark",
+        "sourceAddresses": [ "*" ],
+        "targetFqdns": "[parameters('allowedExternalEndpoints')]",
+        "protocols": [
+          {
+            "port": 443,
+            "protocolType": "Https"
+          }
+        ]
+      }
+    ],
+    "devFirewallApplicationRules": [
+      {
+        "name": "dev-docker-hub",
+        "sourceAddresses": [ "*" ],
+        "targetFqdns": [
+          "*.docker.io",
+          "*.docker.com"
+        ],
+        "protocols": [
+          {
+            "port": 443,
+            "protocolType": "Https"
+          }
+        ]
+      }
+    ]
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('firewall')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "publicIPAllocationMethod": "Static",
+        "publicIPAddressVersion": "IPv4"
+      }
+    },
+    {
+      "type": "Microsoft.Network/azureFirewalls",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('firewall')]",
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "egress",
+            "properties": {
+              "subnet": {
+                "id": "[parameters('subnetId')]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('firewall'))]"
+              }
+            }
+          }
+        ],
+        "applicationRuleCollections": [
+          {
+            "name": "sds",
+            "properties": {
+              "action": {
+                "type": "Allow"
+              },
+              "priority": 100,
+              "rules": "[variables('firewallApplicationRules')]"
+            }
+          }
+        ],
+        "networkRuleCollections": [
+          {
+            "name": "sds",
+            "properties": {
+              "action": {
+                "type": "Allow"
+              },
+              "priority": 100,
+              "rules": [
+                {
+                  "name": "ubuntu-ntp",
+                  "sourceAddresses": [ "*" ],
+                  "destinationFqdns": [ "ntp.ubuntu.com" ],
+                  "destinationPorts": [ "123" ],
+                  "protocols": [ "UDP" ]
+                },
+                {
+                  "name": "azure-monitor",
+                  "sourceAddresses": [ "*" ],
+                  "destinationAddresses": [ "AzureMonitor" ],
+                  "destinationPorts": [ "443" ],
+                  "protocols": [ "TCP" ]
+                }
+              ]
+            }
+          }
+        ],
+        "additionalProperties": {
+          "Network.DNS.EnableProxy": true
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/azureFirewalls', variables('firewall'))]"
+      ],
+      "type": "Microsoft.Network/routeTables/routes",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "[concat(parameters('routeTable'), '/default')]",
+      "properties": {
+        "addressPrefix": "0.0.0.0/0",
+        "nextHopType": "VirtualAppliance",
+        "nextHopIpAddress": "[reference(resourceId('Microsoft.Network/azureFirewalls', variables('firewall'))).ipConfigurations[0].properties.privateIPAddress]"
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('firewall'))]"
+      ],
+      "type": "Microsoft.Network/routeTables/routes",
+      "apiVersion": "2020-05-01",
+      "location": "[resourceGroup().location]",
+      "name": "[concat(parameters('routeTable'), '/internet')]",
+      "properties": {
+        "addressPrefix": "[concat(reference(resourceId('Microsoft.Network/publicIPAddresses', variables('firewall'))).ipAddress, '/32')]",
+        "nextHopType": "Internet"
+      }
+    }
+  ],
+  "outputs": {}
+}

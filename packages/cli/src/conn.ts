@@ -123,7 +123,14 @@ export class LaboratoryConnection {
                 LaboratoryConnection.configDir,
                 tokenCachePath
               );
-              return await fs.readFile(fullPath, 'utf8');
+              try {
+                return await fs.readFile(fullPath, 'utf8');
+              } catch (err) {
+                if (err && err.code === 'ENOENT') {
+                  return '';
+                }
+                throw err;
+              }
             },
             async writeToStorage(getMergedState: (oldState: string) => string) {
               let oldFile = '';

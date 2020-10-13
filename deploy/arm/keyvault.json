@@ -1,0 +1,98 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "tags": {
+      "type": "object",
+      "defaultValue": {}
+    }
+  },
+  "variables": {
+    "defaultTags": {
+      "keyVaultExists": false
+    },
+    "updatedTags": {
+      "keyVaultExists": true
+    },
+    "keyVault": "[concat('sds', variables('suffix'))]",
+    "keyVaultExists": "[bool(union(variables('defaultTags'), resourceGroup().tags)['keyVaultExists'])]",
+    "suffix": "[toLower(take(uniqueString(resourceGroup().id), 6))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "getAccessPolicies",
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": [
+          ],
+          "outputs": {
+            "accessPolicies": {
+              "type": "array",
+              "value": "[if(variables('keyVaultExists'), reference(resourceId('Microsoft.KeyVault/vaults', variables('keyVault')), '2016-10-01').accessPolicies, json('[]'))]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'getAccessPolicies')]"
+      ],
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "keyvault-deploy",
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": [
+            {
+              "type": "Microsoft.KeyVault/vaults",
+              "apiVersion": "2016-10-01",
+              "location": "[resourceGroup().location]",
+              "name": "[variables('keyVault')]",
+              "tags": "[parameters('tags')]",
+              "properties": {
+                "enabledForDeployment": false,
+                "enabledForDiskEncryption": false,
+                "enabledForTemplateDeployment": false,
+                "sku": {
+                  "family": "A",
+                  "name": "standard"
+                },
+                "enableSoftDelete": true,
+                "tenantId": "[subscription().tenantId]",
+                "accessPolicies": "[reference(resourceId('Microsoft.Resources/deployments', 'getAccessPolicies')).outputs.accessPolicies.value]"
+              }
+            },
+            {
+              "dependsOn": [
+                "[resourceId('Microsoft.KeyVault/vaults', variables('keyVault'))]"
+              ],
+              "type": "Microsoft.Resources/tags",
+              "apiVersion": "2019-10-01",
+              "name": "default",
+              "properties": {
+                "tags": "[union(resourceGroup().tags, variables('updatedTags'))]"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "keyVault": {
+      "type": "string",
+      "value": "[variables('keyVault')]"
+    }
+  }
+}

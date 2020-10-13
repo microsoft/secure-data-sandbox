@@ -67,14 +67,11 @@ describe('laboratory/server', () => {
         return expected;
       };
 
-      chai
-        .request(await createApp(lab))
-        .get('/benchmarks')
-        .end((err, res) => {
-          assert.equal(res.status, 200);
-          assert.deepEqual(res.body, expected);
-          assert.isTrue(called);
-        });
+      const res = await chai.request(await createApp(lab)).get('/benchmarks');
+
+      assert.equal(res.status, 200);
+      assert.deepEqual(res.body, expected);
+      assert.isTrue(called);
     });
 
     it('oneBenchmark()', async () => {
@@ -84,31 +81,29 @@ describe('laboratory/server', () => {
         return benchmark1;
       };
 
-      chai
+      const res = await chai
         .request(await createApp(lab))
-        .get(`/benchmarks/${benchmark1.name}`)
-        .end((err, res) => {
-          assert.equal(res.status, 200);
-          const observed = validate(BenchmarkType, res.body);
-          assert.deepEqual(observed, benchmark1);
-          assert.equal(observedName, benchmark1.name);
-        });
+        .get(`/benchmarks/${benchmark1.name}`);
+
+      assert.equal(res.status, 200);
+      const observed = validate(BenchmarkType, res.body);
+      assert.deepEqual(observed, benchmark1);
+      assert.equal(observedName, benchmark1.name);
     });
 
     it('upsertBenchmark()', async () => {
-      let observed: IBenchmark;
+      let observed: IBenchmark | undefined;
       lab.upsertBenchmark = async (benchmark: IBenchmark): Promise<void> => {
         observed = benchmark;
       };
 
-      chai
+      const res = await chai
         .request(await createApp(lab))
         .put(`/benchmarks/${benchmark1.name}`)
-        .send(benchmark1)
-        .end((err, res) => {
-          assert.equal(res.status, 200);
-          assert.deepEqual(observed, benchmark1);
-        });
+        .send(benchmark1);
+
+      assert.equal(res.status, 200);
+      assert.deepEqual(observed, benchmark1);
     });
   });
 
@@ -127,14 +122,11 @@ describe('laboratory/server', () => {
         return expected;
       };
 
-      chai
-        .request(await createApp(lab))
-        .get('/candidates')
-        .end((err, res) => {
-          assert.equal(res.status, 200);
-          assert.deepEqual(res.body, expected);
-          assert.isTrue(called);
-        });
+      const res = await chai.request(await createApp(lab)).get('/candidates');
+
+      assert.equal(res.status, 200);
+      assert.deepEqual(res.body, expected);
+      assert.isTrue(called);
     });
 
     it('oneCandidate()', async () => {
@@ -144,31 +136,29 @@ describe('laboratory/server', () => {
         return candidate1;
       };
 
-      chai
+      const res = await chai
         .request(await createApp(lab))
-        .get(`/candidates/${candidate1.name}`)
-        .end((err, res) => {
-          assert.equal(res.status, 200);
-          const observed = validate(CandidateType, res.body);
-          assert.deepEqual(observed, candidate1);
-          assert.equal(observedName, candidate1.name);
-        });
+        .get(`/candidates/${candidate1.name}`);
+      assert.equal(res.status, 200);
+
+      const observed = validate(CandidateType, res.body);
+      assert.deepEqual(observed, candidate1);
+      assert.equal(observedName, candidate1.name);
     });
 
     it('upsertCandidate()', async () => {
-      let observed: ICandidate;
+      let observed: ICandidate | undefined;
       lab.upsertCandidate = async (candidate: ICandidate): Promise<void> => {
         observed = candidate;
       };
 
-      chai
+      const res = await chai
         .request(await createApp(lab))
         .put(`/candidates/${candidate1.name}`)
-        .send(candidate1)
-        .end((err, res) => {
-          assert.equal(res.status, 200);
-          assert.deepEqual(observed, candidate1);
-        });
+        .send(candidate1);
+
+      assert.equal(res.status, 200);
+      assert.deepEqual(observed, candidate1);
     });
   });
 
@@ -187,14 +177,11 @@ describe('laboratory/server', () => {
         return expected;
       };
 
-      chai
-        .request(await createApp(lab))
-        .get('/suites')
-        .end((err, res) => {
-          assert.equal(res.status, 200);
-          assert.deepEqual(res.body, expected);
-          assert.isTrue(called);
-        });
+      const res = await chai.request(await createApp(lab)).get('/suites');
+
+      assert.equal(res.status, 200);
+      assert.deepEqual(res.body, expected);
+      assert.isTrue(called);
     });
 
     it('oneSuite()', async () => {
@@ -204,31 +191,29 @@ describe('laboratory/server', () => {
         return suite1;
       };
 
-      chai
+      const res = await chai
         .request(await createApp(lab))
-        .get(`/suites/${suite1.name}`)
-        .end((err, res) => {
-          assert.equal(res.status, 200);
-          const observed = validate(SuiteType, res.body);
-          assert.deepEqual(observed, suite1);
-          assert.equal(observedName, suite1.name);
-        });
+        .get(`/suites/${suite1.name}`);
+
+      assert.equal(res.status, 200);
+      const observed = validate(SuiteType, res.body);
+      assert.deepEqual(observed, suite1);
+      assert.equal(observedName, suite1.name);
     });
 
     it('upsertSuite()', async () => {
-      let observed: ISuite;
+      let observed: ISuite | undefined;
       lab.upsertSuite = async (suite: ISuite): Promise<void> => {
         observed = suite;
       };
 
-      chai
+      const res = await chai
         .request(await createApp(lab))
         .put(`/suites/${suite1.name}`)
-        .send(suite1)
-        .end((err, res) => {
-          assert.equal(res.status, 200);
-          assert.deepEqual(observed, suite1);
-        });
+        .send(suite1);
+
+      assert.equal(res.status, 200);
+      assert.deepEqual(observed, suite1);
     });
   });
 
@@ -247,14 +232,11 @@ describe('laboratory/server', () => {
         return expected;
       };
 
-      chai
-        .request(await createApp(lab))
-        .get('/runs')
-        .end((err, res) => {
-          assert.equal(res.status, 200);
-          assert.deepEqual(res.body, expected);
-          assert.isTrue(called);
-        });
+      const res = await chai.request(await createApp(lab)).get('/runs');
+
+      assert.equal(res.status, 200);
+      assert.deepEqual(res.body, expected);
+      assert.isTrue(called);
     });
 
     it('oneRun()', async () => {
@@ -264,15 +246,14 @@ describe('laboratory/server', () => {
         return run1;
       };
 
-      chai
+      const res = await chai
         .request(await createApp(lab))
-        .get(`/runs/${run1.name}`)
-        .end((err, res) => {
-          assert.equal(res.status, 200);
-          const observed = validate(RunType, res.body);
-          assert.deepEqual(observed, run1);
-          assert.equal(observedName, run1.name);
-        });
+        .get(`/runs/${run1.name}`);
+
+      assert.equal(res.status, 200);
+      const observed = validate(RunType, res.body);
+      assert.deepEqual(observed, run1);
+      assert.equal(observedName, run1.name);
     });
 
     it('createRunRequest()', async () => {
@@ -281,22 +262,21 @@ describe('laboratory/server', () => {
         suite: run1.suite.name,
       };
 
-      let observedRequest: IRunRequest;
+      let observedRequest: IRunRequest | undefined;
       lab.createRunRequest = async (spec: IRunRequest): Promise<IRun> => {
         observedRequest = spec;
         return run1;
       };
 
-      chai
+      const res = await chai
         .request(await createApp(lab))
         .post('/runs')
-        .send(runRequest)
-        .end((err, res) => {
-          assert.equal(res.status, 202);
-          assert.deepEqual(observedRequest, runRequest);
-          const observed = validate(RunType, res.body);
-          assert.deepEqual(observed, run1);
-        });
+        .send(runRequest);
+
+      assert.equal(res.status, 202);
+      assert.deepEqual(observedRequest, runRequest);
+      const observed = validate(RunType, res.body);
+      assert.deepEqual(observed, run1);
     });
 
     // This test fails because RunStatus.COMPLETED is serialized and transported as
@@ -306,8 +286,8 @@ describe('laboratory/server', () => {
       const status = RunStatus.COMPLETED;
       const body: IUpdateRunStatus = { status };
 
-      let observedRawName: string;
-      let observedStatus: RunStatus;
+      let observedRawName: string | undefined;
+      let observedStatus: RunStatus | undefined;
       lab.updateRunStatus = async (
         rawName: string,
         status: RunStatus
@@ -316,15 +296,13 @@ describe('laboratory/server', () => {
         observedStatus = status;
       };
 
-      chai
+      const res = await chai
         .request(await createApp(lab))
         .patch(`/runs/${name}`)
-        .send(body)
-        .end((err, res) => {
-          assert.equal(res.status, 204);
-          assert.equal(observedRawName, name);
-          assert.equal(observedStatus, status);
-        });
+        .send(body);
+      assert.equal(res.status, 204);
+      assert.equal(observedRawName, name);
+      assert.equal(observedStatus, status);
     });
 
     it('reportRunResults()', async () => {
@@ -332,8 +310,8 @@ describe('laboratory/server', () => {
       const measures = { passed: 1, failed: 2 };
       const body: IReportRunResults = { measures };
 
-      let observedName: string;
-      let observedMeasures: Measures;
+      let observedName: string | undefined;
+      let observedMeasures: Measures | undefined;
       lab.reportRunResults = async (
         name: string,
         measures: Measures
@@ -342,15 +320,14 @@ describe('laboratory/server', () => {
         observedMeasures = measures;
       };
 
-      chai
+      const res = await chai
         .request(await createApp(lab))
         .post(`/runs/${name}/results`)
-        .send(body)
-        .end((err, res) => {
-          assert.equal(res.status, 204);
-          assert.equal(observedName, name);
-          assert.deepEqual(observedMeasures, measures);
-        });
+        .send(body);
+
+      assert.equal(res.status, 204);
+      assert.equal(observedName, name);
+      assert.deepEqual(observedMeasures, measures);
     });
 
     it('allRunResults()', async () => {
@@ -359,8 +336,8 @@ describe('laboratory/server', () => {
       const expected: IResult[] = [];
 
       let called = false;
-      let observedBenchmark: string;
-      let observedSuite: string;
+      let observedBenchmark: string | undefined;
+      let observedSuite: string | undefined;
       lab.allRunResults = async (
         benchmark: string,
         suite: string
@@ -372,16 +349,15 @@ describe('laboratory/server', () => {
         return expected;
       };
 
-      chai
+      const res = await chai
         .request(await createApp(lab))
-        .get(`/runs/results?benchmark=${benchmark}&suite=${suite}`)
-        .end((err, res) => {
-          assert.equal(res.status, 200);
-          assert.deepEqual(res.body, expected);
-          assert.isTrue(called);
-          assert.equal(observedBenchmark, benchmark);
-          assert.equal(observedSuite, suite);
-        });
+        .get(`/runs/results?benchmark=${benchmark}&suite=${suite}`);
+
+      assert.equal(res.status, 200);
+      assert.deepEqual(res.body, expected);
+      assert.isTrue(called);
+      assert.equal(observedBenchmark, benchmark);
+      assert.equal(observedSuite, suite);
     });
   });
 });

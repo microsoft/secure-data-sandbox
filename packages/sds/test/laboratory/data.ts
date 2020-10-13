@@ -154,6 +154,9 @@ export const suite1: ISuite = {
   author: 'author1',
   apiVersion: 'v1alpha1',
   benchmark: 'benchmark1',
+  properties: {
+    datasetId: '00000000-0000-0000-0000-000000000000',
+  },
   volumes: [
     {
       name: 'training',

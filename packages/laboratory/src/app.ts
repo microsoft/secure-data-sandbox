@@ -2,7 +2,7 @@ require('express-async-errors');
 import * as express from 'express';
 import * as errorhandler from 'strong-error-handler';
 import * as passport from 'passport';
-import { BearerStrategy } from 'passport-azure-ad';
+import { BearerStrategy, IBearerStrategyOption } from 'passport-azure-ad';
 
 import { IClientConnectionInfo, ILaboratory } from '@microsoft/sds';
 import { setErrorStatus } from './errors';
@@ -12,6 +12,7 @@ import {
   createRunRouter,
   createSuiteRouter,
 } from './routes';
+import { requireRole, Role } from './auth';
 
 import {
   AuthConfiguration,
@@ -26,7 +27,8 @@ function configureAADAuth(app: express.Express, config: AADConfiguration) {
       {
         identityMetadata: `https://login.microsoftonline.com/${config.tenantId}/v2.0/.well-known/openid-configuration`,
         clientID: config.laboratoryClientId,
-      },
+        ignoreExpiration: config.ignoreExpiration,
+      } as IBearerStrategyOption,
       (token, done) => {
         return done(null, token);
       }
@@ -45,9 +47,12 @@ function configureAADAuth(app: express.Express, config: AADConfiguration) {
       res.json(connectionInfo);
     })
 
-    // require all endpoints to be authenticated
-    .use(passport.initialize())
-    .all('*', passport.authenticate('oauth-bearer', { session: false }));
+    // require all endpoints to be authenticated with User role
+    .use(
+      passport.initialize(),
+      passport.authenticate('oauth-bearer', { session: false }),
+      requireRole(Role.User, config)
+    );
 }
 
 export async function createApp(
@@ -77,10 +82,10 @@ export async function createApp(
     .get('/connect/validate', (req, res) => {
       res.status(200).end();
     })
-    .use(createBenchmarkRouter(lab))
+    .use(createBenchmarkRouter(lab, auth))
     .use(createCandidateRouter(lab))
-    .use(createRunRouter(lab))
-    .use(createSuiteRouter(lab))
+    .use(createRunRouter(lab, auth))
+    .use(createSuiteRouter(lab, auth))
 
     // Handle known errors
     .use(setErrorStatus)
@@ -89,6 +94,7 @@ export async function createApp(
     .use(
       errorhandler({
         debug: process.env.NODE_ENV === 'development',
+        log: process.env.NODE_ENV !== 'test',
         negotiateContentType: false,
       })
     );

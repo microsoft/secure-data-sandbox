@@ -18,7 +18,6 @@ export class Benchmark extends Model<Benchmark> implements IBenchmark {
   @Column(DataType.STRING)
   apiVersion!: string;
 
-  // TODO: REVIEW: magic number 1024
-  @Column(jsonColumn<PipelineStage[]>('stages', 1024))
+  @Column(jsonColumn<PipelineStage[]>('stages'))
   stages!: PipelineStage[];
 }

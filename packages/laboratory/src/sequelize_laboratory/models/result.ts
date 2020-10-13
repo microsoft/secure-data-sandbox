@@ -27,6 +27,6 @@ export class Result extends Model<Result> implements IResult {
   @Column(DataType.STRING)
   candidate!: string;
 
-  @Column(jsonColumn<object>('measures', 1024))
+  @Column(jsonColumn<object>('measures'))
   measures!: Measures;
 }

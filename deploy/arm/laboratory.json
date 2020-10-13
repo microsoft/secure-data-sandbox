@@ -5,9 +5,14 @@
     "instrumentationKey": {
       "type": "string"
     },
+    "infraAcrId": {
+      "type": "string"
+    },
+    "infraAcrLoginServer": {
+      "type": "string"
+    },
     "laboratoryImage": {
-      "type": "string",
-      "defaultValue": "acanthamoeba/sds-laboratory"
+      "type": "string"
     },
     "runsQueueEndpoint": {
       "type": "string"
@@ -15,35 +20,125 @@
     "sqlAdminPassword": {
       "type": "securestring",
       "defaultValue": "[newGuid()]"
+    },
+    "tags": {
+      "type": "object",
+      "defaultValue": {}
+    },
+    "keyVault": {
+      "type": "string"
+    },
+    "monitoringStorageAccount": {
+      "type": "string"
+    },
+    "monitoringEventHub": {
+      "type": "string"
+    },
+    "monitoringEventHubsNamespace": {
+      "type": "string"
+    },
+    "authMode": {
+      "type": "string",
+      "defaultValue": "none"
+    },
+    "authTenantId": {
+      "type": "string",
+      "defaultValue": "[subscription().tenantId]"
+    },
+    "authLaboratoryClientId": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "authCliClientId": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "authAllowedClientIds": {
+      "type": "string",
+      "defaultValue": ""
     }
   },
   "variables": {
+    "adminEmailAddresses": [
+    ],
     "bootstrap": "bootstrap",
+    "bootstrapSql": "bootstrapSql",
+    "bootstrapKV": "bootstrapKV",
+    "diagnosticsLogs": "diagnosticslogs",
+    "infraAcrName": "[last(split(parameters('infraAcrId'), '/'))]",
     "laboratory": "laboratory",
+    "monitoringBlobSAS": {
+      "canonicalizedResource": "[format('/blob/{0}/{1}', parameters('monitoringStorageAccount'), variables('diagnosticsLogs'))]",
+      "signedExpiry": "2050-01-01T00:00:00Z",
+      "signedPermission": "dlrw",
+      "signedProtocol": "https"
+    },
     "sqlAdminUsername": "laboratory",
+    "sqlEncryptionKey": "laboratorySql",
     "sqlServer": "[concat('laboratory', variables('suffix'))]",
     "suffix": "[toLower(take(uniqueString(resourceGroup().id), 6))]",
+    "vulnerabilityAssessments": "vulnerabilityassessments",
     "webApp": "[concat('laboratory', variables('suffix'))]",
-    "contributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]"
+    "contributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+    "acrPullRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')]",
+    "storageBlobDataContributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]"
   },
   "resources": [
     {
       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
       "apiVersion": "2018-11-30",
       "location": "[resourceGroup().location]",
-      "name": "[variables('bootstrap')]"
+      "name": "[variables('bootstrap')]",
+      "tags": "[parameters('tags')]"
     },
     {
       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
       "apiVersion": "2018-11-30",
       "location": "[resourceGroup().location]",
-      "name": "[variables('laboratory')]"
+      "name": "[variables('laboratory')]",
+      "tags": "[parameters('tags')]"
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2019-06-01",
+      "location": "[resourceGroup().location]",
+      "name": "[concat(parameters('monitoringStorageAccount'), '/default/', variables('vulnerabilityAssessments'))]",
+      "properties": {
+        "publicAccess": "None"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2019-06-01",
+      "location": "[resourceGroup().location]",
+      "name": "[concat(parameters('monitoringStorageAccount'), '/default/', variables('diagnosticsLogs'))]",
+      "properties": {
+        "publicAccess": "None"
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]"
+      ],
+      "type": "Microsoft.Storage/storageAccounts/providers/roleAssignments",
+      "apiVersion": "2018-09-01-preview",
+      "location": "[resourceGroup().location]",
+      "name": "[concat(parameters('monitoringStorageAccount'), '/Microsoft.Authorization/', guid(concat(variables('sqlServer'), parameters('monitoringStorageAccount'), 'StorageBlobDataContributor')))]",
+      "properties": {
+        "principalId": "[reference(resourceId('Microsoft.Sql/servers', variables('sqlServer')), '2019-06-01-preview', 'Full').identity.principalId]",
+        "roleDefinitionId": "[variables('storageBlobDataContributorRoleId')]",
+        "principalType": "ServicePrincipal"
+      }
     },
     {
       "type": "Microsoft.Sql/servers",
       "apiVersion": "2019-06-01-preview",
       "location": "[resourceGroup().location]",
       "name": "[variables('sqlServer')]",
+      "tags": "[parameters('tags')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
       "properties": {
         "administratorLogin": "[variables('sqlAdminUsername')]",
         "administratorLoginPassword": "[parameters('sqlAdminPassword')]",
@@ -71,12 +166,110 @@
           "apiVersion": "2019-06-01-preview",
           "location": "[resourceGroup().location]",
           "name": "[variables('laboratory')]",
+          "tags": "[parameters('tags')]",
           "sku": {
             "name": "Standard",
             "tier": "Standard"
           },
           "properties": {
-          }
+          },
+          "resources": [
+            {
+              "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/databases', variables('sqlServer'), variables('laboratory'))]"
+              ],
+              "type": "providers/diagnosticSettings",
+              "apiVersion": "2017-05-01-preview",
+              "location": "[resourceGroup().location]",
+              "name": "Microsoft.Insights/diagnostics",
+              "properties": {
+                "eventHubName": "[parameters('monitoringEventHub')]",
+                "eventHubAuthorizationRuleId": "[resourceId('Microsoft.EventHub/namespaces/authorizationrules', parameters('monitoringEventHubsNamespace'), 'RootManageSharedAccessKey')]",
+                "logs": [
+                  {
+                    "category": "SQLInsights",
+                    "enabled": true,
+                    "retentionPolicy": {
+                      "days": 365,
+                      "enabled": true
+                    }
+                  },
+                  {
+                    "category": "AutomaticTuning",
+                    "enabled": true,
+                    "retentionPolicy": {
+                      "days": 365,
+                      "enabled": true
+                    }
+                  },
+                  {
+                    "category": "QueryStoreRuntimeStatistics",
+                    "enabled": true,
+                    "retentionPolicy": {
+                      "days": 365,
+                      "enabled": true
+                    }
+                  },
+                  {
+                    "category": "QueryStoreWaitStatistics",
+                    "enabled": true,
+                    "retentionPolicy": {
+                      "days": 365,
+                      "enabled": true
+                    }
+                  },
+                  {
+                    "category": "Errors",
+                    "enabled": true,
+                    "retentionPolicy": {
+                      "days": 365,
+                      "enabled": true
+                    }
+                  },
+                  {
+                    "category": "DatabaseWaitStatistics",
+                    "enabled": true,
+                    "retentionPolicy": {
+                      "days": 365,
+                      "enabled": true
+                    }
+                  },
+                  {
+                    "category": "Timeouts",
+                    "enabled": true,
+                    "retentionPolicy": {
+                      "days": 365,
+                      "enabled": true
+                    }
+                  },
+                  {
+                    "category": "Blocks",
+                    "enabled": true,
+                    "retentionPolicy": {
+                      "days": 365,
+                      "enabled": true
+                    }
+                  },
+                  {
+                    "category": "Deadlocks",
+                    "enabled": true,
+                    "retentionPolicy": {
+                      "days": 365,
+                      "enabled": true
+                    }
+                  },
+                  {
+                    "category": "SQLSecurityAuditEvents",
+                    "enabled": true,
+                    "retentionPolicy": {
+                      "days": 365,
+                      "enabled": true
+                    }
+                  }
+                ]
+              }
+            }
+          ]
         },
         {
           "dependsOn": [
@@ -85,7 +278,6 @@
           ],
           "type": "administrators",
           "apiVersion": "2019-06-01-preview",
-          "location": "[resourceGroup().location]",
           "name": "ActiveDirectory",
           "properties": {
             "administratorType": "ActiveDirectory",
@@ -93,8 +285,153 @@
             "sid": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrap')), '2018-11-30').principalId]",
             "tenantId": "[subscription().tenantId]"
           }
+        },
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]"
+          ],
+          "type": "securityAlertPolicies",
+          "apiVersion": "2017-03-01-preview",
+          "name": "default",
+          "properties": {
+            "state": "Enabled",
+            "emailAccountAdmins": true,
+            "emailAddresses": "[variables('adminEmailAddresses')]"
+          }
+        },
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]"
+          ],
+          "type": "auditingSettings",
+          "apiVersion": "2017-03-01-preview",
+          "name": "default",
+          "properties": {
+            "state": "Enabled",
+            "retentionDays": 365,
+            "storageEndpoint": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('monitoringStorageAccount')), '2019-06-01').primaryEndpoints.blob]"
+          }
+        },
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]",
+            "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', parameters('monitoringStorageAccount'), 'default', variables('vulnerabilityAssessments'))]",
+            "[extensionResourceId(resourceId('Microsoft.Storage/storageAccounts', parameters('monitoringStorageAccount')), 'Microsoft.Authorization/roleAssignments', guid(concat(variables('sqlServer'), parameters('monitoringStorageAccount'), 'StorageBlobDataContributor')))]"
+          ],
+          "type": "vulnerabilityAssessments",
+          "apiVersion": "2018-06-01-preview",
+          "location": "[resourceGroup().location]",
+          "name": "default",
+          "properties": {
+            "storageContainerPath": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', parameters('monitoringStorageAccount')), '2019-06-01').primaryEndpoints.blob, variables('vulnerabilityAssessments'))]",
+            "recurringScans": {
+              "isEnabled": true,
+              "emailSubscriptionAdmins": true,
+              "emails": "[variables('adminEmailAddresses')]"
+            }
+          }
         }
       ]
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]",
+        "[resourceId('Microsoft.Resources/deploymentScripts', variables('bootstrapKV'))]"
+      ],
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[concat(variables('sqlServer'), '-encryption')]",
+      "properties": {
+        "mode": "Incremental",
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "parameters": {
+          "sqlServer": {
+            "value": "[variables('sqlServer')]"
+          },
+          "keyName": {
+            "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', variables('bootstrapKV'))).outputs.keyName]"
+          },
+          "keyUrl": {
+            "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', variables('bootstrapKV'))).outputs.keyUrl]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "sqlServer": {
+              "type": "string"
+            },
+            "keyName": {
+              "type": "string"
+            },
+            "keyUrl": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Sql/servers/keys",
+              "apiVersion": "2015-05-01-preview",
+              "name": "[format('{0}/{1}', parameters('sqlServer'), parameters('keyName'))]",
+              "properties": {
+                "serverKeyType": "AzureKeyVault",
+                "uri": "[parameters('keyUrl')]"
+              }
+            },
+            {
+              "dependsOn": [
+                "[resourceId('Microsoft.Sql/servers/keys', parameters('sqlServer'), parameters('keyName'))]"
+              ],
+              "type": "Microsoft.Sql/servers/encryptionProtector",
+              "apiVersion": "2015-05-01-preview",
+              "location": "[resourceGroup().location]",
+              "name": "[format('{0}/{1}', parameters('sqlServer'), 'current')]",
+              "properties": {
+                "serverKeyName": "[parameters('keyName')]",
+                "serverKeyType": "AzureKeyVault"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrap'))]",
+        "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]"
+      ],
+      "type": "Microsoft.KeyVault/vaults/accessPolicies",
+      "apiVersion": "2016-10-01",
+      "location": "[resourceGroup().location]",
+      "name": "[concat(parameters('keyVault'), '/add')]",
+      "properties": {
+        "accessPolicies": [
+          {
+            "tenantId": "[subscription().tenantId]",
+            "objectId": "[reference(resourceId('Microsoft.Sql/servers', variables('sqlServer')), '2019-06-01-preview', 'Full').identity.principalId]",
+            "permissions": {
+              "keys": [
+                "get",
+                "wrapkey",
+                "unwrapkey"
+              ]
+            }
+          },
+          {
+            "tenantId": "[subscription().tenantId]",
+            "objectId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrap'))).principalId]",
+            "permissions": {
+              "keys": [
+                "get",
+                "create"
+              ]
+            }
+          }
+        ] 
+      }
     },
     {
       "dependsOn": [
@@ -119,7 +456,7 @@
       "type": "Microsoft.Resources/deploymentScripts",
       "apiVersion": "2019-10-01-preview",
       "location": "[resourceGroup().location]",
-      "name": "[variables('bootstrap')]",
+      "name": "[variables('bootstrapSql')]",
       "identity": {
         "type": "UserAssigned",
         "userAssignedIdentities": {
@@ -127,8 +464,9 @@
         }
       },
       "kind": "AzurePowerShell",
+      "tags": "[parameters('tags')]",
       "properties": {
-        "azPowerShellVersion": "4.5",
+        "azPowerShellVersion": "4.6",
         "retentionInterval": "P1D",
         "cleanupPreference": "OnSuccess",
         "arguments": "[format(' -server {0} -database {1} -identity {2} -clientId {3}', reference(resourceId('Microsoft.Sql/servers', variables('sqlServer'))).fullyQualifiedDomainName, variables('laboratory'), variables('laboratory'), reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))).clientId)]",
@@ -171,6 +509,49 @@ $conn.Close()
       }
     },
     {
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrap'))]",
+        "[resourceId('Microsoft.Authorization/roleAssignments', guid(concat('bootstrap', 'Contributor')))]",
+        "[resourceId('Microsoft.Sql/servers/databases', variables('sqlServer'), variables('laboratory'))]",
+        "[resourceId('Microsoft.KeyVault/vaults/accessPolicies', parameters('keyVault'), 'add')]"
+      ],
+      "type": "Microsoft.Resources/deploymentScripts",
+      "apiVersion": "2019-10-01-preview",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('bootstrapKV')]",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrap'))]": {}
+        }
+      },
+      "kind": "AzurePowerShell",
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "azPowerShellVersion": "4.6",
+        "retentionInterval": "P1D",
+        "cleanupPreference": "OnSuccess",
+        "arguments": "[format(' -keyVault {0} -keyName {1}', parameters('keyVault'), variables('sqlEncryptionKey'))]",
+        "scriptContent": "
+param(
+  [string] [Parameter(Mandatory=$true)] $keyVault,
+  [string] [Parameter(Mandatory=$true)] $keyName
+)
+
+$ErrorActionPreference = 'Stop';
+
+$key = Get-AzKeyVaultKey -VaultName $keyVault -Name $keyName
+if (!$key) {
+  $key = Add-AzKeyVaultKey -VaultName $keyVault -Name $keyName -Destination Software
+}
+
+$DeploymentScriptOutputs = @{}
+$DeploymentScriptOutputs['keyName'] = '{0}_{1}_{2}' -f $key.VaultName, $key.Name, $key.Version
+$DeploymentScriptOutputs['keyUrl'] = $key.Id
+        "
+      }
+    },
+    {
       "type": "Microsoft.Web/serverFarms",
       "apiVersion": "2018-02-01",
       "location": "[resourceGroup().location]",
@@ -179,19 +560,20 @@ $conn.Close()
       "sku": {
         "name": "S1"
       },
+      "tags": "[parameters('tags')]",
       "properties": {
         "reserved": true
       }
     },
     {
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deploymentScripts', variables('bootstrap'))]",
+        "[resourceId('Microsoft.Resources/deploymentScripts', variables('bootstrapSql'))]",
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))]",
         "[resourceId('Microsoft.Web/serverFarms', variables('laboratory'))]",
         "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]"
       ],
       "type": "Microsoft.Web/sites",
-      "apiVersion": "2018-11-01",
+      "apiVersion": "2019-08-01",
       "location": "[resourceGroup().location]",
       "name": "[variables('webApp')]",
       "identity": {
@@ -200,44 +582,209 @@ $conn.Close()
           "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))]": {}
         }
       },
+      "kind": "app,linux,container",
+      "tags": "[parameters('tags')]",
       "properties": {
         "httpsOnly": true,
         "serverFarmId": "[resourceId('Microsoft.Web/serverFarms', variables('laboratory'))]",
         "siteConfig": {
           "alwaysOn": true,
-          "linuxFxVersion": "[concat('DOCKER|', parameters('laboratoryImage'))]",
           "minTlsVersion": "1.2",
-          "appSettings": [
-            {
-              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-              "value": "[parameters('instrumentationKey')]"
-            },
-            {
-              "name": "AZURE_CLIENT_ID",
-              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))).clientId]"
-            },
-            {
-              "name": "QUEUE_MODE",
-              "value": "azure"
-            },
-            {
-              "name": "QUEUE_ENDPOINT",
-              "value": "[parameters('runsQueueEndpoint')]"
-            },
-            {
-              "name": "SQL_MODE",
-              "value": "azuresql"
-            },
-            {
-              "name": "SQL_HOST",
-              "value": "[reference(resourceId('Microsoft.Sql/servers', variables('sqlServer'))).fullyQualifiedDomainName]"
-            },
-            {
-              "name": "SQL_DB",
-              "value": "[variables('laboratory')]"
-            }
-          ]
+          "linuxFxVersion": "DOCKER|nginx"
         }
+      },
+      "resources": [
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/sites', variables('webApp'))]",
+            "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))]",
+            "[extensionResourceId(parameters('infraAcrId'), 'Microsoft.Authorization/roleAssignments', guid(concat(variables('laboratory'), parameters('infraAcrId'), 'AcrPull')))]"
+          ],
+          "type": "config",
+          "apiVersion": "2019-08-01",
+          "name": "web",
+          "properties": {
+            "acrUseManagedIdentityCreds": true,
+            "acrUserManagedIdentityID": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))).clientId]",
+            "linuxFxVersion": "[concat('DOCKER|', parameters('laboratoryImage'))]"
+          }
+        },
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/sites', variables('webApp'))]",
+            "[resourceId('Microsoft.Web/sites/config', variables('webApp'), 'web')]",
+            "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))]"
+          ],
+          "type": "config",
+          "apiVersion": "2019-08-01",
+          "name": "appsettings",
+          "properties": {
+            "APPINSIGHTS_INSTRUMENTATIONKEY": "[parameters('instrumentationKey')]",
+            "AUTH_MODE": "[parameters('authMode')]",
+            "AUTH_TENANT_ID": "[parameters('authTenantId')]",
+            "AUTH_LABORATORY_CLIENT_ID": "[parameters('authLaboratoryClientId')]",
+            "AUTH_CLI_CLIENT_ID": "[parameters('authCliClientId')]",
+            "AUTH_ALLOWED_APPLICATION_CLIENT_IDS": "[parameters('authAllowedClientIds')]",
+            "AZURE_CLIENT_ID": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))).clientId]",
+            "QUEUE_MODE": "azure",
+            "QUEUE_ENDPOINT": "[parameters('runsQueueEndpoint')]",
+            "SQL_MODE": "azuresql",
+            "SQL_HOST": "[reference(resourceId('Microsoft.Sql/servers', variables('sqlServer'))).fullyQualifiedDomainName]",
+            "SQL_DB": "[variables('laboratory')]",
+            "DOCKER_REGISTRY_SERVER_URL": "[concat('https://', parameters('infraAcrLoginServer'))]",
+            "WEBSITES_ENABLE_APP_SERVICE_STORAGE": "false",
+            "WEBSITES_PORT": "3000"
+          }
+        },
+        {
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/sites', variables('webApp'))]",
+            "[resourceId('Microsoft.Web/sites/config', variables('webApp'), 'appsettings')]",
+            "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', parameters('monitoringStorageAccount'), 'default', variables('diagnosticsLogs'))]"
+          ],
+          "type": "config",
+          "apiVersion": "2019-08-01",
+          "location": "[resourceGroup().location]",
+          "name": "logs",
+          "properties": {
+            "applicationLogs": {
+              "azureBlobStorage": {
+                "level": "Error",
+                "sasUrl": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', parameters('monitoringStorageAccount')), '2019-06-01').primaryEndpoints.blob, variables('diagnosticsLogs'), listServiceSas(resourceId('Microsoft.Storage/storageAccounts', parameters('monitoringStorageAccount')), '2019-06-01', variables('monitoringBlobSAS')).serviceSasToken)]",
+                "retentionInDays": 365
+              }
+            },
+            "httpLogs": {
+              "azureBlobStorage": {
+                "sasUrl": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', parameters('monitoringStorageAccount')), '2019-06-01').primaryEndpoints.blob, variables('diagnosticsLogs'), listServiceSas(resourceId('Microsoft.Storage/storageAccounts', parameters('monitoringStorageAccount')), '2019-06-01', variables('monitoringBlobSAS')).serviceSasToken)]",
+                "retentionInDays": 365,
+                "enabled": true
+              }
+            },
+            "failedRequestsTracing": {
+              "enabled": true
+            },
+            "detailedErrorMessages": {
+              "enabled": true
+            }
+          }
+        }
+      ]
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverFarms', variables('laboratory'))]"
+      ],
+      "type": "Microsoft.Insights/autoscalesettings",
+      "apiVersion": "2014-04-01",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('laboratory')]",
+      "tags": "[parameters('tags')]",
+      "properties": {
+        "enabled": true,
+        "targetResourceUri": "[resourceId('Microsoft.Web/serverFarms', variables('laboratory'))]",
+        "profiles": [
+          {
+            "name": "Default",
+            "capacity": {
+              "minimum": 1,
+              "maximum": 3,
+              "default": 1
+            },
+            "rules": [
+              {
+                "metricTrigger": {
+                  "metricName": "CpuPercentage",
+                  "metricNamespace": "",
+                  "metricResourceUri": "[resourceId('Microsoft.Web/serverfarms', variables('laboratory'))]",
+                  "timeGrain": "PT1M",
+                  "statistic": "Average",
+                  "timeWindow": "PT10M",
+                  "timeAggregation": "Average",
+                  "operator": "GreaterThan",
+                  "threshold": 80
+                },
+                "scaleAction": {
+                  "cooldown": "PT5M",
+                  "direction": "Increase",
+                  "type": "ChangeCount",
+                  "value": 1
+                }
+              },
+              {
+                "metricTrigger": {
+                  "metricName": "CpuPercentage",
+                  "metricNamespace": "",
+                  "metricResourceUri": "[resourceId('Microsoft.Web/serverfarms', variables('laboratory'))]",
+                  "timeGrain": "PT1M",
+                  "statistic": "Average",
+                  "timeWindow": "PT10M",
+                  "timeAggregation": "Average",
+                  "operator": "LessThan",
+                  "threshold": 30
+                },
+                "scaleAction": {
+                  "direction": "Decrease",
+                  "type": "ChangeCount",
+                  "value": 1,
+                  "cooldown": "PT5M"
+                }
+              },
+              {
+                "metricTrigger": {
+                  "metricName": "MemoryPercentage",
+                  "metricNamespace": "",
+                  "metricResourceUri": "[resourceId('Microsoft.Web/serverfarms', variables('laboratory'))]",
+                  "timeGrain": "PT1M",
+                  "statistic": "Average",
+                  "timeWindow": "PT10M",
+                  "timeAggregation": "Average",
+                  "operator": "GreaterThan",
+                  "threshold": 80
+                },
+                "scaleAction": {
+                  "direction": "Increase",
+                  "type": "ChangeCount",
+                  "value": 1,
+                  "cooldown": "PT5M"
+                }
+              },
+              {
+                "metricTrigger": {
+                  "metricName": "MemoryPercentage",
+                  "metricNamespace": "",
+                  "metricResourceUri": "[resourceId('Microsoft.Web/serverfarms', variables('laboratory'))]",
+                  "timeGrain": "PT1M",
+                  "statistic": "Average",
+                  "timeWindow": "PT10M",
+                  "timeAggregation": "Average",
+                  "operator": "LessThan",
+                  "threshold": 30
+                },
+                "scaleAction": {
+                  "direction": "Decrease",
+                  "type": "ChangeCount",
+                  "value": 1,
+                  "cooldown": "PT5M"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))]"
+      ],
+      "type": "Microsoft.ContainerRegistry/registries/providers/roleAssignments",
+      "apiVersion": "2018-09-01-preview",
+      "location": "[resourceGroup().location]",
+      "name": "[concat(variables('infraAcrName'), '/Microsoft.Authorization/', guid(concat(variables('laboratory'), parameters('infraAcrId'), 'AcrPull')))]",
+      "properties": {
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))).principalId]",
+        "roleDefinitionId": "[variables('acrPullRoleId')]",
+        "type": "ServicePrincipal"
       }
     }
   ],
@@ -245,6 +792,22 @@ $conn.Close()
     "laboratoryIdentityId": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))).principalId]"
+    },
+    "laboratorySqlServer": {
+      "type": "string",
+      "value": "[variables('sqlServer')]"
+    },
+    "laboratorySqlDatabase": {
+      "type": "string",
+      "value": "[variables('laboratory')]"
+    },
+    "laboratoryWebApp": {
+      "type": "string",
+      "value": "[variables('laboratory')]"
+    },
+    "laboratoryEndpoint": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Web/sites', variables('webApp'))).defaultHostName]"
     }
   }
 }

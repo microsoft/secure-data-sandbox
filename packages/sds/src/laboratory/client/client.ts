@@ -1,5 +1,4 @@
-import axios, { AxiosRequestConfig } from 'axios';
-import { URL } from 'url';
+import axios, { AxiosInstance } from 'axios';
 
 import {
   BenchmarkArrayType,
@@ -33,24 +32,25 @@ import { validate } from '../validate';
 type TokenRetriever = () => Promise<string>;
 
 export class LaboratoryClient implements ILaboratory {
-  endpoint: string;
-  tokenRetriever?: TokenRetriever;
+  http: AxiosInstance;
 
   constructor(endpoint: string, tokenRetriever?: TokenRetriever) {
-    this.endpoint = endpoint;
-    this.tokenRetriever = tokenRetriever;
-  }
+    this.http = axios.create({
+      baseURL: endpoint,
+      validateStatus: status => status >= 200 && status < 300,
+    });
 
-  private async getConfig(): Promise<AxiosRequestConfig> {
-    if (this.tokenRetriever) {
-      return {
-        headers: {
-          Authorization: `Bearer ${await this.tokenRetriever()}`,
-        },
-      };
-    }
-
-    return {};
+    this.http.interceptors.request.use(
+      async config => {
+        if (tokenRetriever) {
+          config.headers.Authorization = `Bearer ${await tokenRetriever()}`;
+        }
+        return config;
+      },
+      error => {
+        Promise.reject(error);
+      }
+    );
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -59,15 +59,13 @@ export class LaboratoryClient implements ILaboratory {
   //
   /////////////////////////////////////////////////////////////////////////////
   async negotiateConnection(): Promise<IClientConnectionInfo> {
-    const url = new URL('connect', this.endpoint);
-    const response = await axios.get(url.toString());
+    const response = await this.http.get('/connect');
     const connectionInfo = validate(ClientConnectionInfoType, response.data);
     return connectionInfo;
   }
 
   async validateConnection(): Promise<void> {
-    const url = new URL('connect/validate', this.endpoint);
-    const response = await axios.get(url.toString(), await this.getConfig());
+    const response = await this.http.get('/connect/validate');
     if (response.status !== 200) {
       throw new Error('There was something wrong with the connection');
     }
@@ -79,16 +77,14 @@ export class LaboratoryClient implements ILaboratory {
   //
   /////////////////////////////////////////////////////////////////////////////
   async allBenchmarks(): Promise<IBenchmark[]> {
-    const url = new URL('benchmarks', this.endpoint);
-    const response = await axios.get(url.toString(), await this.getConfig());
+    const response = await this.http.get('/benchmarks');
     const benchmarks = validate(BenchmarkArrayType, response.data);
     return benchmarks;
   }
 
   async oneBenchmark(rawName: string): Promise<IBenchmark> {
     const name = normalizeName(rawName);
-    const url = new URL(`benchmarks/${name}`, this.endpoint);
-    const response = await axios.get(url.toString(), await this.getConfig());
+    const response = await this.http.get(`/benchmarks/${name}`);
     const benchmark = validate(BenchmarkType, response.data);
     return benchmark;
   }
@@ -102,8 +98,7 @@ export class LaboratoryClient implements ILaboratory {
       const message = 'Route name, if specified, must equal benchmark.name.';
       throw new IllegalOperationError(message);
     }
-    const url = new URL(`benchmarks/${name}`, this.endpoint);
-    await axios.put(url.toString(), benchmark, await this.getConfig());
+    await this.http.put(`/benchmarks/${name}`, benchmark);
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -112,16 +107,14 @@ export class LaboratoryClient implements ILaboratory {
   //
   /////////////////////////////////////////////////////////////////////////////
   async allCandidates(): Promise<ICandidate[]> {
-    const url = new URL('candidates', this.endpoint);
-    const response = await axios.get(url.toString(), await this.getConfig());
+    const response = await this.http.get('/candidates');
     const candidates = validate(CandidateArrayType, response.data);
     return candidates;
   }
 
   async oneCandidate(rawName: string): Promise<ICandidate> {
     const name = normalizeName(rawName);
-    const url = new URL(`candidates/${name}`, this.endpoint);
-    const response = await axios.get(url.toString(), await this.getConfig());
+    const response = await this.http.get(`/candidates/${name}`);
     const candidate = validate(CandidateType, response.data);
     return candidate;
   }
@@ -135,8 +128,7 @@ export class LaboratoryClient implements ILaboratory {
       const message = 'Route name, if specified, must equal candidate.name.';
       throw new IllegalOperationError(message);
     }
-    const url = new URL(`candidates/${name}`, this.endpoint);
-    await axios.put(url.toString(), candidate, await this.getConfig());
+    await this.http.put(`/candidates/${name}`, candidate);
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -145,16 +137,14 @@ export class LaboratoryClient implements ILaboratory {
   //
   /////////////////////////////////////////////////////////////////////////////
   async allSuites(): Promise<ISuite[]> {
-    const url = new URL('suites', this.endpoint);
-    const response = await axios.get(url.toString(), await this.getConfig());
+    const response = await this.http.get('/suites');
     const suites = validate(SuiteArrayType, response.data);
     return suites;
   }
 
   async oneSuite(rawName: string): Promise<ISuite> {
     const name = normalizeName(rawName);
-    const url = new URL(`suites/${name}`, this.endpoint);
-    const response = await axios.get(url.toString(), await this.getConfig());
+    const response = await this.http.get(`/suites/${name}`);
     const suite = validate(SuiteType, response.data);
     return suite;
   }
@@ -165,8 +155,7 @@ export class LaboratoryClient implements ILaboratory {
       const message = 'Route name, if specified, must equal suite.name.';
       throw new IllegalOperationError(message);
     }
-    const url = new URL(`suites/${name}`, this.endpoint);
-    await axios.put(url.toString(), suite, await this.getConfig());
+    await this.http.put(`/suites/${name}`, suite);
   }
 
   /////////////////////////////////////////////////////////////////////////////
@@ -175,53 +164,42 @@ export class LaboratoryClient implements ILaboratory {
   //
   /////////////////////////////////////////////////////////////////////////////
   async allRuns(): Promise<IRun[]> {
-    const url = new URL('runs', this.endpoint);
-    const response = await axios.get(url.toString(), await this.getConfig());
+    const response = await this.http.get('/runs');
     const runs = validate(RunArrayType, response.data);
     return runs;
   }
 
   async oneRun(rawName: string): Promise<IRun> {
     const name = normalizeRunName(rawName);
-    const url = new URL(`runs/${name}`, this.endpoint);
-    const response = await axios.get(url.toString(), await this.getConfig());
+    const response = await this.http.get(`/runs/${name}`);
     const run = validate(RunType, response.data);
     return run;
   }
 
   async createRunRequest(spec: IRunRequest): Promise<IRun> {
-    const url = new URL('runs', this.endpoint);
-    const response = await axios.post(
-      url.toString(),
-      spec,
-      await this.getConfig()
-    );
+    const response = await this.http.post('/runs', spec);
     const run = validate(RunType, response.data);
     return run;
   }
 
   async updateRunStatus(rawName: string, status: RunStatus): Promise<void> {
     const name = normalizeRunName(rawName);
-    const url = new URL(`runs/${name}`, this.endpoint);
     const body: IUpdateRunStatus = { status };
-    await axios.patch(url.toString(), body, await this.getConfig());
+    await this.http.patch(`/runs/${name}`, body);
   }
 
   async reportRunResults(rawName: string, measures: Measures): Promise<void> {
     const name = normalizeRunName(rawName);
-    const url = new URL(`runs/${name}/results`, this.endpoint);
     const body: IReportRunResults = { measures };
-    await axios.post(url.toString(), body, await this.getConfig());
+    await this.http.post(`/runs/${name}/results`, body);
   }
 
   async allRunResults(benchmark: string, suite: string): Promise<IResult[]> {
     const b = normalizeName(benchmark);
     const s = normalizeName(suite);
-    const url = new URL(
-      `runs/results?benchmark=${b}&suite=${s}`,
-      this.endpoint
+    const response = await this.http.get(
+      `/runs/results?benchmark=${b}&suite=${s}`
     );
-    const response = await axios.get(url.toString(), await this.getConfig());
     const results = validate(ResultArrayType, response.data);
     return results;
   }

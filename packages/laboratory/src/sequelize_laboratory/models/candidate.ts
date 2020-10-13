@@ -23,11 +23,9 @@ export class Candidate extends Model<Candidate> implements ICandidate {
   @Column(DataType.STRING)
   image!: string;
 
-  // TODO: REVIEW: magic number 1024
-  @Column(jsonColumn<string[]>('cmd', 1024))
+  @Column(jsonColumn<string[]>('cmd'))
   cmd!: string[];
 
-  // TODO: REVIEW: magic number 1024
-  @Column(jsonColumn<{ [x: string]: string }>('env', 1024))
+  @Column(jsonColumn<{ [x: string]: string }>('env'))
   env!: { [x: string]: string };
 }

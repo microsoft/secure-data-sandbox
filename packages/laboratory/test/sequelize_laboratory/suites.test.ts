@@ -1,3 +1,4 @@
+import { ILaboratory } from '@microsoft/sds';
 import * as chai from 'chai';
 import { assert } from 'chai';
 import chaiAsPromised = require('chai-as-promised');
@@ -10,19 +11,17 @@ import {
   suite3,
 } from '../../../sds/test/laboratory/data';
 
-import {
-  assertDeepEqual,
-  initTestEnvironment,
-  lab,
-  resetTestEnvironment,
-} from './shared';
+import { assertDeepEqual, initTestEnvironment } from './shared';
 
 chai.use(chaiExclude);
 chai.use(chaiAsPromised);
 
 describe('laboratory/suites', () => {
-  before(initTestEnvironment);
-  beforeEach(resetTestEnvironment);
+  let lab: ILaboratory;
+
+  beforeEach(async () => {
+    lab = await initTestEnvironment();
+  });
 
   it('allSuites()', async () => {
     // First add benchmark referenced by suite1 and suite2.

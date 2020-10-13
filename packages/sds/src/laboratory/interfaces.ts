@@ -174,6 +174,9 @@ export const SuiteType = t.intersection([
   EntityBaseType,
   t.interface({
     benchmark: t.string,
+  }),
+  t.partial({
+    properties: t.record(t.string, t.string),
     volumes: t.array(SuiteVolumeType),
   }),
 ]);
@@ -318,6 +321,12 @@ export class IllegalOperationError extends Error {
 }
 
 export class ValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+export class ForbiddenError extends Error {
   constructor(message: string) {
     super(message);
   }

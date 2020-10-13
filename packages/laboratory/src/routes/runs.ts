@@ -11,8 +11,13 @@ import {
   validate,
   ValidationError,
 } from '@microsoft/sds';
+import { requireRole, Role } from '../auth';
+import { AuthConfiguration } from '../configuration';
 
-export function createRunRouter(lab: ILaboratory): Router {
+export function createRunRouter(
+  lab: ILaboratory,
+  authConfig: AuthConfiguration
+): Router {
   const router = Router();
 
   router
@@ -58,7 +63,7 @@ export function createRunRouter(lab: ILaboratory): Router {
     .get(async (req, res) => {
       res.json(await lab.oneRun(req.params['name']));
     })
-    .patch(async (req, res) => {
+    .patch(requireRole(Role.Benchmark, authConfig), async (req, res) => {
       const { status } = validate(UpdateRunStatusType, req.body);
       await lab.updateRunStatus(req.params['name'], status);
 
@@ -71,12 +76,16 @@ export function createRunRouter(lab: ILaboratory): Router {
       res.end();
     });
 
-  router.post('/runs/:name/results', async (req, res) => {
-    const { measures } = validate(ReportRunResultsType, req.body);
-    await lab.reportRunResults(req.params['name'], measures);
-    res.status(204);
-    res.end();
-  });
+  router.post(
+    '/runs/:name/results',
+    requireRole(Role.Benchmark, authConfig),
+    async (req, res) => {
+      const { measures } = validate(ReportRunResultsType, req.body);
+      await lab.reportRunResults(req.params['name'], measures);
+      res.status(204);
+      res.end();
+    }
+  );
 
   return router;
 }

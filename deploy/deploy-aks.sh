@@ -19,8 +19,8 @@ helm upgrade --install azurefile-csi-driver azurefile-csi-driver/azurefile-csi-d
 
 OUTPUTS=$(az deployment group show -g $RESOURCE_GROUP -n $DEPLOYMENT_NAME --query properties.outputs -o json)
 helm upgrade --install sds deploy/helm \
-  --set 'worker.image=acanthamoeba/sds-worker' \
   --set "instrumentationKey=$(echo $OUTPUTS | jq -r .instrumentationKey.value)" \
+  --set "worker.image=$(echo $OUTPUTS | jq -r .infraAcrLoginServer.value)/sds-worker" \
   --set "worker.queueEndpoint=$(echo $OUTPUTS | jq -r .runsQueueEndpoint.value)" \
   --set "identities.worker.resourceId=$(echo $OUTPUTS | jq -r .workerIdentityResourceId.value)" \
   --set "identities.worker.clientId=$(echo $OUTPUTS | jq -r .workerIdentityClientId.value)" \

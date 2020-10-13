@@ -1,5 +1,4 @@
 import { v1 } from 'uuid';
-import { URL } from 'url';
 
 import {
   EntityNotFoundError,
@@ -17,6 +16,7 @@ import {
   PipelineRunStage,
   normalizeName,
   IQueue,
+  PipelineRunStageVolume,
 } from '@microsoft/sds';
 
 import { Benchmark, Candidate, Suite, Run, Result } from './models';
@@ -157,21 +157,29 @@ function createMessage(
     const image =
       stage.kind === BenchmarkStageKind.CANDIDATE
         ? candidate.image
-        : stage.image!;
-    const volumes = stage.volumes?.map(v => {
-      const sourceVolume = suite.volumes?.filter(sv => sv.name === v.name)[0];
+        : stage.image;
 
-      return {
-        type: sourceVolume.type,
-        target: v.path,
-        source: sourceVolume.target,
-        readonly: v.readonly,
-        name: v.name,
-      };
-    });
+    const volumes = stage.volumes?.reduce(
+      (result: PipelineRunStageVolume[], v) => {
+        const sourceVolume = suite.volumes?.filter(sv => sv.name === v.name)[0];
+        if (sourceVolume) {
+          result.push({
+            type: sourceVolume.type,
+            target: v.path,
+            source: sourceVolume.target,
+            readonly: v.readonly,
+            name: v.name,
+          });
+        }
+
+        return result;
+      },
+      []
+    );
 
     const runStage: PipelineRunStage = {
       name: stage.name,
+      kind: stage.kind,
       image,
       volumes,
     };
@@ -191,13 +199,9 @@ function createMessage(
     return runStage;
   });
 
-  const statusEndpoint = new URL(`runs/${name}`, server);
-  const resultsEndpoint = new URL(`runs/${name}/results`, server);
-
   const message: PipelineRun = {
     name,
-    statusEndpoint: statusEndpoint.toString(),
-    resultsEndpoint: resultsEndpoint.toString(),
+    laboratoryEndpoint: server,
     stages,
   };
   return message;

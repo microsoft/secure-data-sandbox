@@ -2,9 +2,15 @@ import * as chai from 'chai';
 import { assert } from 'chai';
 import chaiAsPromised = require('chai-as-promised');
 import chaiExclude from 'chai-exclude';
-import { URL } from 'url';
 
-import { IResult, IRun, RunStatus } from '@microsoft/sds';
+import {
+  ILaboratory,
+  InMemoryQueue,
+  IResult,
+  IRun,
+  PipelineRun,
+  RunStatus,
+} from '@microsoft/sds';
 
 import {
   benchmark1,
@@ -14,7 +20,7 @@ import {
   suite1,
 } from '../../../sds/test/laboratory/data';
 
-import { assertDeepEqual, initTestEnvironment, lab, queue } from './shared';
+import { assertDeepEqual, initTestEnvironment } from './shared';
 
 chai.use(chaiExclude);
 chai.use(chaiAsPromised);
@@ -23,7 +29,13 @@ chai.use(chaiAsPromised);
 // Test declarations
 //
 describe('laboratory/runs', () => {
-  before(initTestEnvironment);
+  let lab: ILaboratory;
+  let queue: InMemoryQueue<PipelineRun>;
+
+  beforeEach(async () => {
+    queue = new InMemoryQueue<PipelineRun>();
+    lab = await initTestEnvironment(queue);
+  });
 
   it('end-to-end scenario', async () => {
     // Initially, there should be no runs.
@@ -70,14 +82,11 @@ describe('laboratory/runs', () => {
 
     const expectedMessage = {
       name: run1.name,
-      resultsEndpoint: new URL(
-        `runs/${run1.name}/results`,
-        serviceURL
-      ).toString(),
       stages: [
         {
           image: candidate1.image,
           name: 'candidate',
+          kind: 'candidate',
           volumes: [
             {
               type: 'AzureBlob',
@@ -92,6 +101,7 @@ describe('laboratory/runs', () => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           image: (benchmark1.stages[1] as any).image,
           name: 'scoring',
+          kind: 'container',
           volumes: [
             {
               type: 'AzureBlob',
@@ -103,7 +113,7 @@ describe('laboratory/runs', () => {
           ],
         },
       ],
-      statusEndpoint: new URL(`runs/${run1.name}`, serviceURL).toString(),
+      laboratoryEndpoint: serviceURL,
     };
     assert.deepEqual(messages[0].value, expectedMessage);
 

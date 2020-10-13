@@ -21,7 +21,9 @@ export class Suite extends Model<Suite> implements ISuite {
   @Column(DataType.STRING)
   benchmark!: string;
 
-  // TODO: REVIEW: magic number 1024
-  @Column(jsonColumn<SuiteVolume[]>('volumes', 1024))
+  @Column(jsonColumn<Record<string, string>>('properties'))
+  properties!: Record<string, string>;
+
+  @Column(jsonColumn<SuiteVolume[]>('volumes'))
   volumes!: SuiteVolume[];
 }
