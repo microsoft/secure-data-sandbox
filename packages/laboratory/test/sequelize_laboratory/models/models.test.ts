@@ -1,5 +1,5 @@
 import { assert } from 'chai';
-import { Column, Model, Table, Sequelize } from 'sequelize-typescript';
+import { Sequelize } from 'sequelize-typescript';
 
 import {
   Benchmark,
@@ -7,8 +7,6 @@ import {
   Run,
   Suite,
 } from '../../../src/sequelize_laboratory/models';
-
-import { jsonColumn } from '../../../src/sequelize_laboratory/models/decorators';
 
 import {
   benchmark1,
@@ -28,35 +26,6 @@ describe('sequelize', () => {
       dialect: 'sqlite',
       storage: ':memory:',
       logging: false,
-    });
-  });
-
-  describe('decorators', () => {
-    it('jsonColumn length overflow', async () => {
-      @Table
-      class TestModel extends Model<TestModel> {
-        @Column(jsonColumn('column', 10))
-        column!: string;
-      }
-
-      sequelize.addModels([TestModel]);
-      await TestModel.sync();
-
-      // Attempt to create a value whose serialization short enough
-      TestModel.create({
-        column: '0123456',
-      });
-
-      // Attempt to create a value whose serialization is too long.
-      const f = () =>
-        TestModel.create({
-          column: '01234567890',
-        });
-      // TODO: perhaps verify type of error.
-      assert.throws(
-        f,
-        'serialized text too long in json column "column". 14 exceeds limit of 10.'
-      );
     });
   });
 

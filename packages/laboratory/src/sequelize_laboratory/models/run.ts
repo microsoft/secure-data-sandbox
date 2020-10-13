@@ -27,15 +27,12 @@ export class Run extends Model<Run> implements IRun {
   @Column(DataType.STRING)
   status!: RunStatus;
 
-  // TODO: REVIEW: magic number 4096
-  @Column(jsonColumn<IBenchmark[]>('benchmark', 4096))
+  @Column(jsonColumn<IBenchmark[]>('benchmark'))
   benchmark!: IBenchmark;
 
-  // TODO: REVIEW: magic number 1024
-  @Column(jsonColumn<ICandidate[]>('candidate', 1024))
+  @Column(jsonColumn<ICandidate[]>('candidate'))
   candidate!: ICandidate;
 
-  // TODO: REVIEW: magic number 1024
-  @Column(jsonColumn<ISuite[]>('suite', 1024))
+  @Column(jsonColumn<ISuite[]>('suite'))
   suite!: ISuite;
 }
