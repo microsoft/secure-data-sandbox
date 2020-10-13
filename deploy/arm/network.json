@@ -60,7 +60,7 @@
       "apiVersion": "2019-10-01",
       "name": "default",
       "properties": {
-        "tags": "[union(resourceGroup().tags, variables('updatedTags'))]"
+        "tags": "[union(variables('existingTags'), variables('updatedTags'))]"
       }
     },
     {
