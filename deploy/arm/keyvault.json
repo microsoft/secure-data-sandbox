@@ -15,7 +15,7 @@
       "keyVaultExists": true
     },
     "keyVault": "[concat('sds', variables('suffix'))]",
-    "existingTags": "[if(contains(resourceGroup(), 'tags'), resourceGroup().tags, json('{}S'))]",
+    "existingTags": "[if(contains(resourceGroup(), 'tags'), resourceGroup().tags, json('{}'))]",
     "keyVaultExists": "[bool(union(variables('defaultTags'), variables('existingTags'))['keyVaultExists'])]",
     "suffix": "[toLower(take(uniqueString(resourceGroup().id), 6))]"
   },
