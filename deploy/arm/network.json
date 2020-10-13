@@ -20,7 +20,8 @@
     "updatedTags": {
       "vnetExists": true
     },
-    "vnetExists": "[bool(union(variables('defaultTags'), resourceGroup().tags)['vnetExists'])]",
+    "existingTags": "[if(contains(resourceGroup(), 'tags'), resourceGroup().tags, json('[]'))]",
+    "vnetExists": "[bool(union(variables('defaultTags'), variables('existingTags'))['vnetExists'])]",
     "vnetAddressPrefix": "10.0.0.0/16",
     "privateLinkSubnetPrefix": "10.0.0.0/24",
     "firewallSubnetPrefix": "10.0.1.0/26",
