@@ -20,7 +20,8 @@
     "updatedTags": {
       "vnetExists": true
     },
-    "vnetExists": "[bool(union(variables('defaultTags'), resourceGroup().tags)['vnetExists'])]",
+    "existingTags": "[if(contains(resourceGroup(), 'tags'), resourceGroup().tags, json('{}'))]",
+    "vnetExists": "[bool(union(variables('defaultTags'), variables('existingTags'))['vnetExists'])]",
     "vnetAddressPrefix": "10.0.0.0/16",
     "privateLinkSubnetPrefix": "10.0.0.0/24",
     "firewallSubnetPrefix": "10.0.1.0/26",
@@ -59,7 +60,7 @@
       "apiVersion": "2019-10-01",
       "name": "default",
       "properties": {
-        "tags": "[union(resourceGroup().tags, variables('updatedTags'))]"
+        "tags": "[union(variables('existingTags'), variables('updatedTags'))]"
       }
     },
     {
@@ -162,7 +163,8 @@
     },
     {
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet'))]"
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet'), variables('privateLink'))]"
       ],
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-05-01",
@@ -292,7 +294,8 @@
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkSecurityGroups', variables('detonationChamber'))]",
         "[resourceId('Microsoft.Network/routeTables', variables('forceTunnel'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet'))]"
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnet'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnet'), 'AzureFirewallSubnet')]"
       ],
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-05-01",

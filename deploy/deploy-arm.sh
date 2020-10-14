@@ -87,7 +87,7 @@ deploy_environment() {
     PARAMS_FILE="parameters.dev.json"
   fi
 
-  az deployment group create -g $RESOURCE_GROUP -p "${ASSETS_BASE}/arm/${PARAMS_FILE}" -u "${ASSETS_BASE}/arm/azuredeploy.json?${SAS}" -p "assetsBaseUrl=$ASSETS_BASE" "deploymentSas=$SAS" "authMode=$AUTH_MODE" "authTenantId=$AUTH_TENANT_ID" "authLaboratoryClientId=$AUTH_LABORATORY_CLIENT_ID" "authCliClientId=$AUTH_CLI_CLIENT_ID"
+  az deployment group create -g $RESOURCE_GROUP -p "${ASSETS_BASE}/arm/${PARAMS_FILE}?${SAS}" -u "${ASSETS_BASE}/arm/azuredeploy.json?${SAS}" -p "assetsBaseUrl=$ASSETS_BASE" "deploymentSas=$SAS" "authMode=$AUTH_MODE" "authTenantId=$AUTH_TENANT_ID" "authLaboratoryClientId=$AUTH_LABORATORY_CLIENT_ID" "authCliClientId=$AUTH_CLI_CLIENT_ID"
 }
 
 deploy_dev() {

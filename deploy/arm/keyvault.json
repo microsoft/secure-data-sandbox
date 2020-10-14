@@ -15,7 +15,8 @@
       "keyVaultExists": true
     },
     "keyVault": "[concat('sds', variables('suffix'))]",
-    "keyVaultExists": "[bool(union(variables('defaultTags'), resourceGroup().tags)['keyVaultExists'])]",
+    "existingTags": "[if(contains(resourceGroup(), 'tags'), resourceGroup().tags, json('{}'))]",
+    "keyVaultExists": "[bool(union(variables('defaultTags'), variables('existingTags'))['keyVaultExists'])]",
     "suffix": "[toLower(take(uniqueString(resourceGroup().id), 6))]"
   },
   "resources": [
@@ -81,7 +82,7 @@
               "apiVersion": "2019-10-01",
               "name": "default",
               "properties": {
-                "tags": "[union(resourceGroup().tags, variables('updatedTags'))]"
+                "tags": "[union(variables('existingTags'), variables('updatedTags'))]"
               }
             }
           ]

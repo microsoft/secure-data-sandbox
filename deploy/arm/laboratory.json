@@ -301,7 +301,8 @@
         },
         {
           "dependsOn": [
-            "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]"
+            "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]",
+            "[extensionResourceId(resourceId('Microsoft.Storage/storageAccounts', parameters('monitoringStorageAccount')), 'Microsoft.Authorization/roleAssignments', guid(concat(variables('sqlServer'), parameters('monitoringStorageAccount'), 'StorageBlobDataContributor')))]"
           ],
           "type": "auditingSettings",
           "apiVersion": "2017-03-01-preview",
@@ -440,7 +441,7 @@
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2018-09-01-preview",
       "location": "[resourceGroup().location]",
-      "name": "[guid(concat('bootstrap', 'Contributor'))]",
+      "name": "[guid(concat(variables('bootstrap'), resourceGroup().name, 'Contributor'))]",
       "properties": {
         "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrap'))).principalId]",
         "roleDefinitionId": "[variables('contributorRoleId')]",
@@ -450,7 +451,7 @@
     {
       "dependsOn": [
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrap'))]",
-        "[resourceId('Microsoft.Authorization/roleAssignments', guid(concat('bootstrap', 'Contributor')))]",
+        "[resourceId('Microsoft.Authorization/roleAssignments', guid(concat(variables('bootstrap'), resourceGroup().name, 'Contributor')))]",
         "[resourceId('Microsoft.Sql/servers/databases', variables('sqlServer'), variables('laboratory'))]"
       ],
       "type": "Microsoft.Resources/deploymentScripts",
@@ -511,7 +512,7 @@ $conn.Close()
     {
       "dependsOn": [
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrap'))]",
-        "[resourceId('Microsoft.Authorization/roleAssignments', guid(concat('bootstrap', 'Contributor')))]",
+        "[resourceId('Microsoft.Authorization/roleAssignments', guid(concat(variables('bootstrap'), resourceGroup().name, 'Contributor')))]",
         "[resourceId('Microsoft.Sql/servers/databases', variables('sqlServer'), variables('laboratory'))]",
         "[resourceId('Microsoft.KeyVault/vaults/accessPolicies', parameters('keyVault'), 'add')]"
       ],
@@ -784,7 +785,7 @@ $DeploymentScriptOutputs['keyUrl'] = $key.Id
       "properties": {
         "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))).principalId]",
         "roleDefinitionId": "[variables('acrPullRoleId')]",
-        "type": "ServicePrincipal"
+        "principalType": "ServicePrincipal"
       }
     }
   ],
