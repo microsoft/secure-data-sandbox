@@ -445,7 +445,7 @@
       "properties": {
         "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrap'))).principalId]",
         "roleDefinitionId": "[variables('contributorRoleId')]",
-        "principalType": "MSI"
+        "principalType": "ServicePrincipal"
       }
     },
     {
@@ -785,7 +785,7 @@ $DeploymentScriptOutputs['keyUrl'] = $key.Id
       "properties": {
         "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))).principalId]",
         "roleDefinitionId": "[variables('acrPullRoleId')]",
-        "type": "MSI"
+        "principalType": "ServicePrincipal"
       }
     }
   ],
