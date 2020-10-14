@@ -50,7 +50,7 @@
           "type": "providers/roleAssignments",
           "apiVersion": "2018-09-01-preview",
           "location": "[resourceGroup().location]",
-          "name": "[concat('Microsoft.Authorization/', guid(concat(variables('aks'), variables('workerIdentity'), 'ManagedIdentityOperator')))]",
+          "name": "[concat('Microsoft.Authorization/', guid(concat(resourceId('Microsoft.ContainerService/managedClusters', variables('aks')), variables('workerIdentity'), 'ManagedIdentityOperator')))]",
           "properties": {
             "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))).identityProfile.kubeletidentity.objectId]",
             "roleDefinitionId": "[variables('managedIdentityOperatorRoleId')]"
@@ -73,7 +73,7 @@
           "type": "providers/roleAssignments",
           "apiVersion": "2018-09-01-preview",
           "location": "[resourceGroup().location]",
-          "name": "[concat('Microsoft.Authorization/', guid(concat(variables('aks'), variables('benchmarkIdentity'), 'ManagedIdentityOperator')))]",
+          "name": "[concat('Microsoft.Authorization/', guid(concat(resourceId('Microsoft.ContainerService/managedClusters', variables('aks')), variables('benchmarkIdentity'), 'ManagedIdentityOperator')))]",
           "properties": {
             "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))).identityProfile.kubeletidentity.objectId]",
             "roleDefinitionId": "[variables('managedIdentityOperatorRoleId')]"
@@ -96,7 +96,7 @@
           "type": "providers/roleAssignments",
           "apiVersion": "2018-09-01-preview",
           "location": "[resourceGroup().location]",
-          "name": "[concat('Microsoft.Authorization/', guid(concat(variables('aks'), variables('candidateIdentity'), 'ManagedIdentityOperator')))]",
+          "name": "[concat('Microsoft.Authorization/', guid(concat(resourceId('Microsoft.ContainerService/managedClusters', variables('aks')), variables('candidateIdentity'), 'ManagedIdentityOperator')))]",
           "properties": {
             "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))).identityProfile.kubeletidentity.objectId]",
             "roleDefinitionId": "[variables('managedIdentityOperatorRoleId')]"
