@@ -31,7 +31,7 @@
   "functions": [],
   "variables": {
     "firewall": "firewall",
-    "firewallApplicationRules": "[union(variables('baseFirewallApplicationRules'), variables('benchmarkFirewallApplicationRules'))]",
+    "firewallApplicationRules": "[if(greater(length(parameters('allowedExternalEndpoints')), 0), union(variables('baseFirewallApplicationRules'), variables('benchmarkFirewallApplicationRules')), variables('baseFirewallApplicationRules'))]",
     "baseFirewallApplicationRules": "[if(equals(parameters('mode'), 'development'), union(variables('defaultFirewallApplicationRules'), variables('devFirewallApplicationRules')), variables('defaultFirewallApplicationRules'))]",
     "defaultFirewallApplicationRules": [
       {
