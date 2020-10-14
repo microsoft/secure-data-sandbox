@@ -13,7 +13,7 @@ import {
   BenchmarkStageKind,
 } from '../../src';
 
-export const serviceURL = 'http://localhost:3000'; // TODO: plumb real url.
+export const serviceURL = 'http://localhost:3000';
 
 export const timestamps = {
   createdAt: new Date('2020-03-19T21:37:31.452Z'),
@@ -122,6 +122,120 @@ export const benchmark3: IBenchmark = {
   ...timestamps,
 };
 
+export const benchmark4: IBenchmark = {
+  name: 'benchmark4',
+  author: 'author4',
+  apiVersion: 'v1alpha1',
+  stages: [
+    {
+      name: 'prep',
+      kind: BenchmarkStageKind.CONTAINER,
+      image: 'benchmark4',
+      cmd: [
+        '--dataset',
+        '{suite.properties.datasetId}',
+        '--candidate-files',
+        '/data',
+        '--resources',
+        '/resources',
+        '--evaluation-files',
+        '/evaluation',
+      ],
+      env: {
+        MODE: 'prep',
+      },
+      volumes: [
+        {
+          name: 'candidateData',
+          path: '/data',
+          readonly: false,
+        },
+        {
+          name: 'resources',
+          path: '/resources',
+          readonly: false,
+        },
+
+        {
+          name: 'labels',
+          path: '/evaluation',
+          readonly: false,
+        },
+      ],
+    },
+    {
+      name: 'candidate',
+      kind: BenchmarkStageKind.CANDIDATE,
+      cmd: [
+        '--input',
+        '/data/input.json',
+        '--resources',
+        '/resources',
+        '--output',
+        '/output',
+      ],
+      env: {
+        SDS_RUN: '{run.name}',
+      },
+      volumes: [
+        {
+          name: 'candidateData',
+          path: '/data',
+          readonly: true,
+        },
+        {
+          name: 'resources',
+          path: '/resources',
+          readonly: true,
+        },
+        {
+          name: 'candidateOutput',
+          path: '/output',
+          readonly: false,
+        },
+      ],
+    },
+    {
+      name: 'scoring',
+      image: 'benchmark4',
+      kind: BenchmarkStageKind.CONTAINER,
+      cmd: [
+        '--expected',
+        '/expected/expected.json',
+        '--actual',
+        '/actual/actual.json',
+        '--resources',
+        '/resources',
+        '--laboratory',
+        '{laboratoryEndpoint}',
+        '--run',
+        '{run.name}',
+      ],
+      env: {
+        MODE: 'evaluation',
+      },
+      volumes: [
+        {
+          name: 'candidateOutput',
+          path: '/actual',
+          readonly: true,
+        },
+        {
+          name: 'labels',
+          path: '/expected',
+          readonly: true,
+        },
+        {
+          name: 'resources',
+          path: '/resources',
+          readonly: true,
+        },
+      ],
+    },
+  ],
+  ...timestamps,
+};
+
 export const candidate1: ICandidate = {
   name: 'candidate1',
   author: 'author1',
@@ -146,6 +260,18 @@ export const candidate3: ICandidate = {
   apiVersion: 'v1alpha1',
   benchmark: 'benchmark1',
   image: 'candidate3-image',
+  ...timestamps,
+};
+
+export const candidate4: ICandidate = {
+  name: 'candidate4',
+  author: 'author4',
+  apiVersion: 'v1alpha1',
+  benchmark: 'benchmark4',
+  image: 'candidate4-image',
+  env: {
+    LOG_LEVEL: 'debug',
+  },
   ...timestamps,
 };
 
@@ -207,6 +333,35 @@ export const suite3: ISuite = {
       name: 'reference',
       type: 'AzureBlob',
       target: 'https://sample.blob.core.windows.net/reference',
+    },
+  ],
+  ...timestamps,
+};
+
+export const suite4: ISuite = {
+  name: 'suite4',
+  author: 'author4',
+  apiVersion: 'v1alpha1',
+  benchmark: 'benchmark4',
+  properties: {
+    datasetId: '00000000-0000-0000-0000-000000000000',
+  },
+  volumes: [
+    {
+      name: 'candidateData',
+      type: 'ephemeral',
+    },
+    {
+      name: 'resources',
+      type: 'ephemeral',
+    },
+    {
+      name: 'labels',
+      type: 'ephemeral',
+    },
+    {
+      name: 'candidateOutput',
+      type: 'ephemeral',
     },
   ],
   ...timestamps,

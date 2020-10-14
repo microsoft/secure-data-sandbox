@@ -31,10 +31,3 @@ stages:
     path: /scores
     readonly: false
 
-volumes:
-- name: images
-  type: ephemeral
-- name: predictions
-  type: ephemeral
-- name: scores
-  type: scores

@@ -15,8 +15,3 @@ stages:
       - name: reference
         path: /reference
         readonly: true
-volumes:
-  - name: training
-    type: ephemeral
-  - name: reference
-    type: ephemeral
