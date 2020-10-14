@@ -123,7 +123,7 @@
       "type": "Microsoft.Storage/storageAccounts/providers/roleAssignments",
       "apiVersion": "2018-09-01-preview",
       "location": "[resourceGroup().location]",
-      "name": "[concat(parameters('monitoringStorageAccount'), '/Microsoft.Authorization/', guid(concat(variables('sqlServer'), parameters('monitoringStorageAccount'), 'StorageBlobDataContributor')))]",
+      "name": "[concat(parameters('monitoringStorageAccount'), '/Microsoft.Authorization/', guid(concat(resourceGroup().id, variables('sqlServer'), parameters('monitoringStorageAccount'), 'StorageBlobDataContributor')))]",
       "properties": {
         "principalId": "[reference(resourceId('Microsoft.Sql/servers', variables('sqlServer')), '2019-06-01-preview', 'Full').identity.principalId]",
         "roleDefinitionId": "[variables('storageBlobDataContributorRoleId')]",
@@ -302,7 +302,7 @@
         {
           "dependsOn": [
             "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]",
-            "[extensionResourceId(resourceId('Microsoft.Storage/storageAccounts', parameters('monitoringStorageAccount')), 'Microsoft.Authorization/roleAssignments', guid(concat(variables('sqlServer'), parameters('monitoringStorageAccount'), 'StorageBlobDataContributor')))]"
+            "[extensionResourceId(resourceId('Microsoft.Storage/storageAccounts', parameters('monitoringStorageAccount')), 'Microsoft.Authorization/roleAssignments', guid(concat(resourceGroup().id, variables('sqlServer'), parameters('monitoringStorageAccount'), 'StorageBlobDataContributor')))]"
           ],
           "type": "auditingSettings",
           "apiVersion": "2017-03-01-preview",
@@ -317,7 +317,7 @@
           "dependsOn": [
             "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]",
             "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', parameters('monitoringStorageAccount'), 'default', variables('vulnerabilityAssessments'))]",
-            "[extensionResourceId(resourceId('Microsoft.Storage/storageAccounts', parameters('monitoringStorageAccount')), 'Microsoft.Authorization/roleAssignments', guid(concat(variables('sqlServer'), parameters('monitoringStorageAccount'), 'StorageBlobDataContributor')))]"
+            "[extensionResourceId(resourceId('Microsoft.Storage/storageAccounts', parameters('monitoringStorageAccount')), 'Microsoft.Authorization/roleAssignments', guid(concat(resourceGroup().id, variables('sqlServer'), parameters('monitoringStorageAccount'), 'StorageBlobDataContributor')))]"
           ],
           "type": "vulnerabilityAssessments",
           "apiVersion": "2018-06-01-preview",
@@ -441,7 +441,7 @@
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2018-09-01-preview",
       "location": "[resourceGroup().location]",
-      "name": "[guid(concat(variables('bootstrap'), resourceGroup().name, 'Contributor'))]",
+      "name": "[guid(concat(resourceGroup().id, variables('bootstrap'), 'Contributor'))]",
       "properties": {
         "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrap'))).principalId]",
         "roleDefinitionId": "[variables('contributorRoleId')]",
@@ -451,7 +451,7 @@
     {
       "dependsOn": [
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrap'))]",
-        "[resourceId('Microsoft.Authorization/roleAssignments', guid(concat(variables('bootstrap'), resourceGroup().name, 'Contributor')))]",
+        "[resourceId('Microsoft.Authorization/roleAssignments', guid(concat(resourceGroup().id, variables('bootstrap'), 'Contributor')))]",
         "[resourceId('Microsoft.Sql/servers/databases', variables('sqlServer'), variables('laboratory'))]"
       ],
       "type": "Microsoft.Resources/deploymentScripts",
@@ -512,7 +512,7 @@ $conn.Close()
     {
       "dependsOn": [
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrap'))]",
-        "[resourceId('Microsoft.Authorization/roleAssignments', guid(concat(variables('bootstrap'), resourceGroup().name, 'Contributor')))]",
+        "[resourceId('Microsoft.Authorization/roleAssignments', guid(concat(resourceGroup().id, variables('bootstrap'), 'Contributor')))]",
         "[resourceId('Microsoft.Sql/servers/databases', variables('sqlServer'), variables('laboratory'))]",
         "[resourceId('Microsoft.KeyVault/vaults/accessPolicies', parameters('keyVault'), 'add')]"
       ],
@@ -599,7 +599,7 @@ $DeploymentScriptOutputs['keyUrl'] = $key.Id
           "dependsOn": [
             "[resourceId('Microsoft.Web/sites', variables('webApp'))]",
             "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))]",
-            "[extensionResourceId(parameters('infraAcrId'), 'Microsoft.Authorization/roleAssignments', guid(concat(variables('laboratory'), parameters('infraAcrId'), 'AcrPull')))]"
+            "[extensionResourceId(parameters('infraAcrId'), 'Microsoft.Authorization/roleAssignments', guid(concat(resourceGroup().id, variables('laboratory'), parameters('infraAcrId'), 'AcrPull')))]"
           ],
           "type": "config",
           "apiVersion": "2019-08-01",
@@ -781,7 +781,7 @@ $DeploymentScriptOutputs['keyUrl'] = $key.Id
       "type": "Microsoft.ContainerRegistry/registries/providers/roleAssignments",
       "apiVersion": "2018-09-01-preview",
       "location": "[resourceGroup().location]",
-      "name": "[concat(variables('infraAcrName'), '/Microsoft.Authorization/', guid(concat(variables('laboratory'), parameters('infraAcrId'), 'AcrPull')))]",
+      "name": "[concat(variables('infraAcrName'), '/Microsoft.Authorization/', guid(concat(resourceGroup().id, variables('laboratory'), parameters('infraAcrId'), 'AcrPull')))]",
       "properties": {
         "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('laboratory'))).principalId]",
         "roleDefinitionId": "[variables('acrPullRoleId')]",

@@ -43,7 +43,7 @@
       "type": "Microsoft.ContainerRegistry/registries/providers/roleAssignments",
       "apiVersion": "2018-09-01-preview",
       "location": "[resourceGroup().location]",
-      "name": "[concat(variables('infraAcrName'), '/Microsoft.Authorization/', guid(concat(parameters('kubeletIdentityId'), parameters('infraAcrId'), 'AcrPull')))]",
+      "name": "[concat(variables('infraAcrName'), '/Microsoft.Authorization/', guid(concat(resourceGroup().id, parameters('kubeletIdentityId'), parameters('infraAcrId'), 'AcrPull')))]",
       "properties": {
         "principalId": "[parameters('kubeletIdentityId')]",
         "roleDefinitionId": "[variables('acrPullRoleId')]"
@@ -53,7 +53,7 @@
       "type": "Microsoft.ContainerRegistry/registries/providers/roleAssignments",
       "apiVersion": "2018-09-01-preview",
       "location": "[resourceGroup().location]",
-      "name": "[concat(variables('userAcrName'), '/Microsoft.Authorization/', guid(concat(parameters('kubeletIdentityId'), parameters('userAcrId'), 'AcrPull')))]",
+      "name": "[concat(variables('userAcrName'), '/Microsoft.Authorization/', guid(concat(resourceGroup().id, parameters('kubeletIdentityId'), parameters('userAcrId'), 'AcrPull')))]",
       "properties": {
         "principalId": "[parameters('kubeletIdentityId')]",
         "roleDefinitionId": "[variables('acrPullRoleId')]"
@@ -63,7 +63,7 @@
       "type": "Microsoft.Storage/storageAccounts/queueServices/queues/providers/roleAssignments",
       "apiVersion": "2018-09-01-preview",
       "location": "[resourceGroup().location]",
-      "name": "[concat(variables('runsStorageAccountName'), '/default/', variables('runsQueueName'), '/Microsoft.Authorization/', guid(concat(parameters('workerIdentityId'), parameters('runsQueueId'), 'StorageQueueDataMessageProcessor')))]",
+      "name": "[concat(variables('runsStorageAccountName'), '/default/', variables('runsQueueName'), '/Microsoft.Authorization/', guid(concat(resourceGroup().id, parameters('workerIdentityId'), parameters('runsQueueId'), 'StorageQueueDataMessageProcessor')))]",
       "properties": {
         "principalId": "[parameters('workerIdentityId')]",
         "roleDefinitionId": "[variables('storageQueueDataMessageProcessorRoleId')]",
@@ -74,7 +74,7 @@
       "type": "Microsoft.Storage/storageAccounts/queueServices/queues/providers/roleAssignments",
       "apiVersion": "2018-09-01-preview",
       "location": "[resourceGroup().location]",
-      "name": "[concat(variables('runsStorageAccountName'), '/default/', variables('runsQueueName'), '/Microsoft.Authorization/', guid(concat(parameters('laboratoryIdentityId'), parameters('runsQueueId'), 'StorageQueueDataMessageSender')))]",
+      "name": "[concat(variables('runsStorageAccountName'), '/default/', variables('runsQueueName'), '/Microsoft.Authorization/', guid(concat(resourceGroup().id, parameters('laboratoryIdentityId'), parameters('runsQueueId'), 'StorageQueueDataMessageSender')))]",
       "properties": {
         "principalId": "[parameters('laboratoryIdentityId')]",
         "roleDefinitionId": "[variables('storageQueueDataMessageSenderRoleId')]",
@@ -97,7 +97,7 @@
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2018-09-01-preview",
               "location": "[resourceGroup().location]",
-              "name": "[guid(concat(parameters('kubeletIdentityId'), 'VirtualMachineContributor'))]",
+              "name": "[guid(concat(resourceGroup().id, parameters('kubeletIdentityId'), 'VirtualMachineContributor'))]",
               "properties": {
                 "principalId": "[parameters('kubeletIdentityId')]",
                 "roleDefinitionId": "[variables('virtualMachineContributorRoleId')]",

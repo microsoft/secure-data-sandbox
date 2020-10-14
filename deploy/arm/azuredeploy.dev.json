@@ -194,7 +194,7 @@
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2018-09-01-preview",
       "location": "[resourceGroup().location]",
-      "name": "[guid(concat(resourceGroup().name, 'dev', 'Owner'))]",
+      "name": "[guid(concat(resourceGroup().id, 'dev', 'Owner'))]",
       "properties": {
         "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachines', variables('dev')), '2019-07-01', 'Full').identity.principalId]",
         "roleDefinitionId": "[variables('ownerRoleId')]"
@@ -216,7 +216,7 @@
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2018-09-01-preview",
               "location": "[resourceGroup().location]",
-              "name": "[guid(concat(variables('aksNodeResourceGroup'), 'dev', 'Owner'))]",
+              "name": "[guid(concat(resourceGroup().id, variables('aksNodeResourceGroup'), 'dev', 'Owner'))]",
               "properties": {
                 "principalId": "[reference(resourceId('Microsoft.Compute/virtualMachines', variables('dev')), '2019-07-01', 'Full').identity.principalId]",
                 "roleDefinitionId": "[variables('ownerRoleId')]"
