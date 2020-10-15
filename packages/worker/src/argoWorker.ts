@@ -5,6 +5,7 @@ import {
   PipelineRun,
   BenchmarkStageKind,
 } from '@microsoft/sds';
+import { defaultClient } from 'applicationinsights';
 import { Workflow, Template, PersistentVolumeClaim } from './argo';
 import { ArgoWorkerConfiguration } from './configuration';
 
@@ -88,6 +89,15 @@ export function createWorkflow(
         name: e[0],
         value: e[1],
       }));
+    } else {
+      template.container!.env = [];
+    }
+
+    if (defaultClient.config.instrumentationKey) {
+      template.container!.env!.push({
+        name: 'APPINSIGHTS_INSTRUMENTATIONKEY',
+        value: defaultClient.config.instrumentationKey,
+      });
     }
 
     return template;
