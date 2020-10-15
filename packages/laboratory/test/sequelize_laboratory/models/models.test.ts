@@ -1,5 +1,4 @@
 import { assert } from 'chai';
-import { Sequelize } from 'sequelize-typescript';
 
 import {
   Benchmark,
@@ -19,10 +18,8 @@ import { assertDeepEqual } from '../shared';
 import { initializeSequelize } from '../../../src/sequelize_laboratory';
 
 describe('sequelize', () => {
-  let sequelize: Sequelize;
-
   before(async () => {
-    sequelize = await initializeSequelize({
+    await initializeSequelize({
       dialect: 'sqlite',
       storage: ':memory:',
       logging: false,
