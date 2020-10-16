@@ -27,11 +27,9 @@
     "suffix": "[toLower(take(uniqueString(resourceGroup().id), 6))]",
     "benchmarkIdentity": "benchmark",
     "candidateIdentity": "candidate",
-    "workerIdentity": "worker",
     "dockerBridgeCidr": "172.18.0.1/16",
     "serviceCidr": "172.16.0.0/16",
     "dnsServiceIp": "172.16.0.10",
-    "managedIdentityOperatorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'f1a07417-d97a-45cb-824c-7a7467783830')]",
     "storageAccountContributorRoleId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '17d1049b-9a84-46fb-8f53-869881c3d3ab')]"
   },
   "resources": [
@@ -39,70 +37,15 @@
       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
       "apiVersion": "2018-11-30",
       "location": "[resourceGroup().location]",
-      "name": "[variables('workerIdentity')]",
-      "tags": "[parameters('tags')]",
-      "resources": [
-        {
-          "dependsOn": [
-            "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))]",
-            "[resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))]"
-          ],
-          "type": "providers/roleAssignments",
-          "apiVersion": "2018-09-01-preview",
-          "location": "[resourceGroup().location]",
-          "name": "[concat('Microsoft.Authorization/', guid(concat(resourceGroup().id, variables('aks'), variables('workerIdentity'), 'ManagedIdentityOperator')))]",
-          "properties": {
-            "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))).identityProfile.kubeletidentity.objectId]",
-            "roleDefinitionId": "[variables('managedIdentityOperatorRoleId')]"
-          }
-        }
-      ]
-    },
-    {
-      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
-      "apiVersion": "2018-11-30",
-      "location": "[resourceGroup().location]",
       "name": "[variables('benchmarkIdentity')]",
-      "tags": "[parameters('tags')]",
-      "resources": [
-        {
-          "dependsOn": [
-            "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('benchmarkIdentity'))]",
-            "[resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))]"
-          ],
-          "type": "providers/roleAssignments",
-          "apiVersion": "2018-09-01-preview",
-          "location": "[resourceGroup().location]",
-          "name": "[concat('Microsoft.Authorization/', guid(concat(resourceGroup().id, variables('aks'), variables('benchmarkIdentity'), 'ManagedIdentityOperator')))]",
-          "properties": {
-            "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))).identityProfile.kubeletidentity.objectId]",
-            "roleDefinitionId": "[variables('managedIdentityOperatorRoleId')]"
-          }
-        }
-      ]
+      "tags": "[parameters('tags')]"
     },
     {
       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
       "apiVersion": "2018-11-30",
       "location": "[resourceGroup().location]",
       "name": "[variables('candidateIdentity')]",
-      "tags": "[parameters('tags')]",
-      "resources": [
-        {
-          "dependsOn": [
-            "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('candidateIdentity'))]",
-            "[resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))]"
-          ],
-          "type": "providers/roleAssignments",
-          "apiVersion": "2018-09-01-preview",
-          "location": "[resourceGroup().location]",
-          "name": "[concat('Microsoft.Authorization/', guid(concat(resourceGroup().id, variables('aks'), variables('candidateIdentity'), 'ManagedIdentityOperator')))]",
-          "properties": {
-            "principalId": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))).identityProfile.kubeletidentity.objectId]",
-            "roleDefinitionId": "[variables('managedIdentityOperatorRoleId')]"
-          }
-        }
-      ]
+      "tags": "[parameters('tags')]"
     },
     {
       "type": "Microsoft.ContainerService/managedClusters",
@@ -255,18 +198,6 @@
     "kubeletIdentityId": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', variables('aks'))).identityProfile.kubeletidentity.objectId]"
-    },
-    "workerIdentityId": {
-      "type": "string",
-      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))).principalId]"
-    },
-    "workerIdentityResourceId": {
-      "type": "string",
-      "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))]"
-    },
-    "workerIdentityClientId": {
-      "type": "string",
-      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))).clientId]"
     },
     "benchmarkIdentityResourceId": {
       "type": "string",

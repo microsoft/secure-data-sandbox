@@ -41,17 +41,21 @@
     "authCliClientId": {
       "type": "string",
       "defaultValue": ""
-    },
-    "authAllowedClientIds": {
-      "type": "string",
-      "defaultValue": ""
     }
   },
   "variables": {
     "assetsBaseUrl": "[if(empty(parameters('assetsBaseUrl')), if(contains(deployment().properties, 'templateLink'), uri(deployment().properties.templateLink.uri, '../'), 'https://raw.githubusercontent.com/microsoft/secure-data-sandbox/main/deploy/'), parameters('assetsBaseUrl'))]",
-    "deploymentSas": "[if(empty(parameters('deploymentSas')), '', concat('?', parameters('deploymentSas')))]"
+    "deploymentSas": "[if(empty(parameters('deploymentSas')), '', concat('?', parameters('deploymentSas')))]",
+    "workerIdentity": "worker"
   },
   "resources": [
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2018-11-30",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('workerIdentity')]",
+      "tags": "[parameters('tags')]"
+    },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
@@ -174,7 +178,8 @@
         "[resourceId('Microsoft.Resources/deployments', 'acr')]",
         "[resourceId('Microsoft.Resources/deployments', 'keyvault')]",
         "[resourceId('Microsoft.Resources/deployments', 'monitoring')]",
-        "[resourceId('Microsoft.Resources/deployments', 'queue')]"
+        "[resourceId('Microsoft.Resources/deployments', 'queue')]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))]"
       ],
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
@@ -227,7 +232,7 @@
             "value": "[parameters('authCliClientId')]"
           },
           "authAllowedClientIds": {
-            "value": "[parameters('authAllowedClientIds')]"
+            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))).clientId]"
           }
         },
         "templateLink": {
@@ -307,7 +312,8 @@
     {
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'acr')]",
-        "[resourceId('Microsoft.Resources/deployments', 'worker')]"
+        "[resourceId('Microsoft.Resources/deployments', 'worker')]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))]"
       ],
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
@@ -324,7 +330,7 @@
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.kubeletIdentityId.value]"
           },
           "workerIdentityId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.workerIdentityId.value]"
+            "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))).principalId]"
           },
           "laboratoryIdentityId": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'laboratory')).outputs.laboratoryIdentityId.value]"
@@ -371,11 +377,11 @@
     },
     "workerIdentityResourceId": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.workerIdentityResourceId.value]"
+      "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))]"
     },
     "workerIdentityClientId": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'worker')).outputs.workerIdentityClientId.value]"
+      "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('workerIdentity'))).clientId]"
     },
     "benchmarkIdentityResourceId": {
       "type": "string",
