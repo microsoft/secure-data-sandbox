@@ -633,6 +633,7 @@ $DeploymentScriptOutputs['keyUrl'] = $key.Id
             "SQL_HOST": "[reference(resourceId('Microsoft.Sql/servers', variables('sqlServer'))).fullyQualifiedDomainName]",
             "SQL_DB": "[variables('laboratory')]",
             "DOCKER_REGISTRY_SERVER_URL": "[concat('https://', parameters('infraAcrLoginServer'))]",
+            "DOCKER_ENABLE_CI": "true",
             "WEBSITES_ENABLE_APP_SERVICE_STORAGE": "false",
             "WEBSITES_PORT": "3000"
           }
