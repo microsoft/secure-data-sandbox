@@ -60,6 +60,7 @@
     "express-async-errors": "^3.1.1",
     "passport": "^0.4.1",
     "passport-azure-ad": "^4.3.0",
+    "pupa": "^2.0.1",
     "reflect-metadata": "^0.1.13",
     "sequelize": "^5.22.3",
     "sequelize-typescript": "^1.1.0",

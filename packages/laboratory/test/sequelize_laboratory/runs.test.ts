@@ -14,10 +14,13 @@ import {
 
 import {
   benchmark1,
+  benchmark4,
   candidate1,
   candidate2,
+  candidate4,
   serviceURL,
   suite1,
+  suite4,
 } from '../../../sds/test/laboratory/data';
 
 import { assertDeepEqual, initTestEnvironment } from './shared';
@@ -76,7 +79,7 @@ describe('laboratory/runs', () => {
     assertDeepEqual(oneRun, expectedRun1);
 
     // Verify that message was enqueued.
-    const messages = await queue.dequeue(2);
+    const messages = await queue.dequeue(1);
     assert.equal(messages.length, 1);
     await messages[0].complete();
 
@@ -165,5 +168,151 @@ describe('laboratory/runs', () => {
       status: RunStatus.CREATED,
     };
     assertDeepEqual(bothRuns[1], expected2);
+  });
+
+  it('injects properties into the run message', async () => {
+    await lab.upsertBenchmark(benchmark4);
+    await lab.upsertCandidate(candidate4);
+    await lab.upsertSuite(suite4);
+
+    const run = await lab.createRunRequest({
+      candidate: candidate4.name,
+      suite: suite4.name,
+    });
+
+    const messages = await queue.dequeue(1);
+    await messages[0].complete();
+
+    const expectedMessage: PipelineRun = {
+      name: run.name,
+      stages: [
+        {
+          image: 'benchmark4',
+          name: 'prep',
+          kind: 'container',
+          cmd: [
+            '--dataset',
+            '00000000-0000-0000-0000-000000000000',
+            '--candidate-files',
+            '/data',
+            '--resources',
+            '/resources',
+            '--evaluation-files',
+            '/evaluation',
+          ],
+          env: {
+            MODE: 'prep',
+          },
+          volumes: [
+            {
+              name: 'candidateData',
+              type: 'ephemeral',
+              source: undefined,
+              target: '/data',
+              readonly: false,
+            },
+            {
+              name: 'resources',
+              type: 'ephemeral',
+              source: undefined,
+              target: '/resources',
+              readonly: false,
+            },
+            {
+              name: 'labels',
+              type: 'ephemeral',
+              source: undefined,
+              target: '/evaluation',
+              readonly: false,
+            },
+          ],
+        },
+        {
+          image: 'candidate4-image',
+          name: 'candidate',
+          kind: 'candidate',
+          cmd: [
+            '--input',
+            '/data/input.json',
+            '--resources',
+            '/resources',
+            '--output',
+            '/output',
+          ],
+          env: {
+            LOG_LEVEL: 'debug',
+            SDS_RUN: run.name,
+          },
+          volumes: [
+            {
+              name: 'candidateData',
+              type: 'ephemeral',
+              source: undefined,
+              target: '/data',
+              readonly: true,
+            },
+            {
+              name: 'resources',
+              type: 'ephemeral',
+              source: undefined,
+              target: '/resources',
+              readonly: true,
+            },
+            {
+              name: 'candidateOutput',
+              type: 'ephemeral',
+              source: undefined,
+              target: '/output',
+              readonly: false,
+            },
+          ],
+        },
+        {
+          image: 'benchmark4',
+          name: 'scoring',
+          kind: 'container',
+          cmd: [
+            '--expected',
+            '/expected/expected.json',
+            '--actual',
+            '/actual/actual.json',
+            '--resources',
+            '/resources',
+            '--laboratory',
+            serviceURL,
+            '--run',
+            run.name,
+          ],
+          env: {
+            MODE: 'evaluation',
+          },
+          volumes: [
+            {
+              name: 'candidateOutput',
+              type: 'ephemeral',
+              source: undefined,
+              target: '/actual',
+              readonly: true,
+            },
+            {
+              name: 'labels',
+              type: 'ephemeral',
+              source: undefined,
+              target: '/expected',
+              readonly: true,
+            },
+            {
+              name: 'resources',
+              type: 'ephemeral',
+              source: undefined,
+              target: '/resources',
+              readonly: true,
+            },
+          ],
+        },
+      ],
+      laboratoryEndpoint: serviceURL,
+    };
+    assert.deepEqual(messages[0].value, expectedMessage);
   });
 });

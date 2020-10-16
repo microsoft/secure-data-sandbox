@@ -134,7 +134,6 @@ export const CandidateType = t.intersection([
     image: t.string,
   }),
   t.partial({
-    cmd: t.array(t.string),
     env: t.record(t.string, t.string),
   }),
 ]);

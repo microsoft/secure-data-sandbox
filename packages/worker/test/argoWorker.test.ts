@@ -78,6 +78,12 @@ describe('createWorkflow', () => {
             },
             container: {
               image: 'candidate',
+              env: [
+                {
+                  name: 'APPINSIGHTS_INSTRUMENTATIONKEY',
+                  value: '00000000-0000-0000-0000-000000000000',
+                },
+              ],
             },
           },
           {
@@ -89,6 +95,12 @@ describe('createWorkflow', () => {
             },
             container: {
               image: 'eval',
+              env: [
+                {
+                  name: 'APPINSIGHTS_INSTRUMENTATIONKEY',
+                  value: '00000000-0000-0000-0000-000000000000',
+                },
+              ],
             },
           },
         ],
@@ -173,6 +185,10 @@ describe('createWorkflow', () => {
                   name: 'SOME_CONFIG',
                   value: 'active',
                 },
+                {
+                  name: 'APPINSIGHTS_INSTRUMENTATIONKEY',
+                  value: '00000000-0000-0000-0000-000000000000',
+                },
               ],
             },
           },
@@ -190,6 +206,10 @@ describe('createWorkflow', () => {
                 {
                   name: 'MODE',
                   value: 'evaluation',
+                },
+                {
+                  name: 'APPINSIGHTS_INSTRUMENTATIONKEY',
+                  value: '00000000-0000-0000-0000-000000000000',
                 },
               ],
             },
@@ -335,6 +355,12 @@ describe('createWorkflow', () => {
             },
             container: {
               image: 'candidate',
+              env: [
+                {
+                  name: 'APPINSIGHTS_INSTRUMENTATIONKEY',
+                  value: '00000000-0000-0000-0000-000000000000',
+                },
+              ],
               volumeMounts: [
                 {
                   name: 'images',
@@ -358,6 +384,12 @@ describe('createWorkflow', () => {
             },
             container: {
               image: 'eval',
+              env: [
+                {
+                  name: 'APPINSIGHTS_INSTRUMENTATIONKEY',
+                  value: '00000000-0000-0000-0000-000000000000',
+                },
+              ],
               volumeMounts: [
                 {
                   name: 'predictions',
@@ -455,6 +487,12 @@ describe('createWorkflow', () => {
             },
             container: {
               image: 'candidate',
+              env: [
+                {
+                  name: 'APPINSIGHTS_INSTRUMENTATIONKEY',
+                  value: '00000000-0000-0000-0000-000000000000',
+                },
+              ],
               volumeMounts: [
                 {
                   name: 'images',

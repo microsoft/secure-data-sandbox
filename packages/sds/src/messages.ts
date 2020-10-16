@@ -1,19 +1,19 @@
 // Data contracts for queue messages
 
-export type PipelineRun = Readonly<{
+export type PipelineRun = {
   name: string;
   laboratoryEndpoint: string;
-  stages: ReadonlyArray<PipelineRunStage>;
+  stages: PipelineRunStage[];
   // TODO: consider elevating volumes to top-level property
-}>;
+};
 
 export interface PipelineRunStage {
   name: string;
   kind: string;
   image: string;
   cmd?: string[];
-  env?: Readonly<Record<string, string>>;
-  volumes?: ReadonlyArray<PipelineRunStageVolume>;
+  env?: Record<string, string>;
+  volumes?: PipelineRunStageVolume[];
 }
 
 export interface PipelineRunStageVolume {

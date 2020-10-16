@@ -1,9 +1,8 @@
 import { v1 } from 'uuid';
+import pupa = require('pupa');
 
 import {
   EntityNotFoundError,
-  IBenchmark,
-  ICandidate,
   IllegalOperationError,
   IResult,
   IRun,
@@ -11,7 +10,6 @@ import {
   Measures,
   RunStatus,
   BenchmarkStageKind,
-  ISuite,
   PipelineRun,
   PipelineRunStage,
   normalizeName,
@@ -86,7 +84,7 @@ export async function processRunRequest(
   const result = await Run.create(run);
 
   // Queue the run request.
-  const message = createMessage(server, name, benchmark, suite, candidate);
+  const message = createMessage(server, name, result);
   await queue.enqueue(message);
 
   return result;
@@ -146,13 +144,19 @@ export async function processRunResults(
   await Result.upsert(results);
 }
 
-function createMessage(
-  server: string,
-  name: string,
-  benchmark: IBenchmark,
-  suite: ISuite,
-  candidate: ICandidate
-): PipelineRun {
+function createMessage(server: string, name: string, run: IRun): PipelineRun {
+  const benchmark = run.benchmark;
+  const candidate = run.candidate;
+  const suite = run.suite;
+
+  const templateValues = {
+    laboratoryEndpoint: server,
+    run,
+    benchmark,
+    candidate,
+    suite,
+  };
+
   const stages = benchmark.stages.map(stage => {
     const image =
       stage.kind === BenchmarkStageKind.CANDIDATE
@@ -184,16 +188,24 @@ function createMessage(
       volumes,
     };
 
+    // Add container arguments
     if (stage.cmd) {
-      runStage.cmd = stage.cmd;
+      runStage.cmd = stage.cmd.map(s => pupa(s, templateValues));
     }
 
+    // Add environment variables specified by the benchmark
     if (stage.env) {
       runStage.env = stage.env;
     }
 
+    // Add any self-configured environment vars that the candidate has specified
     if (stage.kind === BenchmarkStageKind.CANDIDATE && candidate.env) {
       runStage.env = { ...runStage.env, ...candidate.env };
+    }
+
+    // Apply transforms
+    for (const env in runStage.env) {
+      runStage.env[env] = pupa(runStage.env[env], templateValues);
     }
 
     return runStage;
