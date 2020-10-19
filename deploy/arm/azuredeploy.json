@@ -106,12 +106,6 @@
         "parameters": {
           "tags": {
             "value": "[parameters('tags')]"
-          },
-          "monitoringEventHub": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring')).outputs.eventHub.value]"
-          },
-          "monitoringEventHubsNamespace": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring')).outputs.eventHubsNamespace.value]"
           }
         },
         "templateLink": {
@@ -210,15 +204,6 @@
           "keyVault": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'keyvault')).outputs.keyVault.value]"
           },
-          "monitoringStorageAccount": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring')).outputs.storageAccount.value]"
-          },
-          "monitoringEventHub": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring')).outputs.eventHub.value]"
-          },
-          "monitoringEventHubsNamespace": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring')).outputs.eventHubsNamespace.value]"
-          },
           "authMode": {
             "value": "[parameters('authMode')]"
           },
@@ -280,7 +265,6 @@
     {
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'network')]",
-        "[resourceId('Microsoft.Resources/deployments', 'monitoring')]",
         "[resourceId('Microsoft.Resources/deployments', 'firewall')]"
       ],
       "type": "Microsoft.Resources/deployments",
@@ -299,9 +283,6 @@
           },
           "tags": {
             "value": "[parameters('tags')]"
-          },
-          "logAnalyticsWorkspace": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'monitoring')).outputs.logAnalyticsWorkspace.value]"
           }
         },
         "templateLink": {

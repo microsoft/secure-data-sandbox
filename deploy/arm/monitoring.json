@@ -9,90 +9,17 @@
   },
   "variables": {
     "appInsights": "[concat('sds', variables('suffix'))]",
-    "eventHub": "diagnostics",
-    "eventHubsNamespace": "[concat('sds', variables('suffix'))]",
-    "logAnalytics": "[concat('sds', variables('suffix'))]",
-    "storageAccount": "[concat('audit', variables('suffix'))]",
     "suffix": "[toLower(take(uniqueString(resourceGroup().id), 6))]"
   },
   "resources": [
     {
-      "type": "Microsoft.OperationalInsights/workspaces",
-      "apiVersion": "2020-03-01-preview",
-      "location": "[resourceGroup().location]",
-      "name": "[variables('logAnalytics')]",
-      "tags": "[parameters('tags')]",
-      "properties": {
-        "features": {
-          "enableLogAccessUsingOnlyResourcePermissions": true
-        },
-        "retentionInDays": 120,
-        "sku": {
-          "name": "PerGB2018"
-        }
-      }
-    },
-    {
-      "dependsOn": [
-        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalytics'))]"
-      ],
       "type": "Microsoft.Insights/components",
       "apiVersion": "2020-02-02-preview",
       "location": "[resourceGroup().location]",
       "name": "[variables('appInsights')]",
       "tags": "[parameters('tags')]",
       "properties": {
-        "Application_Type": "web",
-        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalytics'))]"
-      }
-    },
-    {
-      "type": "Microsoft.EventHub/namespaces",
-      "apiVersion": "2018-01-01-preview",
-      "location": "[resourceGroup().location]",
-      "name": "[variables('eventHubsNamespace')]",
-      "sku": {
-        "capacity": 1,
-        "name": "Standard",
-        "tier": "Standard"
-      },
-      "tags": "[parameters('tags')]",
-      "properties": {
-      },
-      "resources": [
-        {
-          "dependsOn": [
-            "[resourceId('Microsoft.EventHub/namespaces', variables('eventHubsNamespace'))]"
-          ],
-          "type": "eventhubs",
-          "apiVersion": "2017-04-01",
-          "location": "[resourceGroup().location]",
-          "name": "[variables('eventHub')]",
-          "properties": {
-            "messageRetentionInDays": 7,
-            "partitionCount": 1
-          }
-        }
-      ]
-    },
-    {
-      "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2019-06-01",
-      "location": "[resourceGroup().location]",
-      "name": "[variables('storageAccount')]",
-      "kind": "StorageV2",
-      "sku": {
-        "name": "Standard_LRS"
-      },
-      "tags": "[parameters('tags')]",
-      "properties": {
-        "accessTier": "Hot",
-        "networkAcls": {
-          "bypass": "AzureServices",
-          "defaultAction": "Deny",
-          "virtualNetworkRules": []
-        },
-        "supportsHttpsTrafficOnly": true
+        "Application_Type": "web"
       }
     }
   ],
@@ -100,22 +27,6 @@
     "instrumentationKey": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsights'))).InstrumentationKey]"
-    },
-    "storageAccount": {
-      "type": "string",
-      "value": "[variables('storageAccount')]"
-    },
-    "eventHub": {
-      "type": "string",
-      "value": "[variables('eventHub')]"
-    },
-    "eventHubsNamespace": {
-      "type": "string",
-      "value": "[variables('eventHubsNamespace')]"
-    },
-    "logAnalyticsWorkspace": {
-      "type": "string",
-      "value": "[variables('logAnalytics')]"
     }
   }
 }
