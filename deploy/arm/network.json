@@ -5,12 +5,6 @@
     "tags": {
       "type": "object",
       "defaultValue": {}
-    },
-    "monitoringEventHub": {
-      "type": "string"
-    },
-    "monitoringEventHubsNamespace": {
-      "type": "string"
     }
   },
   "variables": {
@@ -110,39 +104,7 @@
             }
           }
         ]
-      },
-      "resources": [
-        {
-          "dependsOn": [
-            "[resourceId('Microsoft.Network/networkSecurityGroups', variables('privateLink'))]"
-          ],
-          "type": "providers/diagnosticSettings",
-          "apiVersion": "2017-05-01-preview",
-          "name": "[concat('Microsoft.Insights/diagnostics')]",
-          "properties": {
-            "eventHubName": "[parameters('monitoringEventHub')]",
-            "eventHubAuthorizationRuleId": "[resourceId('Microsoft.EventHub/namespaces/authorizationrules', parameters('monitoringEventHubsNamespace'), 'RootManageSharedAccessKey')]",
-            "logs": [
-              {
-                "category": "NetworkSecurityGroupEvent",
-                "enabled": true,
-                "retentionPolicy": {
-                  "days": 365,
-                  "enabled": true
-                }
-              },
-              {
-                "category": "NetworkSecurityGroupRuleCounter",
-                "enabled": true,
-                "retentionPolicy": {
-                  "days": 365,
-                  "enabled": true
-                }
-              }
-            ]
-          }
-        }
-      ]
+      }
     },
     {
       "dependsOn": [

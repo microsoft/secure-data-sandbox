@@ -28,15 +28,6 @@
     "keyVault": {
       "type": "string"
     },
-    "monitoringStorageAccount": {
-      "type": "string"
-    },
-    "monitoringEventHub": {
-      "type": "string"
-    },
-    "monitoringEventHubsNamespace": {
-      "type": "string"
-    },
     "authMode": {
       "type": "string",
       "defaultValue": "none"
@@ -67,12 +58,6 @@
     "diagnosticsLogs": "diagnosticslogs",
     "infraAcrName": "[last(split(parameters('infraAcrId'), '/'))]",
     "laboratory": "laboratory",
-    "monitoringBlobSAS": {
-      "canonicalizedResource": "[format('/blob/{0}/{1}', parameters('monitoringStorageAccount'), variables('diagnosticsLogs'))]",
-      "signedExpiry": "2050-01-01T00:00:00Z",
-      "signedPermission": "dlrw",
-      "signedProtocol": "https"
-    },
     "sqlAdminUsername": "laboratory",
     "sqlEncryptionKey": "laboratorySql",
     "sqlServer": "[concat('laboratory', variables('suffix'))]",
@@ -97,38 +82,6 @@
       "location": "[resourceGroup().location]",
       "name": "[variables('laboratory')]",
       "tags": "[parameters('tags')]"
-    },
-    {
-      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-      "apiVersion": "2019-06-01",
-      "location": "[resourceGroup().location]",
-      "name": "[concat(parameters('monitoringStorageAccount'), '/default/', variables('vulnerabilityAssessments'))]",
-      "properties": {
-        "publicAccess": "None"
-      }
-    },
-    {
-      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-      "apiVersion": "2019-06-01",
-      "location": "[resourceGroup().location]",
-      "name": "[concat(parameters('monitoringStorageAccount'), '/default/', variables('diagnosticsLogs'))]",
-      "properties": {
-        "publicAccess": "None"
-      }
-    },
-    {
-      "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]"
-      ],
-      "type": "Microsoft.Storage/storageAccounts/providers/roleAssignments",
-      "apiVersion": "2018-09-01-preview",
-      "location": "[resourceGroup().location]",
-      "name": "[concat(parameters('monitoringStorageAccount'), '/Microsoft.Authorization/', guid(concat(resourceGroup().id, variables('sqlServer'), parameters('monitoringStorageAccount'), 'StorageBlobDataContributor')))]",
-      "properties": {
-        "principalId": "[reference(resourceId('Microsoft.Sql/servers', variables('sqlServer')), '2019-06-01-preview', 'Full').identity.principalId]",
-        "roleDefinitionId": "[variables('storageBlobDataContributorRoleId')]",
-        "principalType": "ServicePrincipal"
-      }
     },
     {
       "type": "Microsoft.Sql/servers",
@@ -172,104 +125,7 @@
             "tier": "Standard"
           },
           "properties": {
-          },
-          "resources": [
-            {
-              "dependsOn": [
-                "[resourceId('Microsoft.Sql/servers/databases', variables('sqlServer'), variables('laboratory'))]"
-              ],
-              "type": "providers/diagnosticSettings",
-              "apiVersion": "2017-05-01-preview",
-              "location": "[resourceGroup().location]",
-              "name": "Microsoft.Insights/diagnostics",
-              "properties": {
-                "eventHubName": "[parameters('monitoringEventHub')]",
-                "eventHubAuthorizationRuleId": "[resourceId('Microsoft.EventHub/namespaces/authorizationrules', parameters('monitoringEventHubsNamespace'), 'RootManageSharedAccessKey')]",
-                "logs": [
-                  {
-                    "category": "SQLInsights",
-                    "enabled": true,
-                    "retentionPolicy": {
-                      "days": 365,
-                      "enabled": true
-                    }
-                  },
-                  {
-                    "category": "AutomaticTuning",
-                    "enabled": true,
-                    "retentionPolicy": {
-                      "days": 365,
-                      "enabled": true
-                    }
-                  },
-                  {
-                    "category": "QueryStoreRuntimeStatistics",
-                    "enabled": true,
-                    "retentionPolicy": {
-                      "days": 365,
-                      "enabled": true
-                    }
-                  },
-                  {
-                    "category": "QueryStoreWaitStatistics",
-                    "enabled": true,
-                    "retentionPolicy": {
-                      "days": 365,
-                      "enabled": true
-                    }
-                  },
-                  {
-                    "category": "Errors",
-                    "enabled": true,
-                    "retentionPolicy": {
-                      "days": 365,
-                      "enabled": true
-                    }
-                  },
-                  {
-                    "category": "DatabaseWaitStatistics",
-                    "enabled": true,
-                    "retentionPolicy": {
-                      "days": 365,
-                      "enabled": true
-                    }
-                  },
-                  {
-                    "category": "Timeouts",
-                    "enabled": true,
-                    "retentionPolicy": {
-                      "days": 365,
-                      "enabled": true
-                    }
-                  },
-                  {
-                    "category": "Blocks",
-                    "enabled": true,
-                    "retentionPolicy": {
-                      "days": 365,
-                      "enabled": true
-                    }
-                  },
-                  {
-                    "category": "Deadlocks",
-                    "enabled": true,
-                    "retentionPolicy": {
-                      "days": 365,
-                      "enabled": true
-                    }
-                  },
-                  {
-                    "category": "SQLSecurityAuditEvents",
-                    "enabled": true,
-                    "retentionPolicy": {
-                      "days": 365,
-                      "enabled": true
-                    }
-                  }
-                ]
-              }
-            }
-          ]
+          }
         },
         {
           "dependsOn": [
@@ -297,39 +153,6 @@
             "state": "Enabled",
             "emailAccountAdmins": true,
             "emailAddresses": "[variables('adminEmailAddresses')]"
-          }
-        },
-        {
-          "dependsOn": [
-            "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]",
-            "[extensionResourceId(resourceId('Microsoft.Storage/storageAccounts', parameters('monitoringStorageAccount')), 'Microsoft.Authorization/roleAssignments', guid(concat(resourceGroup().id, variables('sqlServer'), parameters('monitoringStorageAccount'), 'StorageBlobDataContributor')))]"
-          ],
-          "type": "auditingSettings",
-          "apiVersion": "2017-03-01-preview",
-          "name": "default",
-          "properties": {
-            "state": "Enabled",
-            "retentionDays": 365,
-            "storageEndpoint": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('monitoringStorageAccount')), '2019-06-01').primaryEndpoints.blob]"
-          }
-        },
-        {
-          "dependsOn": [
-            "[resourceId('Microsoft.Sql/servers', variables('sqlServer'))]",
-            "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', parameters('monitoringStorageAccount'), 'default', variables('vulnerabilityAssessments'))]",
-            "[extensionResourceId(resourceId('Microsoft.Storage/storageAccounts', parameters('monitoringStorageAccount')), 'Microsoft.Authorization/roleAssignments', guid(concat(resourceGroup().id, variables('sqlServer'), parameters('monitoringStorageAccount'), 'StorageBlobDataContributor')))]"
-          ],
-          "type": "vulnerabilityAssessments",
-          "apiVersion": "2018-06-01-preview",
-          "location": "[resourceGroup().location]",
-          "name": "default",
-          "properties": {
-            "storageContainerPath": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', parameters('monitoringStorageAccount')), '2019-06-01').primaryEndpoints.blob, variables('vulnerabilityAssessments'))]",
-            "recurringScans": {
-              "isEnabled": true,
-              "emailSubscriptionAdmins": true,
-              "emails": "[variables('adminEmailAddresses')]"
-            }
           }
         }
       ]
@@ -636,39 +459,6 @@ $DeploymentScriptOutputs['keyUrl'] = $key.Id
             "DOCKER_ENABLE_CI": "true",
             "WEBSITES_ENABLE_APP_SERVICE_STORAGE": "false",
             "WEBSITES_PORT": "3000"
-          }
-        },
-        {
-          "dependsOn": [
-            "[resourceId('Microsoft.Web/sites', variables('webApp'))]",
-            "[resourceId('Microsoft.Web/sites/config', variables('webApp'), 'appsettings')]",
-            "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', parameters('monitoringStorageAccount'), 'default', variables('diagnosticsLogs'))]"
-          ],
-          "type": "config",
-          "apiVersion": "2019-08-01",
-          "location": "[resourceGroup().location]",
-          "name": "logs",
-          "properties": {
-            "applicationLogs": {
-              "azureBlobStorage": {
-                "level": "Error",
-                "sasUrl": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', parameters('monitoringStorageAccount')), '2019-06-01').primaryEndpoints.blob, variables('diagnosticsLogs'), listServiceSas(resourceId('Microsoft.Storage/storageAccounts', parameters('monitoringStorageAccount')), '2019-06-01', variables('monitoringBlobSAS')).serviceSasToken)]",
-                "retentionInDays": 365
-              }
-            },
-            "httpLogs": {
-              "azureBlobStorage": {
-                "sasUrl": "[concat(reference(resourceId('Microsoft.Storage/storageAccounts', parameters('monitoringStorageAccount')), '2019-06-01').primaryEndpoints.blob, variables('diagnosticsLogs'), listServiceSas(resourceId('Microsoft.Storage/storageAccounts', parameters('monitoringStorageAccount')), '2019-06-01', variables('monitoringBlobSAS')).serviceSasToken)]",
-                "retentionInDays": 365,
-                "enabled": true
-              }
-            },
-            "failedRequestsTracing": {
-              "enabled": true
-            },
-            "detailedErrorMessages": {
-              "enabled": true
-            }
           }
         }
       ]
