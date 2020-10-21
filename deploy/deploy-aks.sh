@@ -25,9 +25,9 @@ OUTPUTS=$(az deployment group show -g $RESOURCE_GROUP -n $DEPLOYMENT_NAME --quer
 INFRA_ACR=$(echo $OUTPUTS | jq -r .infraAcrLoginServer.value)
 helm upgrade --install sds deploy/helm \
   --set "instrumentationKey=$(echo $OUTPUTS | jq -r .instrumentationKey.value)" \
-  --set "argoController.executorImage=$INFRA_ACR/argoexec:$ARGO_VERSION" \
-  --set "argoController.image=$INFRA_ACR/workflow-controller:$ARGO_VERSION" \
-  --set "argoServer.image=$INFRA_ACR/argocli:$ARGO_VERSION" \
+  --set "argoController.executorImage=$INFRA_ACR/argoproj/argoexec:$ARGO_VERSION" \
+  --set "argoController.image=$INFRA_ACR/argoproj/workflow-controller:$ARGO_VERSION" \
+  --set "argoServer.image=$INFRA_ACR/argoproj/argocli:$ARGO_VERSION" \
   --set "worker.image=$INFRA_ACR/sds-worker" \
   --set "worker.queueEndpoint=$(echo $OUTPUTS | jq -r .runsQueueEndpoint.value)" \
   --set "identities.worker.resourceId=$(echo $OUTPUTS | jq -r .workerIdentityResourceId.value)" \
