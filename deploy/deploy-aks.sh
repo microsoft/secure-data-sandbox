@@ -21,8 +21,8 @@ if ! helm repo list | grep '^azurefile-csi-driver'; then
 fi
 helm upgrade --install azurefile-csi-driver azurefile-csi-driver/azurefile-csi-driver --namespace kube-system --version $AZUREFILE_CSI_DRIVER_VERSION
 
-INFRA_ACR=$(echo $OUTPUTS | jq -r .infraAcrLoginServer.value)
 OUTPUTS=$(az deployment group show -g $RESOURCE_GROUP -n $DEPLOYMENT_NAME --query properties.outputs -o json)
+INFRA_ACR=$(echo $OUTPUTS | jq -r .infraAcrLoginServer.value)
 helm upgrade --install sds deploy/helm \
   --set "instrumentationKey=$(echo $OUTPUTS | jq -r .instrumentationKey.value)" \
   --set "argoController.executorImage=$INFRA_ACR/argoexec:$ARGO_VERSION" \
