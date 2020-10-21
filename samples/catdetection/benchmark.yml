@@ -23,6 +23,8 @@ stages:
 - name: eval
   kind: container
   image: acanthamoeba/sds-eval
+  env:
+    EXPECTED_ANIMAL: cat
   volumes:
   - name: predictions
     path: /results
