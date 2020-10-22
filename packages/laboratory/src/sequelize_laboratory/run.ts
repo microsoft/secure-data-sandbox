@@ -1,5 +1,10 @@
 import { v1 } from 'uuid';
-import pupa = require('pupa');
+import mustache = require('mustache');
+
+// Don't HTML escape output
+mustache.escape = text => text;
+// Use single braces
+mustache.tags = ['{', '}'];
 
 import {
   EntityNotFoundError,
@@ -190,7 +195,7 @@ function createMessage(server: string, name: string, run: IRun): PipelineRun {
 
     // Add container arguments
     if (stage.cmd) {
-      runStage.cmd = stage.cmd.map(s => pupa(s, templateValues));
+      runStage.cmd = stage.cmd.map(s => mustache.render(s, templateValues));
     }
 
     // Add environment variables specified by the benchmark
@@ -205,7 +210,7 @@ function createMessage(server: string, name: string, run: IRun): PipelineRun {
 
     // Apply transforms
     for (const env in runStage.env) {
-      runStage.env[env] = pupa(runStage.env[env], templateValues);
+      runStage.env[env] = mustache.render(runStage.env[env], templateValues);
     }
 
     return runStage;
