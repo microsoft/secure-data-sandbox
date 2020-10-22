@@ -15,9 +15,9 @@ LOGIN_SERVER=$(echo $OUTPUTS | jq -r .infraAcrLoginServer.value)
 az acr login -n $LOGIN_SERVER
 
 # Import public images
-az acr import -n $LOGIN_SERVER --source "docker.io/argoproj/argoexec:$ARGO_VERSION"
-az acr import -n $LOGIN_SERVER --source "docker.io/argoproj/workflow-controller:$ARGO_VERSION"
-az acr import -n $LOGIN_SERVER --source "docker.io/argoproj/argocli:$ARGO_VERSION"
+az acr import -n $LOGIN_SERVER --source "docker.io/argoproj/argoexec:$ARGO_VERSION" --force
+az acr import -n $LOGIN_SERVER --source "docker.io/argoproj/workflow-controller:$ARGO_VERSION" --force
+az acr import -n $LOGIN_SERVER --source "docker.io/argoproj/argocli:$ARGO_VERSION" --force
 
 # Push SDS images
 LABORATORY_IMAGE="${LOGIN_SERVER}/sds-laboratory:${TAG}"
