@@ -143,6 +143,7 @@ export const benchmark4: IBenchmark = {
       ],
       env: {
         MODE: 'prep',
+        DATASET: '{suite.properties.datasetId}',
       },
       volumes: [
         {

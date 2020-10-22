@@ -5,6 +5,9 @@ stages:
 - name: prep
   kind: container
   image: acanthamoeba/sds-prep
+  env:
+    IMAGE_URL: '{suite.properties.imageUrl}'
+    BENCHMARK_AUTHOR: '{benchmark.author}'
   volumes:
   - name: images
     path: /out
@@ -23,6 +26,10 @@ stages:
 - name: eval
   kind: container
   image: acanthamoeba/sds-eval
+  env:
+    EXPECTED_ANIMAL: cat
+    CANDIDATE_IMAGE: '{candidate.image}'
+  cmd: ['/bin/sh', '/start.sh', '{run.name}', '{laboratoryEndpoint}']
   volumes:
   - name: predictions
     path: /results
