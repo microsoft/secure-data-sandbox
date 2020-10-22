@@ -202,6 +202,7 @@ describe('laboratory/runs', () => {
           ],
           env: {
             MODE: 'prep',
+            DATASET: '00000000-0000-0000-0000-000000000000',
           },
           volumes: [
             {

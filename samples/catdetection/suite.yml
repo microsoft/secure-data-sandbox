@@ -2,6 +2,8 @@ name: images
 author: acanthamoeba
 apiVersion: v1alpha1
 benchmark: catdetection
+properties:
+  imageUrl: 'https://placekitten.com/1024/768'
 volumes:
 - name: images
   type: ephemeral
