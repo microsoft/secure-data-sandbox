@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.4"
 services:
   laboratory:
     build:
@@ -11,4 +11,4 @@ services:
       target: cli
     command: /bin/sh -c 'sleep 5 && sds-cli connect http://laboratory:3000 && sds-cli demo'
     depends_on:
-    - laboratory
+      - laboratory
