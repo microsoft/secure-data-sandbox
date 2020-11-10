@@ -41,6 +41,10 @@
     "authCliClientId": {
       "type": "string",
       "defaultValue": ""
+    },
+    "k8sVersion": {
+      "type": "string",
+      "defaultValue": "1.17.13"
     }
   },
   "variables": {
@@ -283,6 +287,9 @@
           },
           "tags": {
             "value": "[parameters('tags')]"
+          },
+          "k8sVersion": {
+            "value": "[parameters('k8sVersion')]"
           }
         },
         "templateLink": {

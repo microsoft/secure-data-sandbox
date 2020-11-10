@@ -11,11 +11,14 @@
     "tags": {
       "type": "object",
       "defaultValue": {}
+    },
+    "k8sVersion": {
+      "type": "string",
+      "defaultValue": "1.17.13"
     }
   },
   "variables": {
     "aks": "aks",
-    "k8sVersion": "1.17.9",
     "nodeCount": 2,
     "nodeResourceGroup": "[concat('sds-worker-', variables('suffix'))]",
     "nodeSize": "Standard_DS2_v2",
@@ -54,7 +57,7 @@
       },
       "tags": "[parameters('tags')]",
       "properties": {
-        "kubernetesVersion": "[variables('k8sVersion')]",
+        "kubernetesVersion": "[parameters('k8sVersion')]",
         "dnsPrefix": "[variables('aks')]",
         "nodeResourceGroup": "[variables('nodeResourceGroup')]",
         "agentPoolProfiles": [
