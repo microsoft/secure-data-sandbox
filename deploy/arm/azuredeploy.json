@@ -79,6 +79,9 @@
       }
     },
     {
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'network')]"
+      ],
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
       "name": "keyvault",
