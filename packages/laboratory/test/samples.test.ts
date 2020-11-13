@@ -114,7 +114,7 @@ describe('laboratory/samples', () => {
             EXPECTED_ANIMAL: 'cat',
             CANDIDATE_IMAGE: 'acanthamoeba/sds-candidate',
           },
-          cmd: ['/bin/sh', '/start.sh', run.name, 'http://localhost:3000'],
+          cmd: [run.name, 'http://localhost:3000'],
           volumes: [
             {
               name: 'predictions',
