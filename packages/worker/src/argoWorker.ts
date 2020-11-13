@@ -81,7 +81,7 @@ export function createWorkflow(
     }
 
     if (s.cmd) {
-      template.container!.command = s.cmd;
+      template.container!.args = s.cmd;
     }
 
     if (s.env) {

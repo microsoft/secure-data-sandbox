@@ -29,7 +29,7 @@ stages:
   env:
     EXPECTED_ANIMAL: cat
     CANDIDATE_IMAGE: '{candidate.image}'
-  cmd: ['/bin/sh', '/start.sh', '{run.name}', '{laboratoryEndpoint}']
+  cmd: ['{run.name}', '{laboratoryEndpoint}']
   volumes:
   - name: predictions
     path: /results

@@ -179,7 +179,7 @@ describe('createWorkflow', () => {
             },
             container: {
               image: 'candidate',
-              command: ['echo', 'I am a candidate'],
+              args: ['echo', 'I am a candidate'],
               env: [
                 {
                   name: 'SOME_CONFIG',
@@ -201,7 +201,7 @@ describe('createWorkflow', () => {
             },
             container: {
               image: 'eval',
-              command: ['echo', 'I am an evaluator'],
+              args: ['echo', 'I am an evaluator'],
               env: [
                 {
                   name: 'MODE',

@@ -7,4 +7,4 @@ RUN mkdir /out
 VOLUME /out
 
 COPY ./start.sh /start.sh
-CMD ["/bin/sh", "/start.sh"]
+ENTRYPOINT ["/bin/sh", "/start.sh"]
