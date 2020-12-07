@@ -55,7 +55,7 @@
     "typescript": "^4.0.3"
   },
   "dependencies": {
-    "@azure/identity": "^1.1.0",
+    "@azure/identity": "^1.2.0",
     "@microsoft/sds": "*",
     "applicationinsights": "^1.8.7",
     "env-var": "^6.3.0",

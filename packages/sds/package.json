@@ -47,7 +47,7 @@
     "uuid": "^8.3.0"
   },
   "dependencies": {
-    "@azure/identity": "^1.1.0",
+    "@azure/identity": "^1.2.0",
     "@azure/storage-queue": "^12.1.0",
     "applicationinsights": "^1.8.7",
     "axios": "^0.19.2",
