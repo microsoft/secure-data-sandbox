@@ -25,7 +25,7 @@
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "dotenv-cli": "^4.0.0",
     "gts": "^2.0.2",
-    "lerna": "^3.22.1",
+    "lerna": "^6.4.1",
     "ngrok": "^3.3.0",
     "nyc": "^15.1.0",
     "rimraf": "^3.0.2",
